@@ -1,33 +1,23 @@
 import 'package:flutter/material.dart';
-import 'screens/login_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'core/theme/app_theme.dart';
+import 'core/router/app_router.dart';
 
 void main() {
-  runApp(TouristSafetyApp());
+  runApp(const ProviderScope(child: TouristSafetyApp()));
 }
 
 class TouristSafetyApp extends StatelessWidget {
+  const TouristSafetyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF0E1116),
-        colorScheme: const ColorScheme.dark(
-          primary: Color(0xFFFF3B3B),
-        ),
-        inputDecorationTheme: InputDecorationTheme(
-          filled: true,
-          fillColor: const Color(0xFF1A1F29),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide.none,
-          ),
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-        ),
-      ),
-      home: LoginScreen(),
+      title: 'Tourist Safety',
+      theme: AppTheme.darkTheme,
+      themeMode: ThemeMode.dark,
+      routerConfig: appRouter,
     );
   }
 }
