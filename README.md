@@ -1,4 +1,16 @@
-# Smart Tourist Safety Monitoring & Incident Response System
+# tourist_safety_app_sih_pinnacle
 
-This project uses AI, Geo-Fencing, and Blockchain-based Digital IDs to enhance tourist safety.
+A new Flutter project.
 
+## Getting Started
+
+This project is a starting point for a Flutter application.
+
+A few resources to get you started if this is your first Flutter project:
+
+- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
+- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+
+For help getting started with Flutter development, view the
+[online documentation](https://docs.flutter.dev/), which offers tutorials,
+samples, guidance on mobile development, and a full API reference.
