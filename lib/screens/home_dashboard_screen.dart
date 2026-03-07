@@ -147,6 +147,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
           // Safety Status Card
           SafetyCard(
             accentColor: AppColors.success,
+            padding: const EdgeInsets.all(14),
             child: Row(
               children: [
                 // Pulsing green dot
@@ -156,16 +157,16 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
                     return Transform.scale(
                       scale: _pulseAnimation.value,
                       child: Container(
-                        width: 48,
-                        height: 48,
+                        width: 36,
+                        height: 36,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: AppColors.success.withValues(alpha: 0.2),
                         ),
                         child: Center(
                           child: Container(
-                            width: 24,
-                            height: 24,
+                            width: 18,
+                            height: 18,
                             decoration: const BoxDecoration(
                               shape: BoxShape.circle,
                               color: AppColors.success,
@@ -176,19 +177,21 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
                     );
                   },
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'PROTECTED',
-                        style: AppTypography.h2.copyWith(
+                        style: AppTypography.body.copyWith(
                           color: AppColors.success,
                           letterSpacing: 1.2,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 2),
                       Text(
                         'Last updated: Just now',
                         style: AppTypography.caption,
