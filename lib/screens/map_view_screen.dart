@@ -212,6 +212,53 @@ class _MapViewScreenState extends ConsumerState<MapViewScreen> {
             ),
           ),
 
+          // Current location tag
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 68,
+            left: 16,
+            right: 16,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: AppColors.card,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppColors.accentBlue.withValues(alpha: 0.15),
+                    ),
+                    child: const Icon(Icons.my_location,
+                        color: AppColors.accentBlue, size: 16),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('Current Location',
+                            style: AppTypography.caption.copyWith(
+                              color: AppColors.accentBlue,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 11,
+                            )),
+                        Text('16th Road, Bandra West',
+                            style: AppTypography.body
+                                .copyWith(fontSize: 13, fontWeight: FontWeight.w600)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
           // Bottom legend sheet
           DraggableScrollableSheet(
             initialChildSize: 0.12,
