@@ -6,6 +6,7 @@ import '../core/theme/app_colors.dart';
 import '../core/theme/app_typography.dart';
 import '../core/widgets/status_badge.dart';
 import '../providers/location_provider.dart';
+import '../providers/weather_provider.dart';
 
 class MapViewScreen extends ConsumerStatefulWidget {
   const MapViewScreen({super.key});
@@ -256,6 +257,57 @@ class _MapViewScreenState extends ConsumerState<MapViewScreen> {
                   ),
                 ],
               ),
+            ),
+          ),
+
+          // Weather info card
+          Positioned(
+            bottom: 100,
+            left: 16,
+            child: Consumer(
+              builder: (context, ref, _) {
+                final weather = ref.watch(weatherProvider);
+                final data = weather.weather;
+                if (weather.isLoading || data == null) {
+                  return const SizedBox.shrink();
+                }
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: AppColors.card,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: AppColors.border),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.2),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(data.icon, color: AppColors.warning, size: 28),
+                      const SizedBox(width: 10),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            '${data.temperature.round()}°C',
+                            style: AppTypography.h2.copyWith(fontSize: 18),
+                          ),
+                          Text(
+                            '${data.description} · ${data.windSpeed.round()} km/h',
+                            style: AppTypography.caption.copyWith(fontSize: 11),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
           ),
 
