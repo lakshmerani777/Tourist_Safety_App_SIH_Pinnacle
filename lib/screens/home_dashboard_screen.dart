@@ -6,7 +6,6 @@ import '../core/theme/app_colors.dart';
 import '../core/theme/app_typography.dart';
 import '../core/widgets/safety_card.dart';
 import '../core/widgets/status_badge.dart';
-import '../providers/location_provider.dart';
 
 class HomeDashboardScreen extends ConsumerStatefulWidget {
   const HomeDashboardScreen({super.key});
@@ -101,9 +100,6 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
 
           // Current Location Banner
           Builder(builder: (context) {
-            final location = ref.watch(locationProvider);
-            final lat = location.currentPosition.latitude.toStringAsFixed(6);
-            final lng = location.currentPosition.longitude.toStringAsFixed(6);
             return SafetyCard(
               accentColor: AppColors.accentBlue,
               padding: const EdgeInsets.all(14),
@@ -232,7 +228,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
                 title: 'Emergency\nContacts',
                 icon: Icons.phone_in_talk,
                 color: AppColors.alertRed,
-                onTap: () {},
+                onTap: () => context.push('/emergency'),
               ),
               _QuickActionCard(
                 title: 'Safety\nMap',

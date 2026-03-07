@@ -5,6 +5,7 @@ import '../../screens/onboarding_screen.dart';
 import '../../screens/home_dashboard_screen.dart';
 import '../../screens/sos_activated_screen.dart';
 import '../../screens/map_view_screen.dart';
+import '../../screens/emergency_contacts_screen.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/splash',
@@ -32,6 +33,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/map',
       builder: (context, state) => const MapViewScreen(),
+    ),
+    GoRoute(
+      path: '/emergency',
+      builder: (context, state) => const EmergencyContactsScreen(),
     ),
   ],
 );

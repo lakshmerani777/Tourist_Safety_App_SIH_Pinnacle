@@ -6,7 +6,6 @@ import '../core/theme/app_typography.dart';
 import '../core/widgets/safety_card.dart';
 import '../core/widgets/safety_button.dart';
 import '../providers/sos_provider.dart';
-import '../providers/location_provider.dart';
 
 class SOSActivatedScreen extends ConsumerStatefulWidget {
   const SOSActivatedScreen({super.key});
@@ -78,9 +77,6 @@ class _SOSActivatedScreenState extends ConsumerState<SOSActivatedScreen>
   @override
   Widget build(BuildContext context) {
     final sos = ref.watch(sosProvider);
-    final location = ref.watch(locationProvider);
-    final lat = location.currentPosition.latitude.toStringAsFixed(6);
-    final lng = location.currentPosition.longitude.toStringAsFixed(6);
 
     return Scaffold(
       backgroundColor: AppColors.background,
