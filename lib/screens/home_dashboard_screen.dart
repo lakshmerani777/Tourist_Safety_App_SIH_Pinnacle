@@ -353,6 +353,8 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
         onTap: (index) {
           if (index == 1) {
             context.push('/map');
+          } else if (index == 2) {
+            context.push('/alerts');
           } else {
             setState(() => _selectedIndex = index);
           }
