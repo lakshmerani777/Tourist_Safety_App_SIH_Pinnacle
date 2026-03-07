@@ -7,6 +7,7 @@ import '../../screens/sos_activated_screen.dart';
 import '../../screens/map_view_screen.dart';
 import '../../screens/emergency_contacts_screen.dart';
 import '../../screens/report_incident_screen.dart';
+import '../../screens/alerts_screen.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/splash',
@@ -42,6 +43,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/report',
       builder: (context, state) => const ReportIncidentScreen(),
+    ),
+    GoRoute(
+      path: '/alerts',
+      builder: (context, state) => const AlertsScreen(),
     ),
   ],
 );

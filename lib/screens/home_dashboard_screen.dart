@@ -294,7 +294,25 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
           const SizedBox(height: 32),
 
           // Recent Alerts
-          Text('Recent Alerts', style: AppTypography.h2),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Recent Alerts', style: AppTypography.h2),
+              GestureDetector(
+                onTap: () => context.push('/alerts'),
+                child: Row(
+                  children: [
+                    Text('View All',
+                        style: AppTypography.body.copyWith(
+                          color: AppColors.accentBlue,
+                          fontWeight: FontWeight.w600,
+                        )),
+                    const Icon(Icons.chevron_right, color: AppColors.accentBlue, size: 20),
+                  ],
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 16),
           _AlertItem(
             title: 'Weather Advisory',
