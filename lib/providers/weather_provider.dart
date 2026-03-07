@@ -5,12 +5,12 @@ import 'package:http/http.dart' as http;
 
 class WeatherData {
   final double temperature;
-  final double windSpeed;
+  final int aqi;
   final int weatherCode;
 
   WeatherData({
     required this.temperature,
-    required this.windSpeed,
+    required this.aqi,
     required this.weatherCode,
   });
 
@@ -40,6 +40,24 @@ class WeatherData {
     if (code >= 95) return Icons.thunderstorm;
     return Icons.cloud;
   }
+
+  String get aqiLabel {
+    if (aqi <= 50) return 'Good';
+    if (aqi <= 100) return 'Moderate';
+    if (aqi <= 150) return 'Unhealthy (SG)';
+    if (aqi <= 200) return 'Unhealthy';
+    if (aqi <= 300) return 'Very Unhealthy';
+    return 'Hazardous';
+  }
+
+  Color get aqiColor {
+    if (aqi <= 50) return const Color(0xFF34C759);
+    if (aqi <= 100) return const Color(0xFFFF9F0A);
+    if (aqi <= 150) return const Color(0xFFFF6B35);
+    if (aqi <= 200) return const Color(0xFFFF3B3B);
+    if (aqi <= 300) return const Color(0xFF8B3FD9);
+    return const Color(0xFF7E0023);
+  }
 }
 
 class WeatherNotifier extends ChangeNotifier {
@@ -54,19 +72,32 @@ class WeatherNotifier extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final url = Uri.parse(
+      // Fetch weather
+      final weatherUrl = Uri.parse(
         'https://api.open-meteo.com/v1/forecast'
         '?latitude=$lat&longitude=$lng'
-        '&current=temperature_2m,weather_code,wind_speed_10m',
+        '&current=temperature_2m,weather_code',
       );
-      final response = await http.get(url);
+      // Fetch AQI
+      final aqiUrl = Uri.parse(
+        'https://air-quality-api.open-meteo.com/v1/air-quality'
+        '?latitude=$lat&longitude=$lng'
+        '&current=us_aqi',
+      );
 
-      if (response.statusCode == 200) {
-        final json = jsonDecode(response.body);
-        final current = json['current'];
+      final responses = await Future.wait([
+        http.get(weatherUrl),
+        http.get(aqiUrl),
+      ]);
+
+      if (responses[0].statusCode == 200 && responses[1].statusCode == 200) {
+        final weatherJson = jsonDecode(responses[0].body);
+        final aqiJson = jsonDecode(responses[1].body);
+        final current = weatherJson['current'];
+        final aqiCurrent = aqiJson['current'];
         _weather = WeatherData(
           temperature: (current['temperature_2m'] as num).toDouble(),
-          windSpeed: (current['wind_speed_10m'] as num).toDouble(),
+          aqi: (aqiCurrent['us_aqi'] as num).toInt(),
           weatherCode: (current['weather_code'] as num).toInt(),
         );
       }

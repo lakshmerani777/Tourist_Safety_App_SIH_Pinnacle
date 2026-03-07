@@ -299,8 +299,24 @@ class _MapViewScreenState extends ConsumerState<MapViewScreen> {
                             style: AppTypography.h2.copyWith(fontSize: 18),
                           ),
                           Text(
-                            '${data.description} · ${data.windSpeed.round()} km/h',
+                            '${data.description} · AQI ${data.aqi}',
                             style: AppTypography.caption.copyWith(fontSize: 11),
+                          ),
+                          const SizedBox(height: 2),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: data.aqiColor.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              data.aqiLabel,
+                              style: AppTypography.caption.copyWith(
+                                fontSize: 10,
+                                color: data.aqiColor,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ),
                         ],
                       ),
