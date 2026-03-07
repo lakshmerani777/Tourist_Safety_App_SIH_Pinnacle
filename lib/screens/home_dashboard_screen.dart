@@ -216,7 +216,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
                 title: 'Report\nIncident',
                 icon: Icons.report_problem_outlined,
                 color: AppColors.warning,
-                onTap: () {},
+                onTap: () => context.push('/report'),
               ),
               _QuickActionCard(
                 title: 'Share\nLocation',
