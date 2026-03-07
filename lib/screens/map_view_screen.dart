@@ -213,117 +213,121 @@ class _MapViewScreenState extends ConsumerState<MapViewScreen> {
             ),
           ),
 
-          // Current location tag
+          // Current Location & Weather Row
           Positioned(
             top: MediaQuery.of(context).padding.top + 68,
             left: 16,
             right: 16,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              decoration: BoxDecoration(
-                color: AppColors.card,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.border),
-              ),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              clipBehavior: Clip.none,
               child: Row(
                 children: [
+                  // Location Tag
                   Container(
-                    width: 32,
-                    height: 32,
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                     decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.accentBlue.withValues(alpha: 0.15),
+                      color: AppColors.card,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.border),
                     ),
-                    child: const Icon(Icons.my_location,
-                        color: AppColors.accentBlue, size: 16),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text('Current Location',
-                            style: AppTypography.caption.copyWith(
-                              color: AppColors.accentBlue,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 11,
-                            )),
-                        Text('16th Road, Bandra West',
-                            style: AppTypography.body
-                                .copyWith(fontSize: 13, fontWeight: FontWeight.w600)),
+                        Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: AppColors.accentBlue.withValues(alpha: 0.15),
+                          ),
+                          child: const Icon(Icons.my_location,
+                              color: AppColors.accentBlue, size: 16),
+                        ),
+                        const SizedBox(width: 10),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text('Current Location',
+                                style: AppTypography.caption.copyWith(
+                                  color: AppColors.accentBlue,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 11,
+                                )),
+                            Text('16th Road, Bandra West',
+                                style: AppTypography.body
+                                    .copyWith(fontSize: 13, fontWeight: FontWeight.w600)),
+                          ],
+                        ),
                       ],
                     ),
                   ),
+
+                  const SizedBox(width: 8),
+
+                  // Weather Card
+                  Consumer(
+                    builder: (context, ref, _) {
+                      final weather = ref.watch(weatherProvider);
+                      final data = weather.weather;
+                      if (weather.isLoading || data == null) {
+                        return const SizedBox.shrink();
+                      }
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: AppColors.card,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppColors.border),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(data.icon, color: AppColors.warning, size: 28),
+                            const SizedBox(width: 10),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      '${data.temperature.round()}°C',
+                                      style: AppTypography.h2.copyWith(fontSize: 16),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: data.aqiColor.withValues(alpha: 0.15),
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: Text(
+                                        data.aqiLabel,
+                                        style: AppTypography.caption.copyWith(
+                                          fontSize: 10,
+                                          color: data.aqiColor,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Text(
+                                  '${data.description} · AQI ${data.aqi}',
+                                  style: AppTypography.caption.copyWith(fontSize: 11),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
-            ),
-          ),
-
-          // Weather info card
-          Positioned(
-            bottom: 100,
-            left: 16,
-            child: Consumer(
-              builder: (context, ref, _) {
-                final weather = ref.watch(weatherProvider);
-                final data = weather.weather;
-                if (weather.isLoading || data == null) {
-                  return const SizedBox.shrink();
-                }
-                return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: AppColors.card,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: AppColors.border),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.2),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(data.icon, color: AppColors.warning, size: 28),
-                      const SizedBox(width: 10),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            '${data.temperature.round()}°C',
-                            style: AppTypography.h2.copyWith(fontSize: 18),
-                          ),
-                          Text(
-                            '${data.description} · AQI ${data.aqi}',
-                            style: AppTypography.caption.copyWith(fontSize: 11),
-                          ),
-                          const SizedBox(height: 2),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: data.aqiColor.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              data.aqiLabel,
-                              style: AppTypography.caption.copyWith(
-                                fontSize: 10,
-                                color: data.aqiColor,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                );
-              },
             ),
           ),
 
