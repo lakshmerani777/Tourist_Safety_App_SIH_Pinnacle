@@ -6,6 +6,7 @@ import '../core/theme/app_typography.dart';
 import '../core/widgets/safety_card.dart';
 import '../core/widgets/safety_button.dart';
 import '../providers/sos_provider.dart';
+import '../providers/location_provider.dart';
 
 class SOSActivatedScreen extends ConsumerStatefulWidget {
   const SOSActivatedScreen({super.key});
@@ -77,6 +78,9 @@ class _SOSActivatedScreenState extends ConsumerState<SOSActivatedScreen>
   @override
   Widget build(BuildContext context) {
     final sos = ref.watch(sosProvider);
+    final location = ref.watch(locationProvider);
+    final lat = location.currentPosition.latitude.toStringAsFixed(6);
+    final lng = location.currentPosition.longitude.toStringAsFixed(6);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -97,7 +101,51 @@ class _SOSActivatedScreenState extends ConsumerState<SOSActivatedScreen>
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             child: Column(
               children: [
-                const SizedBox(height: 48),
+                const SizedBox(height: 16),
+
+                // Current Location Banner
+                SafetyCard(
+                  accentColor: AppColors.accentBlue,
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppColors.accentBlue.withValues(alpha: 0.15),
+                        ),
+                        child: const Icon(Icons.my_location,
+                            color: AppColors.accentBlue, size: 20),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Current Location',
+                              style: AppTypography.caption.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.accentBlue,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              '16th Road, Bandra West',
+                              style: AppTypography.body.copyWith(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 15,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
 
                 // Pulsing ring
                 AnimatedBuilder(
@@ -165,7 +213,7 @@ class _SOSActivatedScreenState extends ConsumerState<SOSActivatedScreen>
                     children: [
                       _DetailRow('Name', 'Tourist User'),
                       const Divider(color: AppColors.border, height: 20),
-                      _DetailRow('Location', '28.6139° N, 77.2090° E'),
+                      _DetailRow('Location', '16th Road, Bandra West'),
                       const Divider(color: AppColors.border, height: 20),
                       _DetailRow('Timestamp', _getCurrentTime()),
                     ],

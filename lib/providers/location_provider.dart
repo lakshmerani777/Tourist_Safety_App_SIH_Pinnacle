@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 
 class LocationNotifier extends ChangeNotifier {
-  LatLng _currentPosition = const LatLng(28.6139, 77.2090); // Default: New Delhi
+  LatLng _currentPosition = const LatLng(19.062641, 72.830899); // Default: Mumbai
   bool _isTracking = false;
 
   LatLng get currentPosition => _currentPosition;

@@ -20,17 +20,17 @@ class _MapViewScreenState extends ConsumerState<MapViewScreen> {
   // Mock incident markers
   final List<_IncidentMarker> _incidents = [
     _IncidentMarker(
-      position: const LatLng(28.6200, 77.2150),
+      position: const LatLng(19.0820, 72.8810),
       title: 'Pickpocketing Alert',
       type: BadgeType.alert,
     ),
     _IncidentMarker(
-      position: const LatLng(28.6100, 77.2000),
+      position: const LatLng(19.0700, 72.8700),
       title: 'Traffic Incident',
       type: BadgeType.warning,
     ),
     _IncidentMarker(
-      position: const LatLng(28.6180, 77.2250),
+      position: const LatLng(19.0800, 72.8900),
       title: 'Tourist Assistance Point',
       type: BadgeType.active,
     ),
@@ -102,6 +102,51 @@ class _MapViewScreenState extends ConsumerState<MapViewScreen> {
                           ),
                         ),
                       )),
+                ],
+              ),
+              // High-risk zone circles
+              CircleLayer(
+                circles: [
+                  CircleMarker(
+                    point: const LatLng(19.066418, 72.878737),
+                    radius: 500,
+                    useRadiusInMeter: true,
+                    color: AppColors.alertRed.withValues(alpha: 0.15),
+                    borderColor: AppColors.alertRed.withValues(alpha: 0.4),
+                    borderStrokeWidth: 2,
+                  ),
+                  CircleMarker(
+                    point: const LatLng(19.101552, 72.895888),
+                    radius: 500,
+                    useRadiusInMeter: true,
+                    color: AppColors.alertRed.withValues(alpha: 0.15),
+                    borderColor: AppColors.alertRed.withValues(alpha: 0.4),
+                    borderStrokeWidth: 2,
+                  ),
+                  CircleMarker(
+                    point: const LatLng(19.043794, 72.853642),
+                    radius: 500,
+                    useRadiusInMeter: true,
+                    color: AppColors.alertRed.withValues(alpha: 0.15),
+                    borderColor: AppColors.alertRed.withValues(alpha: 0.4),
+                    borderStrokeWidth: 2,
+                  ),
+                  CircleMarker(
+                    point: const LatLng(18.965636, 72.825986),
+                    radius: 500,
+                    useRadiusInMeter: true,
+                    color: AppColors.alertRed.withValues(alpha: 0.15),
+                    borderColor: AppColors.alertRed.withValues(alpha: 0.4),
+                    borderStrokeWidth: 2,
+                  ),
+                  CircleMarker(
+                    point: const LatLng(19.156275, 72.928302),
+                    radius: 500,
+                    useRadiusInMeter: true,
+                    color: AppColors.alertRed.withValues(alpha: 0.15),
+                    borderColor: AppColors.alertRed.withValues(alpha: 0.4),
+                    borderStrokeWidth: 2,
+                  ),
                 ],
               ),
             ],
@@ -223,6 +268,13 @@ class _MapViewScreenState extends ConsumerState<MapViewScreen> {
                       label: 'Caution Zones',
                       badge: const StatusBadge(
                           label: 'Warning', type: BadgeType.warning),
+                    ),
+                    const SizedBox(height: 8),
+                    _LegendItem(
+                      color: AppColors.alertRed.withValues(alpha: 0.4),
+                      label: 'High Risk Zones',
+                      badge: const StatusBadge(
+                          label: 'Danger', type: BadgeType.alert),
                     ),
                     const SizedBox(height: 8),
                     _LegendItem(
