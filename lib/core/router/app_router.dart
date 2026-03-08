@@ -2,6 +2,7 @@ import 'package:go_router/go_router.dart';
 import 'package:tourist_safety_app_sih_pinnacle/screens/splash_screen.dart';
 import 'package:tourist_safety_app_sih_pinnacle/screens/registration_screen.dart';
 import 'package:tourist_safety_app_sih_pinnacle/screens/login_screen.dart';
+import 'package:tourist_safety_app_sih_pinnacle/screens/reset_password_screen.dart';
 import 'package:tourist_safety_app_sih_pinnacle/screens/onboarding_screen.dart';
 import 'package:tourist_safety_app_sih_pinnacle/screens/home_dashboard_screen.dart';
 import 'package:tourist_safety_app_sih_pinnacle/screens/sos_activated_screen.dart';
@@ -25,6 +26,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/login',
       builder: (context, state) => const LoginScreen(),
+    ),
+    GoRoute(
+      path: '/reset-password',
+      builder: (context, state) => const ResetPasswordScreen(),
     ),
     GoRoute(
       path: '/onboarding',

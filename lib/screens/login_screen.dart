@@ -155,7 +155,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           setState(() => _obscurePassword = !_obscurePassword),
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 12),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: GestureDetector(
+                      onTap: () => context.go('/reset-password'),
+                      child: Text(
+                        'Forgot password?',
+                        style: AppTypography.caption.copyWith(
+                          color: AppColors.accentBlue,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
                   SafetyButton(
                     text: 'Sign In',
                     onPressed: _onSignIn,
