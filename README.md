@@ -71,13 +71,16 @@ Use `flutter run -d <device_id>` to pick a device. For Android emulator or a con
 
 ### Google Maps setup
 
-The map screen uses **Google Maps**. You must configure API keys (do not commit real keys to the repo).
+The map screen uses **Google Maps**. The API key is stored on the **backend** (see Django backend below) and read by the app as follows:
 
-1. **Google Cloud Console:** Create a project, enable **Maps SDK for Android** and **Maps SDK for iOS**, and create API keys (separate keys for Android and iOS are recommended).
-2. **Android:** Set your key in `android/app/src/main/AndroidManifest.xml` in the `com.google.android.geo.API_KEY` meta-data `value`, or use `gradle.properties` / env (e.g. `GOOGLE_MAPS_API_KEY`) and reference it in the manifest.
-3. **iOS:** In `ios/Runner/AppDelegate.swift`, replace `YOUR_IOS_API_KEY` with your key in the `GMSServices.provideAPIKey(...)` call, or provide it via xcconfig / build environment.
+- **iOS:** The app fetches the key from the backend at startup (splash) and sets it via the native Maps SDK. No manual key in the app.
+- **Android:** The Maps SDK reads the key from the app manifest at build time. Set `GOOGLE_MAPS_API_KEY=your_key` in `android/gradle.properties` for local or CI builds. Use the same value as in the backend `.env`. **Do not commit the key** to the repo (keep it only in local `gradle.properties` or in CI secrets).
 
-Until valid keys are set, the map may appear blank or show an error.
+1. **Google Cloud Console:** Create a project, enable **Maps SDK for Android** and **Maps SDK for iOS**, and create an API key. Restrict it by application (Android package name, iOS bundle ID) and by API (Maps SDK for Android / iOS only) for security.
+2. **Backend:** Put the key in `backend/PinnacleBackend/.env` as `GOOGLE_MAPS_API_KEY=...` (see Backend setup below).
+3. **Android only:** Add `GOOGLE_MAPS_API_KEY=your_key` to `android/gradle.properties` (do not commit this file if it contains the key, or add only the key in a local override).
+
+Until the key is set on the backend (and on Android in `gradle.properties`), the map may appear blank or show an error.
 
 ---
 
@@ -100,6 +103,10 @@ source .venv/bin/activate   # Linux/macOS
 
 # Install dependencies
 pip install -r requirements.txt
+
+# Copy .env.example to .env and set secrets (do not commit .env)
+cp .env.example .env
+# Edit .env: set SECRET_KEY, GOOGLE_MAPS_API_KEY, and optionally DEBUG.
 ```
 
 The project uses **Django REST Framework** (see `settings.py`). If you get import errors for `rest_framework`, add it:
@@ -120,7 +127,7 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-The root URL serves a simple JSON API (`{"message": "Hello, world!"}`). Admin is at `/admin/` (create a superuser with `python manage.py createsuperuser` if needed).
+The root URL serves a simple JSON API (`{"message": "Hello, world!"}`). The app fetches the Google Maps API key from `GET /api/config/maps-key/` (reads `GOOGLE_MAPS_API_KEY` from `.env`). Admin is at `/admin/` (create a superuser with `python manage.py createsuperuser` if needed).
 
 ---
 
