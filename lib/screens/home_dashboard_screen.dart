@@ -377,7 +377,18 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.map), label: 'Map'),
           BottomNavigationBarItem(
-              icon: Icon(Icons.notifications_outlined), label: 'Alerts'),
+            icon: Badge(
+              backgroundColor: AppColors.alertRed,
+              smallSize: 8,
+              child: Icon(Icons.notifications_outlined),
+            ),
+            activeIcon: Badge(
+              backgroundColor: AppColors.alertRed,
+              smallSize: 8,
+              child: Icon(Icons.notifications),
+            ),
+            label: 'Alerts',
+          ),
           BottomNavigationBarItem(
               icon: Icon(Icons.person_outline), label: 'Profile'),
         ],
