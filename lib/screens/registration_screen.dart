@@ -5,7 +5,9 @@ import '../core/theme/app_colors.dart';
 import '../core/theme/app_typography.dart';
 import '../core/widgets/input_field.dart';
 import '../core/widgets/safety_button.dart';
+import '../providers/api_providers.dart';
 import '../providers/user_profile_provider.dart';
+import '../services/api_client.dart';
 
 class RegistrationScreen extends ConsumerStatefulWidget {
   const RegistrationScreen({super.key});
@@ -14,6 +16,8 @@ class RegistrationScreen extends ConsumerStatefulWidget {
   ConsumerState<RegistrationScreen> createState() => _RegistrationScreenState();
 }
 
+final _emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+
 class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -21,6 +25,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
   final _confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -29,6 +34,69 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _onCreateAccount() async {
+    final name = _nameController.text.trim();
+    final email = _emailController.text.trim().toLowerCase();
+    final password = _passwordController.text;
+    final confirm = _confirmPasswordController.text;
+
+    if (name.isEmpty) {
+      _showError('Please enter your full name.');
+      return;
+    }
+    if (email.isEmpty) {
+      _showError('Please enter your email.');
+      return;
+    }
+    if (!_emailRegex.hasMatch(email)) {
+      _showError('Please enter a valid email address.');
+      return;
+    }
+    if (password.isEmpty) {
+      _showError('Please create a password.');
+      return;
+    }
+    if (password.length < 8) {
+      _showError('Password must be at least 8 characters.');
+      return;
+    }
+    if (password != confirm) {
+      _showError('Passwords do not match.');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+    try {
+      final apiClient = ref.read(apiClientProvider);
+      final sessionStorage = ref.read(sessionStorageServiceProvider);
+      final response = await apiClient.register(
+        fullName: name,
+        email: email,
+        password: password,
+      );
+      await sessionStorage.saveSessionId(response.sessionId);
+      if (!mounted) return;
+      ref.read(userProfileProvider).setRegistered(response.fullName, response.email);
+      if (!mounted) return;
+      context.go('/onboarding');
+    } on ApiException catch (e) {
+      if (mounted) _showError(e.message);
+    } catch (_) {
+      if (mounted) _showError('Registration failed. Please try again.');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.alertRed,
+      ),
+    );
   }
 
   @override
@@ -139,13 +207,8 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                   const SizedBox(height: 32),
                   SafetyButton(
                     text: 'Create Account',
-                    onPressed: () {
-                      ref.read(userProfileProvider).setRegistered(
-                            _nameController.text,
-                            _emailController.text,
-                          );
-                      context.go('/onboarding');
-                    },
+                    onPressed: _onCreateAccount,
+                    isLoading: _isLoading,
                   ),
                   const SizedBox(height: 24),
                   Center(

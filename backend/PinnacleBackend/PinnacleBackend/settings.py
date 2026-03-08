@@ -13,12 +13,13 @@ SECRET_KEY = 'django-insecure-m4=8@z-0!vv4leea(2hu))@e*m!6+!8b-h9w-6mzh*8vcoe3sa
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '10.0.2.2']
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -31,6 +32,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -105,3 +107,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+# CORS: allow Flutter app (dev)
+CORS_ALLOW_ALL_ORIGINS = True  # Restrict in production (e.g. CORS_ALLOWED_ORIGINS)
+
+# REST framework: session key from X-Session-Id for API auth
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'backend.authentication.SessionKeyAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+}
