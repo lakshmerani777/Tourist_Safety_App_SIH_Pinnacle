@@ -19,31 +19,39 @@ class OTPInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PinCodeTextField(
-      appContext: context,
-      length: length,
-      controller: controller,
-      onCompleted: onCompleted,
-      onChanged: onChanged ?? (_) {},
-      keyboardType: TextInputType.number,
-      animationType: AnimationType.fade,
-      textStyle: AppTypography.h2.copyWith(color: AppColors.textPrimary),
-      cursorColor: AppColors.accentBlue,
-      pinTheme: PinTheme(
-        shape: PinCodeFieldShape.box,
-        borderRadius: BorderRadius.circular(12),
-        fieldHeight: 56,
-        fieldWidth: 48,
-        activeFillColor: Colors.transparent,
-        inactiveFillColor: Colors.transparent,
-        selectedFillColor: Colors.transparent,
-        activeColor: AppColors.accentBlue,
-        inactiveColor: AppColors.border,
-        selectedColor: AppColors.accentBlue,
-        borderWidth: 2,
+    return Theme(
+      data: Theme.of(context).copyWith(
+        inputDecorationTheme: Theme.of(context).inputDecorationTheme.copyWith(
+          filled: true,
+          fillColor: AppColors.background,
+        ),
       ),
-      enableActiveFill: true,
-      autoFocus: true,
+      child: PinCodeTextField(
+        appContext: context,
+        length: length,
+        controller: controller,
+        onCompleted: onCompleted,
+        onChanged: onChanged ?? (_) {},
+        keyboardType: TextInputType.number,
+        animationType: AnimationType.fade,
+        textStyle: AppTypography.h2.copyWith(color: AppColors.textPrimary),
+        cursorColor: AppColors.accentBlue,
+        pinTheme: PinTheme(
+          shape: PinCodeFieldShape.box,
+          borderRadius: BorderRadius.circular(12),
+          fieldHeight: 56,
+          fieldWidth: 48,
+          activeFillColor: AppColors.background,
+          inactiveFillColor: AppColors.background,
+          selectedFillColor: AppColors.background,
+          activeColor: AppColors.accentBlue,
+          inactiveColor: AppColors.border,
+          selectedColor: AppColors.accentBlue,
+          borderWidth: 2,
+        ),
+        enableActiveFill: true,
+        autoFocus: true,
+      ),
     );
   }
 }
