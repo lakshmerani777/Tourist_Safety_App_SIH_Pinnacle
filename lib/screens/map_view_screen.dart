@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_typography.dart';
@@ -43,6 +44,17 @@ class _MapViewScreenState extends ConsumerState<MapViewScreen> {
       type: BadgeType.active,
     ),
   ];
+
+  Future<void> _launchMapsSearch(String query) async {
+    final Uri url = Uri.parse('geo:0,0?q=${Uri.encodeComponent(query)}');
+    if (!await launchUrl(url)) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not open map search')),
+        );
+      }
+    }
+  }
 
   Set<Marker> _buildMarkers(LatLng userPosition) {
     final markers = <Marker>{
@@ -282,6 +294,75 @@ class _MapViewScreenState extends ConsumerState<MapViewScreen> {
             ),
           ),
 
+          // Left Quick Actions (Nearby Services)
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 140,
+            left: 16,
+            bottom: 120, // Leave room for legend sheet
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _QuickActionButton(
+                    icon: Icons.local_hospital,
+                    color: Colors.redAccent,
+                    tooltip: 'Nearby Hospitals',
+                    onPressed: () => _launchMapsSearch('hospitals near me'),
+                  ),
+                  const SizedBox(height: 12),
+                  _QuickActionButton(
+                    icon: Icons.local_police,
+                    color: Colors.blueAccent,
+                    tooltip: 'Police Stations',
+                    onPressed: () => _launchMapsSearch('police stations near me'),
+                  ),
+                  const SizedBox(height: 12),
+                  _QuickActionButton(
+                    icon: Icons.local_pharmacy,
+                    color: Colors.green,
+                    tooltip: 'Pharmacies',
+                    onPressed: () => _launchMapsSearch('pharmacies near me'),
+                  ),
+                  const SizedBox(height: 12),
+                  _QuickActionButton(
+                    icon: Icons.account_balance,
+                    color: Colors.orange,
+                    tooltip: 'Embassies',
+                    onPressed: () => _launchMapsSearch('embassy near me'),
+                  ),
+                  const SizedBox(height: 12),
+                  _QuickActionButton(
+                    icon: Icons.atm,
+                    color: Colors.teal,
+                    tooltip: 'ATMs',
+                    onPressed: () => _launchMapsSearch('ATMs near me'),
+                  ),
+                  const SizedBox(height: 12),
+                  _QuickActionButton(
+                    icon: Icons.directions_transit,
+                    color: Colors.purple,
+                    tooltip: 'Public Transit',
+                    onPressed: () => _launchMapsSearch('public transit near me'),
+                  ),
+                  const SizedBox(height: 12),
+                  _QuickActionButton(
+                    icon: Icons.wc,
+                    color: Colors.brown,
+                    tooltip: 'Public Restrooms',
+                    onPressed: () => _launchMapsSearch('public restrooms near me'),
+                  ),
+                  const SizedBox(height: 12),
+                  _QuickActionButton(
+                    icon: Icons.camera_alt,
+                    color: Colors.indigo,
+                    tooltip: 'Tourist Attractions',
+                    onPressed: () => _launchMapsSearch('tourist attractions near me'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
           // Bottom legend sheet
           DraggableScrollableSheet(
             initialChildSize: 0.12,
@@ -377,6 +458,51 @@ class _MapViewScreenState extends ConsumerState<MapViewScreen> {
         },
         backgroundColor: AppColors.accentBlue,
         child: const Icon(Icons.my_location, color: Colors.white),
+      ),
+    );
+  }
+}
+
+class _QuickActionButton extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final String tooltip;
+  final VoidCallback onPressed;
+
+  const _QuickActionButton({
+    required this.icon,
+    required this.color,
+    required this.tooltip,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.card,
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onPressed,
+          customBorder: const CircleBorder(),
+          child: Tooltip(
+            message: tooltip,
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              child: Icon(icon, color: color, size: 24),
+            ),
+          ),
+        ),
       ),
     );
   }
