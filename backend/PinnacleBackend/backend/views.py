@@ -1,4 +1,5 @@
 import re
+from django.conf import settings
 from django.contrib.auth import authenticate, get_user_model, login
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
@@ -14,6 +15,19 @@ EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
 class HelloView(APIView):
     def get(self, request):
         return JsonResponse({'message': 'Hello, world!'})
+
+
+class MapsConfigView(APIView):
+    """
+    GET /api/config/maps-key — returns the Google Maps API key for the app.
+    Key is read from backend .env (GOOGLE_MAPS_API_KEY). Optional: restrict with auth.
+    """
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request):
+        api_key = getattr(settings, 'GOOGLE_MAPS_API_KEY', '') or ''
+        return JsonResponse({'mapsApiKey': api_key})
 
 
 class RegisterView(APIView):

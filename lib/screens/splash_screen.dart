@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_typography.dart';
 import '../services/auth_flow_persistence.dart';
+import '../services/maps_config_service.dart';
 import '../services/session_storage_service.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -33,6 +34,9 @@ class _SplashScreenState extends State<SplashScreen>
     );
 
     _animController.forward();
+
+    // Fetch Maps API key from backend and apply on iOS (runs in parallel with splash delay)
+    MapsConfigService().fetchAndApplyMapsApiKey();
 
     Future.delayed(const Duration(milliseconds: 2500), () async {
       if (!mounted) return;

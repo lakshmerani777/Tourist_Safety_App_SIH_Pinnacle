@@ -1,17 +1,29 @@
 from pathlib import Path
 
+from decouple import Config, RepositoryEnv
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load .env from project root (PinnacleBackend directory)
+_env_file = BASE_DIR / '.env'
+_config = Config(RepositoryEnv(str(_env_file))) if _env_file.exists() else None
+
+
+def _get(key, default=None, cast=None):
+    if _config is None:
+        return default
+    return _config(key, default=default, cast=cast)
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-m4=8@z-0!vv4leea(2hu))@e*m!6+!8b-h9w-6mzh*8vcoe3sa'
+SECRET_KEY = _get('SECRET_KEY', 'django-insecure-m4=8@z-0!vv4leea(2hu))@e*m!6+!8b-h9w-6mzh*8vcoe3sa')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = _get('DEBUG', True, cast=lambda v: str(v).lower() in ('1', 'true', 'yes'))
 
 ALLOWED_HOSTS = [
     'localhost',
@@ -124,3 +136,6 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     ],
 }
+
+# Google Maps API key (from .env); used by config endpoint for the app
+GOOGLE_MAPS_API_KEY = _get('GOOGLE_MAPS_API_KEY', '')

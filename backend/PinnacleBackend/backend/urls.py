@@ -6,4 +6,5 @@ urlpatterns = [
     path('', views.HelloView.as_view()),
     path('api/auth/register/', views.RegisterView.as_view()),
     path('api/auth/signin/', views.SignInView.as_view()),
+    path('api/config/maps-key/', views.MapsConfigView.as_view()),
 ]
