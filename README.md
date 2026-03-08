@@ -53,7 +53,7 @@ Tourist_Safety_App_SIH_Pinnacle/
 
 - **go_router** — navigation
 - **flutter_riverpod** — state management
-- **flutter_map** + **latlong2** — map
+- **google_maps_flutter** — map (Google Maps)
 - **geolocator** — location
 - **permission_handler** — permissions
 - **image_picker** — photos
@@ -68,6 +68,16 @@ flutter run
 ```
 
 Use `flutter run -d <device_id>` to pick a device. For Android emulator or a connected device, run `flutter devices` first.
+
+### Google Maps setup
+
+The map screen uses **Google Maps**. You must configure API keys (do not commit real keys to the repo).
+
+1. **Google Cloud Console:** Create a project, enable **Maps SDK for Android** and **Maps SDK for iOS**, and create API keys (separate keys for Android and iOS are recommended).
+2. **Android:** Set your key in `android/app/src/main/AndroidManifest.xml` in the `com.google.android.geo.API_KEY` meta-data `value`, or use `gradle.properties` / env (e.g. `GOOGLE_MAPS_API_KEY`) and reference it in the manifest.
+3. **iOS:** In `ios/Runner/AppDelegate.swift`, replace `YOUR_IOS_API_KEY` with your key in the `GMSServices.provideAPIKey(...)` call, or provide it via xcconfig / build environment.
+
+Until valid keys are set, the map may appear blank or show an error.
 
 ---
 

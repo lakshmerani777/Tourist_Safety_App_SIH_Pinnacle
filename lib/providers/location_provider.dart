@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class LocationNotifier extends ChangeNotifier {
   LatLng _currentPosition = const LatLng(19.062641, 72.830899); // Default: Mumbai
