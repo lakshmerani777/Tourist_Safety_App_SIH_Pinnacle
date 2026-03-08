@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_typography.dart';
 import '../core/widgets/safety_card.dart';
 import '../core/widgets/input_field.dart';
 import '../core/widgets/dropdown.dart';
+import '../core/widgets/safety_button.dart';
 import '../providers/onboarding_provider.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
@@ -302,6 +304,61 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       ],
                     ),
                   ),
+
+            const SizedBox(height: 32),
+
+            // ─── DANGER ZONE ───
+            SafetyButton(
+              text: 'Sign Out',
+              icon: Icons.logout,
+              variant: SafetyButtonVariant.outlined,
+              onPressed: () {
+                // Return to splash/login
+                context.go('/splash');
+              },
+            ),
+            const SizedBox(height: 16),
+            SafetyButton(
+              text: 'Delete Account',
+              icon: Icons.delete_forever,
+              variant: SafetyButtonVariant.danger,
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    backgroundColor: AppColors.card,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      side: BorderSide(color: AppColors.border),
+                    ),
+                    title: Text('Delete Account', style: AppTypography.h2),
+                    content: Text(
+                      'Are you sure you want to permanently delete your account? This action cannot be undone.',
+                      style: AppTypography.body.copyWith(color: AppColors.textSecondary),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text(
+                          'Cancel',
+                          style: AppTypography.body.copyWith(color: AppColors.accentBlue, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          context.go('/splash');
+                        },
+                        child: Text(
+                          'Delete',
+                          style: AppTypography.body.copyWith(color: AppColors.alertRed, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
 
             const SizedBox(height: 48),
           ],
