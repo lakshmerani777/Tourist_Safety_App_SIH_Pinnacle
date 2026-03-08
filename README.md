@@ -148,62 +148,6 @@ These events can be flagged for investigation.
 
 * Blockchain-based digital identity verification
 
----
-
-# 📂 Project Structure
-
-```
-lib/
- ├── onboarding/
- │    ├── steps/
- │    │    ├── step1_phone.dart
- │    │    ├── step2_identity.dart
- │    │    ├── step3_travel.dart
- │    │    ├── step4_emergency.dart
- │    │    ├── step5_stay.dart
- │    │    ├── step6_medical.dart
- │    │    └── step7_consent.dart
- │    │
- │    ├── widgets/
- │    │    ├── primary_button.dart
- │    │    └── progress_bar.dart
- │    │
- │    └── onboarding_screen.dart
- │
- └── main.dart
-```
-
-This modular architecture keeps the code **clean, scalable, and maintainable**.
-
----
-
-# ⚙ Installation
-
-### Clone the Repository
-
-```bash
-git clone https://github.com/yourusername/tourist-safety-app.git
-```
-
-### Navigate to Project Directory
-
-```bash
-cd tourist-safety-app
-```
-
-### Install Dependencies
-
-```bash
-flutter pub get
-```
-
-### Run the App
-
-```bash
-flutter run
-```
-
----
 
 # 📊 Application Workflow
 
