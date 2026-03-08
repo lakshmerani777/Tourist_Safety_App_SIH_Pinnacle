@@ -33,7 +33,10 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: '/onboarding',
-      builder: (context, state) => const OnboardingScreen(),
+      builder: (context, state) {
+        final restoreStep = state.extra is Map ? state.extra['restoreStep'] as int? : null;
+        return OnboardingScreen(restoreStep: restoreStep);
+      },
     ),
     GoRoute(
       path: '/home',

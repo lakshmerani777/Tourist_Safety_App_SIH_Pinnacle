@@ -8,6 +8,7 @@ import '../core/widgets/safety_button.dart';
 import '../providers/api_providers.dart';
 import '../providers/user_profile_provider.dart';
 import '../services/api_client.dart';
+import '../services/auth_flow_persistence.dart';
 
 class RegistrationScreen extends ConsumerStatefulWidget {
   const RegistrationScreen({super.key});
@@ -79,6 +80,9 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
       await sessionStorage.saveSessionId(response.sessionId);
       if (!mounted) return;
       ref.read(userProfileProvider).setRegistered(response.fullName, response.email);
+      if (!mounted) return;
+      await AuthFlowPersistence.saveAuthFlowRoute('/onboarding');
+      await AuthFlowPersistence.saveOnboardingStep(1);
       if (!mounted) return;
       context.go('/onboarding');
     } on ApiException catch (e) {
