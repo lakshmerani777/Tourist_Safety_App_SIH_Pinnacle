@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_typography.dart';
 import '../core/widgets/status_badge.dart';
@@ -16,7 +15,15 @@ class MapViewScreen extends ConsumerStatefulWidget {
 }
 
 class _MapViewScreenState extends ConsumerState<MapViewScreen> {
-  final MapController _mapController = MapController();
+  GoogleMapController? _mapController;
+
+  static const List<LatLng> _highRiskZoneCenters = [
+    LatLng(19.066418, 72.878737),
+    LatLng(19.101552, 72.895888),
+    LatLng(19.043794, 72.853642),
+    LatLng(18.965636, 72.825986),
+    LatLng(19.156275, 72.928302),
+  ];
 
   // Mock incident markers
   final List<_IncidentMarker> _incidents = [
@@ -37,6 +44,44 @@ class _MapViewScreenState extends ConsumerState<MapViewScreen> {
     ),
   ];
 
+  Set<Marker> _buildMarkers(LatLng userPosition) {
+    final markers = <Marker>{
+      Marker(
+        markerId: const MarkerId('user'),
+        position: userPosition,
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+      ),
+      ..._incidents.asMap().entries.map((e) => Marker(
+            markerId: MarkerId('incident_${e.key}'),
+            position: e.value.position,
+            icon: e.value.type == BadgeType.alert
+                ? BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed)
+                : e.value.type == BadgeType.warning
+                    ? BitmapDescriptor.defaultMarkerWithHue(
+                        BitmapDescriptor.hueOrange)
+                    : BitmapDescriptor.defaultMarkerWithHue(
+                        BitmapDescriptor.hueGreen),
+          )),
+    };
+    return markers;
+  }
+
+  Set<Circle> _buildCircles() {
+    const fillColor = AppColors.alertRed;
+    const strokeColor = AppColors.alertRed;
+    return {
+      for (var i = 0; i < _highRiskZoneCenters.length; i++)
+        Circle(
+          circleId: CircleId('zone_$i'),
+          center: _highRiskZoneCenters[i],
+          radius: 500,
+          fillColor: fillColor.withValues(alpha: 0.15),
+          strokeColor: strokeColor.withValues(alpha: 0.4),
+          strokeWidth: 2,
+        ),
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     final location = ref.watch(locationProvider);
@@ -46,111 +91,17 @@ class _MapViewScreenState extends ConsumerState<MapViewScreen> {
       body: Stack(
         children: [
           // Map
-          FlutterMap(
-            mapController: _mapController,
-            options: MapOptions(
-              initialCenter: location.currentPosition,
-              initialZoom: 14.0,
+          GoogleMap(
+            initialCameraPosition: CameraPosition(
+              target: location.currentPosition,
+              zoom: 14,
             ),
-            children: [
-              // Dark tiles
-              TileLayer(
-                urlTemplate:
-                    'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-                subdomains: const ['a', 'b', 'c', 'd'],
-                userAgentPackageName: 'com.touristsafety.app',
-              ),
-              // User location marker
-              MarkerLayer(
-                markers: [
-                  Marker(
-                    point: location.currentPosition,
-                    width: 30,
-                    height: 30,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppColors.accentBlue.withValues(alpha: 0.3),
-                        border:
-                            Border.all(color: AppColors.accentBlue, width: 2),
-                      ),
-                      child: Center(
-                        child: Container(
-                          width: 12,
-                          height: 12,
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: AppColors.accentBlue,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  // Incident markers
-                  ..._incidents.map((incident) => Marker(
-                        point: incident.position,
-                        width: 36,
-                        height: 36,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: AppColors.alertRed.withValues(alpha: 0.2),
-                          ),
-                          child: const Icon(
-                            Icons.warning_rounded,
-                            color: AppColors.alertRed,
-                            size: 22,
-                          ),
-                        ),
-                      )),
-                ],
-              ),
-              // High-risk zone circles
-              CircleLayer(
-                circles: [
-                  CircleMarker(
-                    point: const LatLng(19.066418, 72.878737),
-                    radius: 500,
-                    useRadiusInMeter: true,
-                    color: AppColors.alertRed.withValues(alpha: 0.15),
-                    borderColor: AppColors.alertRed.withValues(alpha: 0.4),
-                    borderStrokeWidth: 2,
-                  ),
-                  CircleMarker(
-                    point: const LatLng(19.101552, 72.895888),
-                    radius: 500,
-                    useRadiusInMeter: true,
-                    color: AppColors.alertRed.withValues(alpha: 0.15),
-                    borderColor: AppColors.alertRed.withValues(alpha: 0.4),
-                    borderStrokeWidth: 2,
-                  ),
-                  CircleMarker(
-                    point: const LatLng(19.043794, 72.853642),
-                    radius: 500,
-                    useRadiusInMeter: true,
-                    color: AppColors.alertRed.withValues(alpha: 0.15),
-                    borderColor: AppColors.alertRed.withValues(alpha: 0.4),
-                    borderStrokeWidth: 2,
-                  ),
-                  CircleMarker(
-                    point: const LatLng(18.965636, 72.825986),
-                    radius: 500,
-                    useRadiusInMeter: true,
-                    color: AppColors.alertRed.withValues(alpha: 0.15),
-                    borderColor: AppColors.alertRed.withValues(alpha: 0.4),
-                    borderStrokeWidth: 2,
-                  ),
-                  CircleMarker(
-                    point: const LatLng(19.156275, 72.928302),
-                    radius: 500,
-                    useRadiusInMeter: true,
-                    color: AppColors.alertRed.withValues(alpha: 0.15),
-                    borderColor: AppColors.alertRed.withValues(alpha: 0.4),
-                    borderStrokeWidth: 2,
-                  ),
-                ],
-              ),
-            ],
+            myLocationEnabled: false,
+            markers: _buildMarkers(location.currentPosition),
+            circles: _buildCircles(),
+            onMapCreated: (controller) {
+              setState(() => _mapController = controller);
+            },
           ),
 
           // Top search bar
@@ -402,6 +353,14 @@ class _MapViewScreenState extends ConsumerState<MapViewScreen> {
                       badge: const StatusBadge(
                           label: 'Safe', type: BadgeType.active),
                     ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Map data © Google',
+                      style: AppTypography.caption.copyWith(
+                        color: AppColors.textSecondary,
+                        fontSize: 10,
+                      ),
+                    ),
                   ],
                 ),
               );
@@ -412,7 +371,9 @@ class _MapViewScreenState extends ConsumerState<MapViewScreen> {
       // FAB
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          _mapController.move(location.currentPosition, 15.0);
+          _mapController?.animateCamera(
+            CameraUpdate.newLatLngZoom(location.currentPosition, 15),
+          );
         },
         backgroundColor: AppColors.accentBlue,
         child: const Icon(Icons.my_location, color: Colors.white),
