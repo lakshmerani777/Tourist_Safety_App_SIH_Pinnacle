@@ -13,6 +13,8 @@ _config = Config(RepositoryEnv(str(_env_file))) if _env_file.exists() else None
 def _get(key, default=None, cast=None):
     if _config is None:
         return default
+    if cast is None:
+        return _config(key, default=default)
     return _config(key, default=default, cast=cast)
 
 
@@ -29,8 +31,8 @@ ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
     '10.0.2.2',
-    'warm-leopard-uniquely.ngrok-free.app',
-    '.ngrok-free.app',  # any ngrok tunnel subdomain
+    'pleuropneumonic-mai-soapily.ngrok-free.dev',
+    '.ngrok-free.dev',  # any ngrok tunnel subdomain
 ]
 
 
