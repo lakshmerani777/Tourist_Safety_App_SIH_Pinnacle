@@ -131,6 +131,11 @@ class OnboardingNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setPhoneCode(String value) {
+    _data.phoneCode = value;
+    notifyListeners();
+  }
+
   void setOtpCode(String value) {
     _data.otpCode = value;
     notifyListeners();
