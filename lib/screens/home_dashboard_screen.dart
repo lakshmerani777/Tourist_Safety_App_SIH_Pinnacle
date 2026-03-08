@@ -358,6 +358,8 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
             context.push('/map');
           } else if (index == 2) {
             context.push('/alerts');
+          } else if (index == 3) {
+            context.push('/profile');
           } else {
             setState(() => _selectedIndex = index);
           }
