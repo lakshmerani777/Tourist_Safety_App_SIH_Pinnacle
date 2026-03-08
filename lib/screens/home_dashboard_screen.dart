@@ -68,12 +68,6 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
         child: _buildBody(),
       ),
       bottomNavigationBar: _buildBottomNav(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _openChatbot,
-        backgroundColor: AppColors.accentBlue,
-        child: const Icon(Icons.chat_bubble_rounded, color: Colors.white),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
@@ -404,8 +398,10 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
           if (index == 1) {
             context.push('/map');
           } else if (index == 2) {
-            context.push('/alerts');
+            _openChatbot();
           } else if (index == 3) {
+            context.push('/alerts');
+          } else if (index == 4) {
             context.push('/profile');
           } else {
             setState(() => _selectedIndex = index);
@@ -419,6 +415,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.map), label: 'Map'),
+          BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), activeIcon: Icon(Icons.chat_bubble_rounded), label: 'Chat'),
           BottomNavigationBarItem(
             icon: Badge(
               backgroundColor: AppColors.alertRed,
