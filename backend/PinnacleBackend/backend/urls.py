@@ -3,5 +3,6 @@ from django.urls import path
 from backend import views
 
 urlpatterns = [
-    path('', views.HelloView.as_view())
+    path('', views.HelloView.as_view()),
+    path('api/auth/register/', views.RegisterView.as_view()),
 ]
