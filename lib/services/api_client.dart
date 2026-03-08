@@ -97,4 +97,38 @@ class ApiClient {
     }
     throw ApiException(message, response.statusCode);
   }
+
+  /// POST /api/auth/signin/ with email, password.
+  /// Returns [RegisterResponse] (session_id + user) on success; throws [ApiException] on 4xx/5xx.
+  Future<RegisterResponse> signIn({
+    required String email,
+    required String password,
+  }) async {
+    final uri = Uri.parse('$baseUrl/api/auth/signin/');
+    final body = jsonEncode({
+      'email': email,
+      'password': password,
+    });
+    final response = await http.post(
+      uri,
+      headers: await _headers(includeSession: false),
+      body: body,
+    );
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      return RegisterResponse.fromJson(data);
+    }
+
+    String message = 'Sign in failed.';
+    if (response.body.isNotEmpty) {
+      try {
+        final data = jsonDecode(response.body) as Map<String, dynamic>;
+        if (data['error'] != null) {
+          message = data['error'] as String;
+        }
+      } catch (_) {}
+    }
+    throw ApiException(message, response.statusCode);
+  }
 }

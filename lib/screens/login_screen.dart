@@ -5,7 +5,9 @@ import '../core/theme/app_colors.dart';
 import '../core/theme/app_typography.dart';
 import '../core/widgets/input_field.dart';
 import '../core/widgets/safety_button.dart';
+import '../providers/api_providers.dart';
 import '../providers/user_profile_provider.dart';
+import '../services/api_client.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -14,16 +16,64 @@ class LoginScreen extends ConsumerStatefulWidget {
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
+final _emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _isLoading = false;
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _onSignIn() async {
+    final email = _emailController.text.trim().toLowerCase();
+    final password = _passwordController.text;
+
+    if (email.isEmpty) {
+      _showError('Please enter your email.');
+      return;
+    }
+    if (!_emailRegex.hasMatch(email)) {
+      _showError('Please enter a valid email address.');
+      return;
+    }
+    if (password.isEmpty) {
+      _showError('Please enter your password.');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+    try {
+      final apiClient = ref.read(apiClientProvider);
+      final sessionStorage = ref.read(sessionStorageServiceProvider);
+      final response = await apiClient.signIn(email: email, password: password);
+      await sessionStorage.saveSessionId(response.sessionId);
+      if (!mounted) return;
+      ref.read(userProfileProvider).setRegistered(response.fullName, response.email);
+      if (!mounted) return;
+      context.go('/onboarding');
+    } on ApiException catch (e) {
+      if (mounted) _showError(e.message);
+    } catch (_) {
+      if (mounted) _showError('Sign in failed. Please try again.');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.alertRed,
+      ),
+    );
   }
 
   @override
@@ -108,13 +158,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   const SizedBox(height: 32),
                   SafetyButton(
                     text: 'Sign In',
-                    onPressed: () {
-                      ref.read(userProfileProvider).setRegistered(
-                            _emailController.text.split('@').first,
-                            _emailController.text,
-                          );
-                      context.go('/onboarding');
-                    },
+                    onPressed: _onSignIn,
+                    isLoading: _isLoading,
                   ),
                   const SizedBox(height: 24),
                   Center(
