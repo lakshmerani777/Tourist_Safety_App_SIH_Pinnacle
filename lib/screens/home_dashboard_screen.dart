@@ -74,7 +74,14 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Tourist Safety', style: AppTypography.h2),
+              Expanded(
+                child: Text(
+                  'Tourist Safety',
+                  style: AppTypography.h2,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+              ),
               Row(
                 children: [
                   const StatusBadge(
@@ -136,6 +143,8 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
                               fontWeight: FontWeight.w600,
                               fontSize: 14,
                             ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
                         ],
                       ),
@@ -304,7 +313,14 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Recent Alerts', style: AppTypography.h2),
+              Expanded(
+                child: Text(
+                  'Recent Alerts',
+                  style: AppTypography.h2,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+              ),
               GestureDetector(
                 onTap: () => context.push('/alerts'),
                 child: Row(
@@ -435,12 +451,16 @@ class _QuickActionCard extends StatelessWidget {
               ),
               child: Icon(icon, color: color, size: 22),
             ),
-            Text(
-              title,
-              style: AppTypography.caption.copyWith(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
+            Flexible(
+              child: Text(
+                title,
+                style: AppTypography.caption.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 2,
               ),
             ),
           ],
@@ -486,11 +506,21 @@ class _AlertItem extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 6),
-                Text(subtitle, style: AppTypography.caption),
+                Text(
+                  subtitle,
+                  style: AppTypography.caption,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
+                ),
               ],
             ),
           ),
-          Text(time, style: AppTypography.caption.copyWith(fontSize: 11)),
+          Text(
+            time,
+            style: AppTypography.caption.copyWith(fontSize: 11),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
         ],
       ),
     );
