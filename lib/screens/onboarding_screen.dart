@@ -79,6 +79,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     )
                   : NavigationButtons(
                       showBack: step > 1,
+                      showContinue: step != 1 || onboarding.data.otpVerified,
                       onBack: step > 1
                           ? () {
                               onboarding.previousStep();
