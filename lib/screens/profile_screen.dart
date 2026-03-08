@@ -8,6 +8,9 @@ import '../core/widgets/safety_card.dart';
 import '../core/widgets/input_field.dart';
 import '../core/widgets/dropdown.dart';
 import '../core/widgets/safety_button.dart';
+import '../core/widgets/date_card.dart';
+import '../core/widgets/country_select.dart';
+import '../core/widgets/phone_input.dart';
 import '../providers/onboarding_provider.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
@@ -18,6 +21,8 @@ class ProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  bool _editingIdentity = false;
+  bool _editingPhone = false;
   bool _editingTravel = false;
   bool _editingStay = false;
   bool _editingMedical = false;
@@ -88,67 +93,66 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             ),
             const SizedBox(height: 32),
 
-            // ─── SECTION 1: PERSONAL IDENTITY (Read-Only) ───
+            // ─── SECTION 1: PERSONAL IDENTITY (Editable) ───
             _SectionHeader(
               title: 'Personal Identity',
               icon: Icons.person,
-              locked: true,
+              onEdit: () => setState(() => _editingIdentity = !_editingIdentity),
+              isEditing: _editingIdentity,
             ),
             const SizedBox(height: 12),
-            SafetyCard(
-              child: Column(
-                children: [
-                  _InfoRow(label: 'First Name', value: data.firstName.isNotEmpty ? data.firstName : 'John'),
-                  const Divider(color: AppColors.border, height: 1),
-                  _InfoRow(label: 'Last Name', value: data.lastName.isNotEmpty ? data.lastName : 'Doe'),
-                  const Divider(color: AppColors.border, height: 1),
-                  _InfoRow(
-                    label: 'Date of Birth',
-                    value: data.dateOfBirth != null
-                        ? DateFormat('MMM d, yyyy').format(data.dateOfBirth!)
-                        : 'Jan 15, 1990',
+            _editingIdentity
+                ? _buildIdentityEditForm(data, notifier)
+                : SafetyCard(
+                    child: Column(
+                      children: [
+                        _InfoRow(label: 'First Name', value: data.firstName.isNotEmpty ? data.firstName : 'John'),
+                        const Divider(color: AppColors.border, height: 1),
+                        _InfoRow(label: 'Last Name', value: data.lastName.isNotEmpty ? data.lastName : 'Doe'),
+                        const Divider(color: AppColors.border, height: 1),
+                        _InfoRow(
+                          label: 'Date of Birth',
+                          value: data.dateOfBirth != null
+                              ? DateFormat('MMM d, yyyy').format(data.dateOfBirth!)
+                              : 'Jan 15, 1990',
+                        ),
+                        const Divider(color: AppColors.border, height: 1),
+                        _InfoRow(label: 'Nationality', value: data.nationality?.name ?? 'India'),
+                        const Divider(color: AppColors.border, height: 1),
+                        _InfoRow(
+                          label: 'Passport No.',
+                          value: data.passportNumber.isNotEmpty ? data.passportNumber : 'A1234567',
+                        ),
+                        const Divider(color: AppColors.border, height: 1),
+                        _InfoRow(
+                          label: 'Passport Expiry',
+                          value: data.passportExpiry != null
+                              ? DateFormat('MMM d, yyyy').format(data.passportExpiry!)
+                              : 'Dec 31, 2030',
+                        ),
+                      ],
+                    ),
                   ),
-                  const Divider(color: AppColors.border, height: 1),
-                  _InfoRow(label: 'Nationality', value: data.nationality?.name ?? 'India'),
-                  const Divider(color: AppColors.border, height: 1),
-                  _InfoRow(
-                    label: 'Passport No.',
-                    value: data.passportNumber.isNotEmpty ? data.passportNumber : 'A1234567',
-                  ),
-                  const Divider(color: AppColors.border, height: 1),
-                  _InfoRow(
-                    label: 'Passport Expiry',
-                    value: data.passportExpiry != null
-                        ? DateFormat('MMM d, yyyy').format(data.passportExpiry!)
-                        : 'Dec 31, 2030',
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                const Icon(Icons.lock, color: AppColors.textSecondary, size: 14),
-                const SizedBox(width: 6),
-                Text(
-                  'Contact support to update identity details.',
-                  style: AppTypography.caption.copyWith(fontSize: 11),
-                ),
-              ],
-            ),
             const SizedBox(height: 24),
 
-            // ─── SECTION 2: PHONE ───
-            _SectionHeader(title: 'Phone', icon: Icons.phone, locked: true),
-            const SizedBox(height: 12),
-            SafetyCard(
-              child: _InfoRow(
-                label: 'Phone',
-                value: data.phoneNumber.isNotEmpty
-                    ? '+${data.phoneCode} ${data.phoneNumber}'
-                    : '+91 9876543210',
-              ),
+            // ─── SECTION 2: PHONE (Editable) ───
+            _SectionHeader(
+              title: 'Phone',
+              icon: Icons.phone,
+              onEdit: () => setState(() => _editingPhone = !_editingPhone),
+              isEditing: _editingPhone,
             ),
+            const SizedBox(height: 12),
+            _editingPhone
+                ? _buildPhoneEditForm(data, notifier)
+                : SafetyCard(
+                    child: _InfoRow(
+                      label: 'Phone',
+                      value: data.phoneNumber.isNotEmpty
+                          ? '+${data.phoneCode} ${data.phoneNumber}'
+                          : 'Not set',
+                    ),
+                  ),
             const SizedBox(height: 24),
 
             // ─── SECTION 3: TRAVEL DETAILS (Editable) ───
@@ -375,6 +379,71 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   // ─── EDIT FORMS ───
 
+  Widget _buildIdentityEditForm(OnboardingData data, OnboardingNotifier notifier) {
+    return SafetyCard(
+      child: Column(
+        children: [
+          InputField(
+            label: 'First Name',
+            controller: TextEditingController(
+              text: data.firstName.isNotEmpty ? data.firstName : '',
+            ),
+            onChanged: (val) => notifier.setFirstName(val),
+          ),
+          const SizedBox(height: 12),
+          InputField(
+            label: 'Last Name',
+            controller: TextEditingController(
+              text: data.lastName.isNotEmpty ? data.lastName : '',
+            ),
+            onChanged: (val) => notifier.setLastName(val),
+          ),
+          const SizedBox(height: 12),
+          DateCard(
+            label: 'Date of Birth',
+            selectedDate: data.dateOfBirth,
+            onDateSelected: (date) => notifier.setDateOfBirth(date),
+            lastDate: DateTime.now(),
+          ),
+          const SizedBox(height: 12),
+          CountrySelect(
+            label: 'Nationality',
+            selectedCountry: data.nationality,
+            onSelect: (country) => notifier.setNationality(country),
+          ),
+          const SizedBox(height: 12),
+          InputField(
+            label: 'Passport/ID Number',
+            controller: TextEditingController(
+              text: data.passportNumber.isNotEmpty ? data.passportNumber : '',
+            ),
+            onChanged: (val) => notifier.setPassportNumber(val),
+          ),
+          const SizedBox(height: 12),
+          DateCard(
+            label: 'Passport Expiry Date',
+            selectedDate: data.passportExpiry,
+            onDateSelected: (date) => notifier.setPassportExpiry(date),
+            firstDate: DateTime.now(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPhoneEditForm(OnboardingData data, OnboardingNotifier notifier) {
+    return SafetyCard(
+      child: PhoneInput(
+        label: 'Phone Number',
+        controller: TextEditingController(
+          text: data.phoneNumber.isNotEmpty ? data.phoneNumber : '',
+        ),
+        onChanged: (val) => notifier.setPhoneNumber(val),
+        onCountryChanged: (country) => notifier.setPhoneCode(country.phoneCode),
+      ),
+    );
+  }
+
   Widget _buildTravelEditForm(OnboardingData data, OnboardingNotifier notifier) {
     return SafetyCard(
       child: Column(
@@ -554,14 +623,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 class _SectionHeader extends StatelessWidget {
   final String title;
   final IconData icon;
-  final bool locked;
   final VoidCallback? onEdit;
   final bool isEditing;
 
   const _SectionHeader({
     required this.title,
     required this.icon,
-    this.locked = false,
     this.onEdit,
     this.isEditing = false,
   });
@@ -574,22 +641,6 @@ class _SectionHeader extends StatelessWidget {
         const SizedBox(width: 8),
         Text(title, style: AppTypography.body.copyWith(fontWeight: FontWeight.w600, fontSize: 16)),
         const Spacer(),
-        if (locked)
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: AppColors.textSecondary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.lock, color: AppColors.textSecondary, size: 12),
-                const SizedBox(width: 4),
-                Text('Locked', style: AppTypography.caption.copyWith(fontSize: 11)),
-              ],
-            ),
-          ),
         if (onEdit != null)
           GestureDetector(
             onTap: onEdit,
