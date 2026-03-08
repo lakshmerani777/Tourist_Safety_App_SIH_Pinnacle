@@ -252,6 +252,7 @@ Planned features include:
 Project developed by:
 
 **Laksh Merani**
+**Sahil Asopa**
 
 (Additional contributors can be added here)
 
