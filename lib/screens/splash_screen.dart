@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_typography.dart';
+import '../services/auth_flow_persistence.dart';
+import '../services/session_storage_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -32,8 +34,22 @@ class _SplashScreenState extends State<SplashScreen>
 
     _animController.forward();
 
-    Future.delayed(const Duration(milliseconds: 2500), () {
-      if (mounted) context.go('/register');
+    Future.delayed(const Duration(milliseconds: 2500), () async {
+      if (!mounted) return;
+      final sessionId = await SessionStorageService().getSessionId();
+      final savedRoute = await AuthFlowPersistence.getAuthFlowRoute();
+      final onboardingStep = await AuthFlowPersistence.getOnboardingStep();
+
+      if (!mounted) return;
+      if (savedRoute == '/onboarding') {
+        context.go('/onboarding', extra: {'restoreStep': onboardingStep});
+        return;
+      }
+      if (sessionId != null && sessionId.isNotEmpty) {
+        context.go('/home');
+        return;
+      }
+      context.go('/register');
     });
   }
 

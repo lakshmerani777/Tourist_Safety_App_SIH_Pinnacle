@@ -7,6 +7,10 @@ import '../../core/widgets/phone_input.dart';
 import '../../core/widgets/otp_input.dart';
 import '../../core/widgets/safety_button.dart';
 import '../../providers/onboarding_provider.dart';
+import '../../services/auth_flow_persistence.dart';
+
+/// Only this OTP is accepted as valid.
+const String _validOtp = '0000';
 
 class Step1Phone extends ConsumerStatefulWidget {
   const Step1Phone({super.key});
@@ -19,10 +23,26 @@ class _Step1PhoneState extends ConsumerState<Step1Phone> {
   bool _otpSent = false;
   int _resendCountdown = 60;
   Timer? _timer;
+  bool _otpError = false;
+
+  @override
+  void initState() {
+    super.initState();
+    AuthFlowPersistence.getStep1OtpSent().then((sent) {
+      if (mounted && sent) {
+        setState(() {
+          _otpSent = true;
+          _resendCountdown = 0;
+        });
+      }
+    });
+  }
 
   void _sendOTP() {
+    AuthFlowPersistence.saveStep1OtpSent(true);
     setState(() {
       _otpSent = true;
+      _otpError = false;
       _resendCountdown = 60;
     });
     _startResendTimer();
@@ -74,14 +94,29 @@ class _Step1PhoneState extends ConsumerState<Step1Phone> {
           if (_otpSent) ...[
             const SizedBox(height: 8),
             Text('Enter verification code', style: AppTypography.caption),
+            if (_otpError)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  'Invalid code. Use 0000 to continue.',
+                  style: AppTypography.caption.copyWith(
+                    color: AppColors.alertRed,
+                  ),
+                ),
+              ),
             const SizedBox(height: 12),
             OTPInput(
+              length: 4,
               onCompleted: (code) {
                 ref.read(onboardingProvider).setOtpCode(code);
-                ref.read(onboardingProvider).setOtpVerified(true);
+                final verified = code == _validOtp;
+                ref.read(onboardingProvider).setOtpVerified(verified);
+                setState(() => _otpError = !verified);
               },
               onChanged: (code) {
                 ref.read(onboardingProvider).setOtpCode(code);
+                ref.read(onboardingProvider).setOtpVerified(code == _validOtp);
+                if (_otpError && code.length == 4) setState(() => _otpError = code != _validOtp);
               },
             ),
             const SizedBox(height: 16),

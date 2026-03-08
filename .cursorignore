@@ -1,0 +1,67 @@
+# Cursor ignore – reduce indexing and RAM usage
+# Things Cursor does not need for editing or AI context
+
+# === Flutter / Dart ===
+.dart_tool/
+**/build/
+**/ephemeral/
+**/doc/api/
+.pub-cache/
+.pub/
+.flutter-plugins-dependencies
+**/ios/Flutter/.last_build_id
+*.symbols
+*.map.json
+coverage/
+
+# === Android ===
+**/android/app/debug/
+**/android/app/profile/
+**/android/app/release/
+**/android/.gradle/
+**/android/local.properties
+**/android/**/generated/
+
+# === iOS / macOS ===
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/Flutter.framework/
+**/ios/Flutter/Flutter.podspec
+**/macos/Flutter/ephemeral/
+
+# === Python / Django backend ===
+**/venv/
+**/.venv/
+**/env/
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/.eggs/
+**/*.egg-info/
+**/*.egg
+**/PinnacleBackend/**/migrations/
+**/staticfiles/
+**/static/
+**/media/
+*.sqlite3
+*.db
+.env
+.env.*
+
+# === Node (if any) ===
+**/node_modules/
+
+# === IDE / OS ===
+.idea/
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+.DS_Store
+*.log
+*.class
+
+# === Git (optional – uncomment to skip indexing git history)
+# .git/

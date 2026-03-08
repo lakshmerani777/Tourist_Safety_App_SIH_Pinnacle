@@ -6,6 +6,7 @@ import '../core/widgets/progress_bar.dart';
 import '../core/widgets/navigation_buttons.dart';
 import '../core/widgets/safety_button.dart';
 import '../providers/onboarding_provider.dart';
+import '../services/auth_flow_persistence.dart';
 import 'onboarding/step1_phone.dart';
 import 'onboarding/step2_identity.dart';
 import 'onboarding/step3_travel.dart';
@@ -14,11 +15,28 @@ import 'onboarding/step5_stay.dart';
 import 'onboarding/step6_medical.dart';
 import 'onboarding/step7_consent.dart';
 
-class OnboardingScreen extends ConsumerWidget {
-  const OnboardingScreen({super.key});
+class OnboardingScreen extends ConsumerStatefulWidget {
+  const OnboardingScreen({super.key, this.restoreStep});
+
+  final int? restoreStep;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
+}
+
+class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
+  @override
+  void initState() {
+    super.initState();
+    if (widget.restoreStep != null && widget.restoreStep! >= 1 && widget.restoreStep! <= 7) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) ref.read(onboardingProvider).setStep(widget.restoreStep!);
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final onboarding = ref.watch(onboardingProvider);
     final step = onboarding.currentStep;
 
@@ -37,7 +55,6 @@ class OnboardingScreen extends ConsumerWidget {
       body: SafeArea(
         child: Column(
           children: [
-            // Progress Bar
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               child: StepProgressBar(
@@ -45,24 +62,39 @@ class OnboardingScreen extends ConsumerWidget {
                 totalSteps: 7,
               ),
             ),
-            // Step Content
             Expanded(
               child: steps[step - 1],
             ),
-            // Navigation Buttons
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               child: step == 7
                   ? SafetyButton(
                       text: 'Complete Registration',
                       onPressed: onboarding.allRequiredConsentsGiven
-                          ? () => context.go('/home')
+                          ? () {
+                              AuthFlowPersistence.clearAuthFlow();
+                              context.go('/home');
+                            }
                           : null,
                     )
                   : NavigationButtons(
                       showBack: step > 1,
-                      onBack: step > 1 ? () => onboarding.previousStep() : null,
-                      onContinue: () => onboarding.nextStep(),
+                      onBack: step > 1
+                          ? () {
+                              onboarding.previousStep();
+                              AuthFlowPersistence.saveOnboardingStep(
+                                ref.read(onboardingProvider).currentStep,
+                              );
+                            }
+                          : null,
+                      onContinue: (step == 1 && !onboarding.data.otpVerified)
+                          ? null
+                          : () {
+                              onboarding.nextStep();
+                              AuthFlowPersistence.saveOnboardingStep(
+                                ref.read(onboardingProvider).currentStep,
+                              );
+                            },
                     ),
             ),
           ],
