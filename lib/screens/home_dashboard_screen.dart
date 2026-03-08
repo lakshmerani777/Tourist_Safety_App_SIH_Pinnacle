@@ -100,45 +100,49 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
 
           // Current Location Banner
           Builder(builder: (context) {
-            return SafetyCard(
-              accentColor: AppColors.accentBlue,
-              padding: const EdgeInsets.all(14),
-              child: Row(
-                children: [
-                  Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.accentBlue.withValues(alpha: 0.15),
+            return GestureDetector(
+              onTap: () => context.push('/map'),
+              child: SafetyCard(
+                accentColor: AppColors.accentBlue,
+                padding: const EdgeInsets.all(14),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppColors.accentBlue.withValues(alpha: 0.15),
+                      ),
+                      child: const Icon(Icons.my_location,
+                          color: AppColors.accentBlue, size: 18),
                     ),
-                    child: const Icon(Icons.my_location,
-                        color: AppColors.accentBlue, size: 18),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Current Location',
-                          style: AppTypography.caption.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.accentBlue,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Current Location',
+                            style: AppTypography.caption.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.accentBlue,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          '16th Road, Bandra West',
-                          style: AppTypography.body.copyWith(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
+                          const SizedBox(height: 2),
+                          Text(
+                            '16th Road, Bandra West',
+                            style: AppTypography.body.copyWith(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                    const Icon(Icons.chevron_right, color: AppColors.textSecondary, size: 20),
+                  ],
+                ),
               ),
             );
           }),
