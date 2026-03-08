@@ -1,5 +1,5 @@
 import re
-from django.contrib.auth import get_user_model, login
+from django.contrib.auth import authenticate, get_user_model, login
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse
@@ -111,4 +111,63 @@ class RegisterView(APIView):
                 },
             },
             status=status.HTTP_201_CREATED,
+        )
+
+
+class SignInView(APIView):
+    """
+    POST only. Authenticates with email and password; creates session and returns session_id and user info.
+    Body: email, password.
+    """
+    authentication_classes = []
+    permission_classes = []
+
+    def post(self, request):
+        data = request.data if hasattr(request, 'data') and request.data is not None else {}
+        if not isinstance(data, dict):
+            data = {}
+
+        email = (data.get('email') or '').strip().lower()
+        password = data.get('password') or ''
+
+        if not email:
+            return JsonResponse(
+                {'error': 'Email is required.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if not password:
+            return JsonResponse(
+                {'error': 'Password is required.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if not EMAIL_REGEX.match(email):
+            return JsonResponse(
+                {'error': 'Enter a valid email address.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # User was created with username=email
+        user = authenticate(request, username=email, password=password)
+        if user is None:
+            return JsonResponse(
+                {'error': 'Invalid email or password.'},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+        login(request, user)
+        session_key = request.session.session_key
+        if not session_key:
+            request.session.create()
+            session_key = request.session.session_key
+
+        full_name = user.get_full_name() or user.first_name or ''
+        return JsonResponse(
+            {
+                'session_id': session_key,
+                'user': {
+                    'full_name': full_name,
+                    'email': user.email,
+                },
+            },
+            status=status.HTTP_200_OK,
         )
