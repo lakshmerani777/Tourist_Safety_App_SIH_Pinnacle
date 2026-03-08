@@ -7,27 +7,22 @@ import '../core/widgets/input_field.dart';
 import '../core/widgets/safety_button.dart';
 import '../providers/user_profile_provider.dart';
 
-class RegistrationScreen extends ConsumerStatefulWidget {
-  const RegistrationScreen({super.key});
+class LoginScreen extends ConsumerStatefulWidget {
+  const LoginScreen({super.key});
 
   @override
-  ConsumerState<RegistrationScreen> createState() => _RegistrationScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
-  final _nameController = TextEditingController();
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
-  bool _obscureConfirm = true;
 
   @override
   void dispose() {
-    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
-    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -73,24 +68,17 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                   ),
                   const SizedBox(height: 24),
                   Center(
-                    child: Text('Create Account', style: AppTypography.h1),
+                    child: Text('Sign In', style: AppTypography.h1),
                   ),
                   const SizedBox(height: 8),
                   Center(
                     child: Text(
-                      'Register to access the Tourist Safety System',
+                      'Welcome back to the Tourist Safety System',
                       style: AppTypography.caption,
                       textAlign: TextAlign.center,
                     ),
                   ),
                   const SizedBox(height: 40),
-                  InputField(
-                    label: 'Full Name',
-                    controller: _nameController,
-                    prefixIcon: Icons.person_outline,
-                    hintText: 'Enter your full name',
-                  ),
-                  const SizedBox(height: 20),
                   InputField(
                     label: 'Email Address',
                     controller: _emailController,
@@ -104,7 +92,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                     controller: _passwordController,
                     prefixIcon: Icons.lock_outline,
                     obscureText: _obscurePassword,
-                    hintText: 'Create a password',
+                    hintText: 'Enter your password',
                     suffixIcon: IconButton(
                       icon: Icon(
                         _obscurePassword
@@ -117,31 +105,12 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                           setState(() => _obscurePassword = !_obscurePassword),
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  InputField(
-                    label: 'Confirm Password',
-                    controller: _confirmPasswordController,
-                    prefixIcon: Icons.lock_outline,
-                    obscureText: _obscureConfirm,
-                    hintText: 'Confirm your password',
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscureConfirm
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
-                        color: AppColors.textSecondary,
-                        size: 20,
-                      ),
-                      onPressed: () =>
-                          setState(() => _obscureConfirm = !_obscureConfirm),
-                    ),
-                  ),
                   const SizedBox(height: 32),
                   SafetyButton(
-                    text: 'Create Account',
+                    text: 'Sign In',
                     onPressed: () {
                       ref.read(userProfileProvider).setRegistered(
-                            _nameController.text,
+                            _emailController.text.split('@').first,
                             _emailController.text,
                           );
                       context.go('/onboarding');
@@ -150,14 +119,14 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                   const SizedBox(height: 24),
                   Center(
                     child: GestureDetector(
-                      onTap: () => context.go('/login'),
+                      onTap: () => context.go('/register'),
                       child: RichText(
                         text: TextSpan(
-                          text: 'Already have an account? ',
+                          text: "Don't have an account? ",
                           style: AppTypography.caption,
                           children: [
                             TextSpan(
-                              text: 'Sign In',
+                              text: 'Create Account',
                               style: AppTypography.caption.copyWith(
                                 color: AppColors.accentBlue,
                                 fontWeight: FontWeight.w600,

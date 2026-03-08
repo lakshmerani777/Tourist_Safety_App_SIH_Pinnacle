@@ -1,14 +1,15 @@
 import 'package:go_router/go_router.dart';
-import '../../screens/splash_screen.dart';
-import '../../screens/registration_screen.dart';
-import '../../screens/onboarding_screen.dart';
-import '../../screens/home_dashboard_screen.dart';
-import '../../screens/sos_activated_screen.dart';
-import '../../screens/map_view_screen.dart';
-import '../../screens/emergency_contacts_screen.dart';
-import '../../screens/report_incident_screen.dart';
-import '../../screens/alerts_screen.dart';
-import '../../screens/profile_screen.dart';
+import 'package:tourist_safety_app_sih_pinnacle/screens/splash_screen.dart';
+import 'package:tourist_safety_app_sih_pinnacle/screens/registration_screen.dart';
+import 'package:tourist_safety_app_sih_pinnacle/screens/login_screen.dart';
+import 'package:tourist_safety_app_sih_pinnacle/screens/onboarding_screen.dart';
+import 'package:tourist_safety_app_sih_pinnacle/screens/home_dashboard_screen.dart';
+import 'package:tourist_safety_app_sih_pinnacle/screens/sos_activated_screen.dart';
+import 'package:tourist_safety_app_sih_pinnacle/screens/map_view_screen.dart';
+import 'package:tourist_safety_app_sih_pinnacle/screens/emergency_contacts_screen.dart';
+import 'package:tourist_safety_app_sih_pinnacle/screens/report_incident_screen.dart';
+import 'package:tourist_safety_app_sih_pinnacle/screens/alerts_screen.dart';
+import 'package:tourist_safety_app_sih_pinnacle/screens/profile_screen.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/splash',
@@ -20,6 +21,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/register',
       builder: (context, state) => const RegistrationScreen(),
+    ),
+    GoRoute(
+      path: '/login',
+      builder: (context, state) => const LoginScreen(),
     ),
     GoRoute(
       path: '/onboarding',
