@@ -6,6 +6,8 @@ class NavigationButtons extends StatelessWidget {
   final VoidCallback? onContinue;
   final String continueText;
   final bool showBack;
+  /// When false, the Continue button is not shown (e.g. until OTP is verified).
+  final bool showContinue;
 
   const NavigationButtons({
     super.key,
@@ -13,6 +15,7 @@ class NavigationButtons extends StatelessWidget {
     this.onContinue,
     this.continueText = 'Continue',
     this.showBack = true,
+    this.showContinue = true,
   });
 
   @override
@@ -27,14 +30,15 @@ class NavigationButtons extends StatelessWidget {
               variant: SafetyButtonVariant.outlined,
             ),
           ),
-          const SizedBox(width: 12),
+          if (showContinue) const SizedBox(width: 12),
         ],
-        Expanded(
-          child: SafetyButton(
-            text: continueText,
-            onPressed: onContinue,
+        if (showContinue)
+          Expanded(
+            child: SafetyButton(
+              text: continueText,
+              onPressed: onContinue,
+            ),
           ),
-        ),
       ],
     );
   }
