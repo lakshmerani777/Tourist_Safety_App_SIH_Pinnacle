@@ -13,7 +13,13 @@ SECRET_KEY = 'django-insecure-m4=8@z-0!vv4leea(2hu))@e*m!6+!8b-h9w-6mzh*8vcoe3sa
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '10.0.2.2']
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '10.0.2.2',
+    'warm-leopard-uniquely.ngrok-free.app',
+    '.ngrok-free.app',  # any ngrok tunnel subdomain
+]
 
 
 # Application definition
