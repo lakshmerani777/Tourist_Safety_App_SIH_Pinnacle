@@ -87,10 +87,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       body: SafeArea(
         child: Stack(
           children: [
-            // Lock watermark
+            // Lock watermark – fixed from top so it doesn't slide when keyboard opens
             Positioned(
-              right: -30,
-              bottom: 100,
+              top: 80,
+              right: -50,
               child: Icon(
                 Icons.lock_outline,
                 size: 200,
