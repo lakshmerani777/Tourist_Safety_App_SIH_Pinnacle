@@ -108,7 +108,9 @@ class _MapViewScreenState extends ConsumerState<MapViewScreen> {
               target: location.currentPosition,
               zoom: 14,
             ),
-            myLocationEnabled: false,
+            myLocationEnabled: true,
+            myLocationButtonEnabled: false,
+            zoomControlsEnabled: false,
             markers: _buildMarkers(location.currentPosition),
             circles: _buildCircles(),
             onMapCreated: (controller) {
@@ -218,7 +220,7 @@ class _MapViewScreenState extends ConsumerState<MapViewScreen> {
                                   fontWeight: FontWeight.w600,
                                   fontSize: 11,
                                 )),
-                            Text('16th Road, Bandra West',
+                            Text(location.currentAddress,
                                 style: AppTypography.body
                                     .copyWith(fontSize: 13, fontWeight: FontWeight.w600)),
                           ],

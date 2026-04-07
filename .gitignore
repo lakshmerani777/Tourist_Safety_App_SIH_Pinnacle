@@ -34,7 +34,7 @@ migrate_working_dir/
 **/build/
 **/ephemeral/
 /coverage/
-
+.env
 # Symbolication related
 app.*.symbols
 
@@ -48,3 +48,9 @@ app.*.map.json
 
 # Backend secrets (do not commit)
 backend/PinnacleBackend/.env
+
+# Android secrets (do not commit)
+android/gradle.properties
+
+# Test scripts that may contain secrets
+testgeimini.py
