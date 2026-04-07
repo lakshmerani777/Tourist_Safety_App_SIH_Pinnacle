@@ -7,6 +7,7 @@ import '../core/theme/app_typography.dart';
 import '../core/widgets/safety_card.dart';
 import '../core/widgets/status_badge.dart';
 import '../widgets/chatbot_overlay.dart';
+import '../providers/location_provider.dart';
 
 class HomeDashboardScreen extends ConsumerStatefulWidget {
   const HomeDashboardScreen({super.key});
@@ -25,6 +26,9 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(locationProvider).fetchCurrentLocation();
+    });
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1500),
@@ -127,55 +131,65 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
           const SizedBox(height: 16),
 
           // Current Location Banner
-          Builder(builder: (context) {
-            return GestureDetector(
-              onTap: () => context.push('/map'),
-              child: SafetyCard(
-                accentColor: AppColors.accentBlue,
-                padding: const EdgeInsets.all(14),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppColors.accentBlue.withValues(alpha: 0.15),
+          Consumer(
+            builder: (context, ref, _) {
+              final location = ref.watch(locationProvider);
+              return GestureDetector(
+                onTap: () => context.push('/map'),
+                child: SafetyCard(
+                  accentColor: AppColors.accentBlue,
+                  padding: const EdgeInsets.all(14),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppColors.accentBlue.withValues(alpha: 0.15),
+                        ),
+                        child: location.isLoading
+                            ? const Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation(AppColors.accentBlue),
+                                ),
+                              )
+                            : const Icon(Icons.my_location, color: AppColors.accentBlue, size: 18),
                       ),
-                      child: const Icon(Icons.my_location,
-                          color: AppColors.accentBlue, size: 18),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Current Location',
-                            style: AppTypography.caption.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.accentBlue,
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Current Location',
+                              style: AppTypography.caption.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.accentBlue,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            '16th Road, Bandra West',
-                            style: AppTypography.body.copyWith(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
+                            const SizedBox(height: 2),
+                            Text(
+                              location.currentAddress,
+                              style: AppTypography.body.copyWith(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
                             ),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                    const Icon(Icons.chevron_right, color: AppColors.textSecondary, size: 20),
-                  ],
+                      const Icon(Icons.chevron_right, color: AppColors.textSecondary, size: 20),
+                    ],
+                  ),
                 ),
-              ),
-            );
-          }),
+              );
+            },
+          ),
           const SizedBox(height: 16),
 
           // Safety Status Card
