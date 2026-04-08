@@ -6,8 +6,10 @@ import '../core/theme/app_colors.dart';
 import '../core/theme/app_typography.dart';
 import '../core/widgets/safety_card.dart';
 import '../core/widgets/status_badge.dart';
+import '../core/router/app_router.dart';
 import '../widgets/chatbot_overlay.dart';
 import '../providers/location_provider.dart';
+import '../services/widget_service.dart';
 
 class HomeDashboardScreen extends ConsumerStatefulWidget {
   const HomeDashboardScreen({super.key});
@@ -36,6 +38,10 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
     _pulseAnimation = Tween<double>(begin: 1.0, end: 1.15).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
+
+    // Initialise the home-screen widget bridge and sync status.
+    WidgetService.init(appRouter);
+    WidgetService.updateSafetyStatus(isProtected: true);
   }
 
   @override
