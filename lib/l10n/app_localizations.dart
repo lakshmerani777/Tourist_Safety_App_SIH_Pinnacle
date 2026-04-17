@@ -135,6 +135,192 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Continue'**
   String get continueButton;
+
+  /// No description provided for @appTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tourist Safety'**
+  String get appTitle;
+
+  /// No description provided for @appTagline.
+  ///
+  /// In en, this message translates to:
+  /// **'Protecting every journey'**
+  String get appTagline;
+
+  /// No description provided for @govBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'OFFICIAL GOVERNMENT SAFETY SYSTEM'**
+  String get govBadge;
+
+  /// No description provided for @signIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign In'**
+  String get signIn;
+
+  /// No description provided for @loginWelcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back to the Tourist Safety System'**
+  String get loginWelcome;
+
+  /// No description provided for @emailAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Email Address'**
+  String get emailAddress;
+
+  /// No description provided for @enterEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email'**
+  String get enterEmail;
+
+  /// No description provided for @password.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get password;
+
+  /// No description provided for @enterPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your password'**
+  String get enterPassword;
+
+  /// No description provided for @forgotPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password?'**
+  String get forgotPassword;
+
+  /// No description provided for @noAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t have an account? '**
+  String get noAccount;
+
+  /// No description provided for @createAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Account'**
+  String get createAccount;
+
+  /// No description provided for @errorEmptyEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your email.'**
+  String get errorEmptyEmail;
+
+  /// No description provided for @errorInvalidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid email address.'**
+  String get errorInvalidEmail;
+
+  /// No description provided for @errorEmptyPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your password.'**
+  String get errorEmptyPassword;
+
+  /// No description provided for @errorLoginFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in failed. Please try again.'**
+  String get errorLoginFailed;
+
+  /// No description provided for @registerWelcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Register to access the Tourist Safety System'**
+  String get registerWelcome;
+
+  /// No description provided for @fullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Name'**
+  String get fullName;
+
+  /// No description provided for @enterFullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your full name'**
+  String get enterFullName;
+
+  /// No description provided for @confirmPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Password'**
+  String get confirmPassword;
+
+  /// No description provided for @enterConfirmPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm your password'**
+  String get enterConfirmPassword;
+
+  /// No description provided for @alreadyHaveAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account? '**
+  String get alreadyHaveAccount;
+
+  /// No description provided for @errorEmptyName.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your full name.'**
+  String get errorEmptyName;
+
+  /// No description provided for @errorCreatePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Please create a password.'**
+  String get errorCreatePassword;
+
+  /// No description provided for @errorShortPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 8 characters.'**
+  String get errorShortPassword;
+
+  /// No description provided for @errorPasswordMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match.'**
+  String get errorPasswordMismatch;
+
+  /// No description provided for @errorRegisterFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration failed. Please try again.'**
+  String get errorRegisterFailed;
+
+  /// No description provided for @resetPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Password'**
+  String get resetPassword;
+
+  /// No description provided for @resetPasswordCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email and we\'ll send you a link to reset your password'**
+  String get resetPasswordCaption;
+
+  /// No description provided for @sendResetLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Send reset link'**
+  String get sendResetLink;
+
+  /// No description provided for @rememberPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Remember your password? '**
+  String get rememberPassword;
 }
 
 class _AppLocalizationsDelegate

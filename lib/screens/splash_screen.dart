@@ -5,6 +5,7 @@ import '../core/theme/app_typography.dart';
 import '../services/auth_flow_persistence.dart';
 import '../services/maps_config_service.dart';
 import '../services/session_storage_service.dart';
+import '../l10n/app_localizations.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -93,11 +94,11 @@ class _SplashScreenState extends State<SplashScreen>
                   ),
                   const SizedBox(height: 24),
                   // App Name
-                  Text('Tourist Safety', style: AppTypography.h1),
+                  Text(AppLocalizations.of(context)?.appTitle ?? 'Tourist Safety', style: AppTypography.h1),
                   const SizedBox(height: 8),
                   // Tagline
                   Text(
-                    'Protecting every journey',
+                    AppLocalizations.of(context)?.appTagline ?? 'Protecting every journey',
                     style: AppTypography.caption,
                   ),
                   const Spacer(flex: 3),
@@ -110,7 +111,7 @@ class _SplashScreenState extends State<SplashScreen>
                       border: Border.all(color: AppColors.border),
                     ),
                     child: Text(
-                      'OFFICIAL GOVERNMENT SAFETY SYSTEM',
+                      AppLocalizations.of(context)?.govBadge ?? 'OFFICIAL GOVERNMENT SAFETY SYSTEM',
                       style: AppTypography.caption.copyWith(
                         fontSize: 10,
                         letterSpacing: 1.5,

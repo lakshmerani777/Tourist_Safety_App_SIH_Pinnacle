@@ -9,6 +9,7 @@ import '../providers/api_providers.dart';
 import '../providers/user_profile_provider.dart';
 import '../services/api_client.dart';
 import '../services/auth_flow_persistence.dart';
+import '../l10n/app_localizations.dart';
 
 class RegistrationScreen extends ConsumerStatefulWidget {
   const RegistrationScreen({super.key});
@@ -44,27 +45,27 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
     final confirm = _confirmPasswordController.text;
 
     if (name.isEmpty) {
-      _showError('Please enter your full name.');
+      _showError(AppLocalizations.of(context)?.errorEmptyName ?? 'Please enter your full name.');
       return;
     }
     if (email.isEmpty) {
-      _showError('Please enter your email.');
+      _showError(AppLocalizations.of(context)?.errorEmptyEmail ?? 'Please enter your email.');
       return;
     }
     if (!_emailRegex.hasMatch(email)) {
-      _showError('Please enter a valid email address.');
+      _showError(AppLocalizations.of(context)?.errorInvalidEmail ?? 'Please enter a valid email address.');
       return;
     }
     if (password.isEmpty) {
-      _showError('Please create a password.');
+      _showError(AppLocalizations.of(context)?.errorCreatePassword ?? 'Please create a password.');
       return;
     }
     if (password.length < 8) {
-      _showError('Password must be at least 8 characters.');
+      _showError(AppLocalizations.of(context)?.errorShortPassword ?? 'Password must be at least 8 characters.');
       return;
     }
     if (password != confirm) {
-      _showError('Passwords do not match.');
+      _showError(AppLocalizations.of(context)?.errorPasswordMismatch ?? 'Passwords do not match.');
       return;
     }
 
@@ -88,7 +89,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
     } on ApiException catch (e) {
       if (mounted) _showError(e.message);
     } catch (_) {
-      if (mounted) _showError('Registration failed. Please try again.');
+      if (mounted) _showError(AppLocalizations.of(context)?.errorRegisterFailed ?? 'Registration failed. Please try again.');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -145,34 +146,34 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                   ),
                   const SizedBox(height: 24),
                   Center(
-                    child: Text('Create Account', style: AppTypography.h1),
+                    child: Text(AppLocalizations.of(context)?.createAccount ?? 'Create Account', style: AppTypography.h1),
                   ),
                   const SizedBox(height: 8),
                   Center(
                     child: Text(
-                      'Register to access the Tourist Safety System',
+                      AppLocalizations.of(context)?.registerWelcome ?? 'Register to access the Tourist Safety System',
                       style: AppTypography.caption,
                       textAlign: TextAlign.center,
                     ),
                   ),
                   const SizedBox(height: 40),
                   InputField(
-                    label: 'Full Name',
+                    label: AppLocalizations.of(context)?.fullName ?? 'Full Name',
                     controller: _nameController,
                     prefixIcon: Icons.person_outline,
-                    hintText: 'Enter your full name',
+                    hintText: AppLocalizations.of(context)?.enterFullName ?? 'Enter your full name',
                   ),
                   const SizedBox(height: 20),
                   InputField(
-                    label: 'Email Address',
+                    label: AppLocalizations.of(context)?.emailAddress ?? 'Email Address',
                     controller: _emailController,
                     prefixIcon: Icons.email_outlined,
                     keyboardType: TextInputType.emailAddress,
-                    hintText: 'Enter your email',
+                    hintText: AppLocalizations.of(context)?.enterEmail ?? 'Enter your email',
                   ),
                   const SizedBox(height: 20),
                   InputField(
-                    label: 'Password',
+                    label: AppLocalizations.of(context)?.password ?? 'Password',
                     controller: _passwordController,
                     prefixIcon: Icons.lock_outline,
                     obscureText: _obscurePassword,
@@ -191,11 +192,11 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                   ),
                   const SizedBox(height: 20),
                   InputField(
-                    label: 'Confirm Password',
+                    label: AppLocalizations.of(context)?.confirmPassword ?? 'Confirm Password',
                     controller: _confirmPasswordController,
                     prefixIcon: Icons.lock_outline,
                     obscureText: _obscureConfirm,
-                    hintText: 'Confirm your password',
+                    hintText: AppLocalizations.of(context)?.enterConfirmPassword ?? 'Confirm your password',
                     suffixIcon: IconButton(
                       icon: Icon(
                         _obscureConfirm
@@ -210,7 +211,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                   ),
                   const SizedBox(height: 32),
                   SafetyButton(
-                    text: 'Create Account',
+                    text: AppLocalizations.of(context)?.createAccount ?? 'Create Account',
                     onPressed: _onCreateAccount,
                     isLoading: _isLoading,
                   ),
@@ -220,11 +221,11 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                       onTap: () => context.go('/login'),
                       child: RichText(
                         text: TextSpan(
-                          text: 'Already have an account? ',
+                          text: AppLocalizations.of(context)?.alreadyHaveAccount ?? 'Already have an account? ',
                           style: AppTypography.caption,
                           children: [
                             TextSpan(
-                              text: 'Sign In',
+                              text: AppLocalizations.of(context)?.signIn ?? 'Sign In',
                               style: AppTypography.caption.copyWith(
                                 color: AppColors.accentBlue,
                                 fontWeight: FontWeight.w600,
