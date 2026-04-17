@@ -1,8 +1,11 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:latlong2/latlong.dart';
+import '../services/firestore_service.dart';
+import '../models/firestore_models.dart';
 
 class LocationSharingState {
   final bool sharingWithAuthorities;
@@ -42,6 +45,8 @@ class LocationSharingState {
 class LocationSharingNotifier extends ChangeNotifier {
   LocationSharingState _state = const LocationSharingState();
   LocationSharingState get state => _state;
+  final FirestoreService _firestore = FirestoreService();
+  Timer? _locationPushTimer;
 
   static const _baseUrl = 'https://lakshmerani777.github.io/Tourist_Safety_App_SIH_Pinnacle/web/share_location_page.html';
 
@@ -90,6 +95,15 @@ class LocationSharingNotifier extends ChangeNotifier {
       sharingStartedAt: newValue ? DateTime.now() : _state.sharingStartedAt,
     );
 
+    if (newValue && sessionId != null) {
+      // Push location to Firestore immediately
+      _pushLocationToFirestore(position, name, sessionId);
+    } else if (!newValue && sessionId != null) {
+      // Remove from Firestore
+      _firestore.removeTouristLocation(sessionId);
+      _locationPushTimer?.cancel();
+    }
+
     // Rebuild the link if family sharing is also on
     if (_state.sharingWithFamily) {
       _rebuildLink(position, name);
@@ -125,11 +139,24 @@ class LocationSharingNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Regenerate link when position updates while sharing is active
   void updateSharedPosition(LatLng position, String name) {
-    if (!_state.sharingWithFamily) return;
-    _rebuildLink(position, name);
+    if (!_state.sharingWithFamily && !_state.sharingWithAuthorities) return;
+    if (_state.sharingWithFamily) _rebuildLink(position, name);
+    if (_state.sharingWithAuthorities && _state.sessionId != null) {
+      _pushLocationToFirestore(position, name, _state.sessionId!);
+    }
     notifyListeners();
+  }
+
+  void _pushLocationToFirestore(LatLng pos, String name, String sessionId) {
+    final loc = TouristLocation(
+      id: sessionId,
+      name: name,
+      latitude: pos.latitude,
+      longitude: pos.longitude,
+      lastUpdated: DateTime.now(),
+    );
+    _firestore.updateTouristLocation(sessionId, loc);
   }
 
   void _rebuildLink(LatLng position, String name) {
@@ -145,6 +172,10 @@ class LocationSharingNotifier extends ChangeNotifier {
   }
 
   void stopAllSharing() {
+    if (_state.sessionId != null) {
+      _firestore.removeTouristLocation(_state.sessionId!);
+    }
+    _locationPushTimer?.cancel();
     _state = const LocationSharingState();
     _persist();
     notifyListeners();

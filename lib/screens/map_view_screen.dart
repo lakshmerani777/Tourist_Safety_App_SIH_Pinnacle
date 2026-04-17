@@ -9,6 +9,8 @@ import '../core/widgets/status_badge.dart';
 import '../providers/location_provider.dart';
 import '../providers/weather_provider.dart';
 import '../l10n/app_localizations.dart';
+import '../services/firestore_service.dart';
+import '../models/firestore_models.dart';
 
 class MapViewScreen extends ConsumerStatefulWidget {
   const MapViewScreen({super.key});
@@ -19,33 +21,7 @@ class MapViewScreen extends ConsumerStatefulWidget {
 
 class _MapViewScreenState extends ConsumerState<MapViewScreen> {
   final MapController _mapController = MapController();
-
-  static const List<LatLng> _highRiskZoneCenters = [
-    LatLng(19.066418, 72.878737),
-    LatLng(19.101552, 72.895888),
-    LatLng(19.043794, 72.853642),
-    LatLng(18.965636, 72.825986),
-    LatLng(19.156275, 72.928302),
-  ];
-
-  // Mock incident markers
-  final List<_IncidentMarker> _incidents = [
-    _IncidentMarker(
-      position: const LatLng(19.0820, 72.8810),
-      title: 'Pickpocketing Alert',
-      type: BadgeType.alert,
-    ),
-    _IncidentMarker(
-      position: const LatLng(19.0700, 72.8700),
-      title: 'Traffic Incident',
-      type: BadgeType.warning,
-    ),
-    _IncidentMarker(
-      position: const LatLng(19.0800, 72.8900),
-      title: 'Tourist Assistance Point',
-      type: BadgeType.active,
-    ),
-  ];
+  final FirestoreService _firestore = FirestoreService();
 
   Future<void> _launchMapsSearch(String query) async {
     final Uri url = Uri.parse('geo:0,0?q=${Uri.encodeComponent(query)}');
@@ -58,45 +34,15 @@ class _MapViewScreenState extends ConsumerState<MapViewScreen> {
     }
   }
 
-  List<Marker> _buildMarkers(LatLng userPosition) {
-    return [
-      Marker(
-        point: userPosition,
-        width: 40,
-        height: 40,
-        child: const Icon(Icons.location_on, color: AppColors.accentBlue, size: 40),
-      ),
-      ..._incidents.asMap().entries.map((e) => Marker(
-            point: e.value.position,
-            width: 40,
-            height: 40,
-            child: Icon(
-              Icons.warning,
-              color: e.value.type == BadgeType.alert
-                  ? AppColors.alertRed
-                  : e.value.type == BadgeType.warning
-                      ? AppColors.warning
-                      : AppColors.success,
-              size: 30,
-            ),
-          )),
-    ];
-  }
-
-  List<CircleMarker> _buildCircles() {
-    const fillColor = AppColors.alertRed;
-    const strokeColor = AppColors.alertRed;
-    return [
-      for (var i = 0; i < _highRiskZoneCenters.length; i++)
-        CircleMarker(
-          point: _highRiskZoneCenters[i],
-          radius: 500,
-          useRadiusInMeter: true,
-          color: fillColor.withValues(alpha: 0.15),
-          borderColor: strokeColor.withValues(alpha: 0.4),
-          borderStrokeWidth: 2,
-        ),
-    ];
+  Color _severityColor(String severity) {
+    switch (severity) {
+      case 'HIGH':
+        return AppColors.alertRed;
+      case 'MEDIUM':
+        return AppColors.warning;
+      default:
+        return AppColors.accentBlue;
+    }
   }
 
   @override
@@ -107,25 +53,67 @@ class _MapViewScreenState extends ConsumerState<MapViewScreen> {
       backgroundColor: AppColors.background,
       body: Stack(
         children: [
-          // Map
-          FlutterMap(
-            mapController: _mapController,
-            options: MapOptions(
-              initialCenter: location.currentPosition,
-              initialZoom: 14.0,
-            ),
-            children: [
-              TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName: 'com.example.tourist_safety_app_sih_pinnacle',
-              ),
-              CircleLayer(
-                circles: _buildCircles(),
-              ),
-              MarkerLayer(
-                markers: _buildMarkers(location.currentPosition),
-              ),
-            ],
+          // Map with Firestore streams
+          StreamBuilder<List<UnsafeZone>>(
+            stream: _firestore.streamUnsafeZones(),
+            builder: (context, zoneSnap) {
+              final zones = zoneSnap.data ?? [];
+              return StreamBuilder<List<IncidentReport>>(
+                stream: _firestore.streamIncidents(),
+                builder: (context, incSnap) {
+                  final incidents = incSnap.data ?? [];
+                  return FlutterMap(
+                    mapController: _mapController,
+                    options: MapOptions(
+                      initialCenter: location.currentPosition,
+                      initialZoom: 14.0,
+                    ),
+                    children: [
+                      TileLayer(
+                        urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                        userAgentPackageName: 'com.example.tourist_safety_app_sih_pinnacle',
+                      ),
+                      // Unsafe zone polygons from Firestore
+                      if (zones.isNotEmpty)
+                        PolygonLayer(
+                          polygons: zones.map((z) => Polygon(
+                            points: z.polygon,
+                            color: _severityColor(z.severity).withValues(alpha: 0.15),
+                            borderColor: _severityColor(z.severity).withValues(alpha: 0.4),
+                            borderStrokeWidth: 2,
+                            label: z.name,
+                            labelStyle: AppTypography.caption.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          )).toList(),
+                        ),
+                      // User location marker
+                      MarkerLayer(
+                        markers: [
+                          Marker(
+                            point: location.currentPosition,
+                            width: 40,
+                            height: 40,
+                            child: const Icon(Icons.location_on, color: AppColors.accentBlue, size: 40),
+                          ),
+                          // Incident markers from Firestore
+                          ...incidents.map((inc) => Marker(
+                            point: LatLng(inc.latitude, inc.longitude),
+                            width: 40,
+                            height: 40,
+                            child: Tooltip(
+                              message: '${inc.type}: ${inc.address}',
+                              child: Icon(Icons.warning, color: _severityColor('HIGH'), size: 30),
+                            ),
+                          )),
+                        ],
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
           ),
 
           // Top search bar
@@ -518,17 +506,6 @@ class _QuickActionButton extends StatelessWidget {
   }
 }
 
-class _IncidentMarker {
-  final LatLng position;
-  final String title;
-  final BadgeType type;
-
-  _IncidentMarker({
-    required this.position,
-    required this.title,
-    required this.type,
-  });
-}
 
 class _LegendItem extends StatelessWidget {
   final Color color;

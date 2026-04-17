@@ -1,4 +1,5 @@
 import 'package:google_generative_ai/google_generative_ai.dart';
+import '../services/firestore_service.dart';
 
 /// Service that wraps Google Gemini Flash 2.0 for the Tourist Safety chatbot.
 class GeminiChatService {
@@ -125,6 +126,32 @@ USER LOCATION: MUMBAI
       ),
     );
     _chat = _model.startChat();
+    _loadCustomInstructions(apiKey);
+  }
+
+  /// Loads custom instructions from Firestore and reinitializes the model.
+  Future<void> _loadCustomInstructions(String apiKey) async {
+    try {
+      final firestore = FirestoreService();
+      final custom = await firestore.getChatbotInstructions();
+      if (custom != null && custom.isNotEmpty) {
+        final fullPrompt = '$_systemPrompt\n\n--- POLICE CUSTOM INSTRUCTIONS ---\n$custom';
+        _model = GenerativeModel(
+          model: 'gemini-2.5-flash',
+          apiKey: apiKey,
+          systemInstruction: Content.system(fullPrompt),
+          generationConfig: GenerationConfig(
+            temperature: 0.7,
+            topP: 0.95,
+            topK: 40,
+            maxOutputTokens: 1024,
+          ),
+        );
+        _chat = _model.startChat();
+      }
+    } catch (_) {
+      // Firestore not configured yet, use default prompt
+    }
   }
 
   /// Sends a message and returns the full response text.
