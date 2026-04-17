@@ -4,26 +4,8 @@ import '../core/theme/app_colors.dart';
 import '../core/theme/app_typography.dart';
 import '../core/widgets/status_badge.dart';
 import '../l10n/app_localizations.dart';
-
-enum AlertSeverity { high, medium, low }
-
-class AlertData {
-  final String title;
-  final String description;
-  final String location;
-  final String timeIssued;
-  final AlertSeverity severity;
-  final String helplineNumber;
-
-  const AlertData({
-    required this.title,
-    required this.description,
-    required this.location,
-    required this.timeIssued,
-    required this.severity,
-    required this.helplineNumber,
-  });
-}
+import '../services/firestore_service.dart';
+import '../models/firestore_models.dart';
 
 class AlertsScreen extends StatefulWidget {
   const AlertsScreen({super.key});
@@ -33,41 +15,7 @@ class AlertsScreen extends StatefulWidget {
 }
 
 class _AlertsScreenState extends State<AlertsScreen> {
-  // Mock alerts data for Mumbai
-  final List<AlertData> _alerts = [
-    const AlertData(
-      title: 'Heavy Rainfall Warning',
-      description: 'The IMD has issued a Red Alert for Mumbai and surrounding areas. Expected heavy to very heavy rainfall over the next 24 hours. Tourists are advised to avoid coastal areas, beaches (Juhu, Girgaon), and low-lying regions. Stay indoors and avoid unnecessary travel.',
-      location: 'Mumbai City & Suburbs',
-      timeIssued: '2 hours ago',
-      severity: AlertSeverity.high,
-      helplineNumber: '1077', // Disaster Management
-    ),
-    const AlertData(
-      title: 'Crowd Surge Warning',
-      description: 'Lalbaugcha Raja and surrounding areas are experiencing massive crowd surges. Tourist movement is heavily restricted. Please use designated tourist lanes and avoid carrying valuables. Be aware of your surroundings to prevent stampede-like situations.',
-      location: 'Lalbaug, Parel',
-      timeIssued: '4 hours ago',
-      severity: AlertSeverity.high,
-      helplineNumber: '100', // Police
-    ),
-    const AlertData(
-      title: 'Pickpocketing Hotspot',
-      description: 'Increased reports of organized pickpocketing and bag snatching incidents near the Gateway of India and Colaba Causeway. Tourists should keep belongings secure, carry bags in front, and avoid interactions with aggressive street vendors.',
-      location: 'Colaba / South Mumbai',
-      timeIssued: '1 day ago',
-      severity: AlertSeverity.medium,
-      helplineNumber: '1363', // Tourist Helpline
-    ),
-    const AlertData(
-      title: 'Traffic Diversions (VIP Movement)',
-      description: 'Major traffic diversions are in place along the Bandra-Worli Sea Link and Marine Drive due to VIP movement. Expect delays of up to 45 minutes on these routes. Plan airport transfers accordingly.',
-      location: 'Bandra-Worli Sea Link / Marine Drive',
-      timeIssued: '30 mins ago',
-      severity: AlertSeverity.low,
-      helplineNumber: '108', // General Help
-    ),
-  ];
+  final FirestoreService _firestore = FirestoreService();
 
   Future<void> _makePhoneCall(String phoneNumber) async {
     final Uri launchUri = Uri(
@@ -93,17 +41,39 @@ class _AlertsScreenState extends State<AlertsScreen> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-        itemCount: _alerts.length,
-        itemBuilder: (context, index) {
-          final alert = _alerts[index];
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 16.0),
-            child: _AlertCard(
-              alert: alert,
-              onCallPressed: () => _makePhoneCall(alert.helplineNumber),
-            ),
+      body: StreamBuilder<List<SafetyAlert>>(
+        stream: _firestore.streamAlerts(),
+        builder: (context, snap) {
+          if (snap.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final alerts = snap.data ?? [];
+          if (alerts.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.check_circle_outline, color: AppColors.success, size: 48),
+                  const SizedBox(height: 12),
+                  Text('No active alerts in your area',
+                      style: AppTypography.body.copyWith(color: AppColors.textSecondary)),
+                ],
+              ),
+            );
+          }
+          return ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            itemCount: alerts.length,
+            itemBuilder: (context, index) {
+              final alert = alerts[index];
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 16.0),
+                child: _AlertCard(
+                  alert: alert,
+                  onCallPressed: () => _makePhoneCall(alert.helplineNumber),
+                ),
+              );
+            },
           );
         },
       ),
@@ -112,7 +82,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
 }
 
 class _AlertCard extends StatefulWidget {
-  final AlertData alert;
+  final SafetyAlert alert;
   final VoidCallback onCallPressed;
 
   const _AlertCard({
@@ -129,13 +99,20 @@ class _AlertCardState extends State<_AlertCard> {
 
   Color _getAccentColor() {
     switch (widget.alert.severity) {
-      case AlertSeverity.high:
+      case 'HIGH':
         return AppColors.alertRed;
-      case AlertSeverity.medium:
+      case 'MEDIUM':
         return AppColors.warning;
-      case AlertSeverity.low:
+      default:
         return AppColors.accentBlue;
     }
+  }
+
+  String _formatTime(DateTime dt) {
+    final diff = DateTime.now().difference(dt);
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    return '${diff.inDays}d ago';
   }
 
   @override
@@ -166,15 +143,15 @@ class _AlertCardState extends State<_AlertCard> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     StatusBadge(
-                      type: widget.alert.severity == AlertSeverity.high 
-                          ? BadgeType.alert 
-                          : widget.alert.severity == AlertSeverity.medium 
-                              ? BadgeType.warning 
+                      type: widget.alert.severity == 'HIGH'
+                          ? BadgeType.alert
+                          : widget.alert.severity == 'MEDIUM'
+                              ? BadgeType.warning
                               : BadgeType.active,
-                      label: widget.alert.severity.name.toUpperCase(),
+                      label: widget.alert.severity,
                     ),
                     Text(
-                      widget.alert.timeIssued,
+                      _formatTime(widget.alert.issuedAt),
                       style: AppTypography.caption,
                     ),
                   ],

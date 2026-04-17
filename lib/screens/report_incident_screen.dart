@@ -10,6 +10,9 @@ import '../core/widgets/safety_card.dart';
 import '../core/widgets/dropdown.dart';
 import '../core/widgets/input_field.dart';
 import '../l10n/app_localizations.dart';
+import '../services/firestore_service.dart';
+import '../models/firestore_models.dart';
+import '../providers/location_provider.dart';
 
 class ReportIncidentScreen extends ConsumerStatefulWidget {
   const ReportIncidentScreen({super.key});
@@ -20,6 +23,7 @@ class ReportIncidentScreen extends ConsumerStatefulWidget {
 
 class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
   final _descController = TextEditingController();
+  final FirestoreService _firestore = FirestoreService();
   String? _selectedIncidentType;
   List<String> get _incidentTypes => [
     AppLocalizations.of(context)?.incidentTheft ?? 'Theft / Pickpocketing',
@@ -83,6 +87,21 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
       );
       return;
     }
+    // Write to Firestore
+    final locationState = ref.read(locationProvider);
+    final incident = IncidentReport(
+      id: '',
+      type: _selectedIncidentType!,
+      description: _descController.text.trim(),
+      latitude: locationState.currentPosition.latitude,
+      longitude: locationState.currentPosition.longitude,
+      address: locationState.currentAddress,
+      reportedAt: DateTime(
+        _selectedDate.year, _selectedDate.month, _selectedDate.day,
+        _selectedTime.hour, _selectedTime.minute,
+      ),
+    );
+    _firestore.submitIncident(incident);
 
     // Show success dialog
     showDialog(
