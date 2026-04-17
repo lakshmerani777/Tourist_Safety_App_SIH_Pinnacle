@@ -236,4 +236,149 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get callHelpline => 'اتصل بخط المساعدة السياحية';
+
+  @override
+  String get cancelSosTitle => 'إلغاء نداء الاستغاثة؟';
+
+  @override
+  String get cancelSosMessage => 'هل أنت متأكد أنك تريد إلغاء تنبيه الطوارئ؟';
+
+  @override
+  String get keepActive => 'إبقاء نشطاً';
+
+  @override
+  String get cancelSosButton => 'إلغاء SOS';
+
+  @override
+  String get sosActivated => 'تم تنشيط SOS';
+
+  @override
+  String get sosNotified => 'تم إبلاغ خدمات الطوارئ.\nالمساعدة في الطريق.';
+
+  @override
+  String get sosNameLabel => 'الاسم';
+
+  @override
+  String get sosLocationLabel => 'الموقع';
+
+  @override
+  String get sosTimestampLabel => 'الوقت';
+
+  @override
+  String cancellationAvailableFor(Object countdown) {
+    return 'الإلغاء متاح لمدة: $countdown ثوان';
+  }
+
+  @override
+  String get mockLocation => '16th Road, Bandra West';
+
+  @override
+  String get reportIncidentTitle => 'الإبلاغ عن حادث';
+
+  @override
+  String get incidentTheft => 'سرقة / نشل';
+
+  @override
+  String get incidentMedical => 'طوارئ طبية';
+
+  @override
+  String get incidentAssault => 'تحرش / اعتداء';
+
+  @override
+  String get incidentLostItem => 'عنصر مفقود';
+
+  @override
+  String get incidentSuspicious => 'نشاط مشبوه';
+
+  @override
+  String get incidentAccident => 'حادث / اصطدام';
+
+  @override
+  String get incidentOther => 'أخرى';
+
+  @override
+  String get takePhoto => 'التقط صورة';
+
+  @override
+  String get chooseGallery => 'اختر من الاستوديو';
+
+  @override
+  String get errorSelectIncidentType => 'يرجى تحديد نوع الحادث.';
+
+  @override
+  String get reportSubmittedTitle => 'تم إرسال البلاغ';
+
+  @override
+  String get reportSubmittedMessage =>
+      'تم إرسال بلاغك بأمان إلى السلطات المحلية. المساعدة في الطريق إذا طلبت ذلك.';
+
+  @override
+  String get returnToHome => 'العودة للرئيسية';
+
+  @override
+  String get incidentTypeLabel => 'نوع الحادث';
+
+  @override
+  String get dateLabel => 'التاريخ';
+
+  @override
+  String get timeLabel => 'الوقت';
+
+  @override
+  String get currentGpsLocation => 'موقع GPS الحالي';
+
+  @override
+  String get mapViewButton => 'عرض الخريطة';
+
+  @override
+  String get descriptionLabel => 'الوصف';
+
+  @override
+  String get attachmentsLabel => 'المرفقات';
+
+  @override
+  String get recordingAudio => 'جاري التسجيل...';
+
+  @override
+  String get voiceNote => 'ملاحظة صوتية';
+
+  @override
+  String get mediaAdded => 'تمت إضافة الوسائط';
+
+  @override
+  String get addMedia => 'إضافة وسائط';
+
+  @override
+  String get submitReportButton => 'إرسال البلاغ';
+
+  @override
+  String get govHelplines => 'خطوط المساعدة الحكومية';
+
+  @override
+  String get touristHelpline => 'خط مساعدة السياح';
+
+  @override
+  String get policeHelpline => 'الشرطة';
+
+  @override
+  String get ambulanceHelpline => 'الإسعاف';
+
+  @override
+  String get fireBrigadeHelpline => 'الإطفاء';
+
+  @override
+  String get womensHelpline => 'خط مساعدة النساء';
+
+  @override
+  String get cyberCrimeHelpline => 'جرائم الإنترنت';
+
+  @override
+  String get yourEmergencyContacts => 'جهات اتصال الطوارئ';
+
+  @override
+  String get noContactsAdded => 'لم تتم إضافة جهات اتصال بعد.';
+
+  @override
+  String get addContactsOnboarding =>
+      'أضف جهات اتصال أثناء الإعداد لرؤيتها هنا.';
 }

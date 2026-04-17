@@ -6,6 +6,7 @@ import '../core/theme/app_typography.dart';
 import '../core/widgets/safety_card.dart';
 import '../core/widgets/safety_button.dart';
 import '../providers/sos_provider.dart';
+import '../l10n/app_localizations.dart';
 
 class SOSActivatedScreen extends ConsumerStatefulWidget {
   const SOSActivatedScreen({super.key});
@@ -49,16 +50,16 @@ class _SOSActivatedScreenState extends ConsumerState<SOSActivatedScreen>
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.card,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('Cancel SOS?', style: AppTypography.h2),
+        title: Text(AppLocalizations.of(context)?.cancelSosTitle ?? 'Cancel SOS?', style: AppTypography.h2),
         content: Text(
-          'Are you sure you want to cancel the emergency alert?',
+          AppLocalizations.of(context)?.cancelSosMessage ?? 'Are you sure you want to cancel the emergency alert?',
           style: AppTypography.body.copyWith(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child:
-                const Text('Keep Active', style: TextStyle(color: AppColors.textSecondary)),
+                Text(AppLocalizations.of(context)?.keepActive ?? 'Keep Active', style: const TextStyle(color: AppColors.textSecondary)),
           ),
           TextButton(
             onPressed: () {
@@ -66,8 +67,8 @@ class _SOSActivatedScreenState extends ConsumerState<SOSActivatedScreen>
               Navigator.pop(ctx);
               context.go('/home');
             },
-            child: const Text('Cancel SOS',
-                style: TextStyle(color: AppColors.alertRed)),
+            child: Text(AppLocalizations.of(context)?.cancelSosButton ?? 'Cancel SOS',
+                style: const TextStyle(color: AppColors.alertRed)),
           ),
         ],
       ),
@@ -121,7 +122,7 @@ class _SOSActivatedScreenState extends ConsumerState<SOSActivatedScreen>
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Current Location',
+                              AppLocalizations.of(context)?.currentLocation ?? 'Current Location',
                               style: AppTypography.caption.copyWith(
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.accentBlue,
@@ -129,7 +130,7 @@ class _SOSActivatedScreenState extends ConsumerState<SOSActivatedScreen>
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              '16th Road, Bandra West',
+                              AppLocalizations.of(context)?.mockLocation ?? '16th Road, Bandra West',
                               style: AppTypography.body.copyWith(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 15,
@@ -185,7 +186,7 @@ class _SOSActivatedScreenState extends ConsumerState<SOSActivatedScreen>
                 const SizedBox(height: 32),
 
                 Text(
-                  'SOS ACTIVATED',
+                  AppLocalizations.of(context)?.sosActivated ?? 'SOS ACTIVATED',
                   style: AppTypography.h1.copyWith(
                     color: AppColors.alertRed,
                     letterSpacing: 2,
@@ -193,7 +194,7 @@ class _SOSActivatedScreenState extends ConsumerState<SOSActivatedScreen>
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Emergency services have been notified.\nHelp is on the way.',
+                  AppLocalizations.of(context)?.sosNotified ?? 'Emergency services have been notified.\nHelp is on the way.',
                   style: AppTypography.body.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -207,11 +208,11 @@ class _SOSActivatedScreenState extends ConsumerState<SOSActivatedScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _DetailRow('Name', 'Tourist User'),
+                      _DetailRow(AppLocalizations.of(context)?.sosNameLabel ?? 'Name', 'Tourist User'),
                       const Divider(color: AppColors.border, height: 20),
-                      _DetailRow('Location', '16th Road, Bandra West'),
+                      _DetailRow(AppLocalizations.of(context)?.sosLocationLabel ?? 'Location', AppLocalizations.of(context)?.mockLocation ?? '16th Road, Bandra West'),
                       const Divider(color: AppColors.border, height: 20),
-                      _DetailRow('Timestamp', _getCurrentTime()),
+                      _DetailRow(AppLocalizations.of(context)?.sosTimestampLabel ?? 'Timestamp', _getCurrentTime()),
                     ],
                   ),
                 ),
@@ -224,7 +225,7 @@ class _SOSActivatedScreenState extends ConsumerState<SOSActivatedScreen>
                     child: Column(
                       children: [
                         Text(
-                          'Cancellation available for: ${sos.countdown}s',
+                          AppLocalizations.of(context)?.cancellationAvailableFor(sos.countdown) ?? 'Cancellation available for: ${sos.countdown}s',
                           style: AppTypography.caption,
                         ),
                         const SizedBox(height: 8),
@@ -247,7 +248,7 @@ class _SOSActivatedScreenState extends ConsumerState<SOSActivatedScreen>
                 // Cancel Button
                 if (sos.countdown > 0)
                   SafetyButton(
-                    text: 'Cancel SOS',
+                    text: AppLocalizations.of(context)?.cancelSosButton ?? 'Cancel SOS',
                     variant: SafetyButtonVariant.outlined,
                     onPressed: _cancelSOS,
                   ),

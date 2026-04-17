@@ -235,4 +235,147 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get callHelpline => '呼叫旅游热线';
+
+  @override
+  String get cancelSosTitle => '取消SOS？';
+
+  @override
+  String get cancelSosMessage => '您确定要取消紧急警报吗？';
+
+  @override
+  String get keepActive => '保持启用';
+
+  @override
+  String get cancelSosButton => '取消SOS';
+
+  @override
+  String get sosActivated => 'SOS已激活';
+
+  @override
+  String get sosNotified => '已通知紧急服务。\n救援正在路上。';
+
+  @override
+  String get sosNameLabel => '姓名';
+
+  @override
+  String get sosLocationLabel => '位置';
+
+  @override
+  String get sosTimestampLabel => '时间戳';
+
+  @override
+  String cancellationAvailableFor(Object countdown) {
+    return '取消有效倒计时：${countdown}s';
+  }
+
+  @override
+  String get mockLocation => '16th Road, Bandra West';
+
+  @override
+  String get reportIncidentTitle => '报告事件';
+
+  @override
+  String get incidentTheft => '盗窃 / 扒窃';
+
+  @override
+  String get incidentMedical => '医疗突发事件';
+
+  @override
+  String get incidentAssault => '骚扰 / 袭击';
+
+  @override
+  String get incidentLostItem => '丢失物品';
+
+  @override
+  String get incidentSuspicious => '可疑活动';
+
+  @override
+  String get incidentAccident => '事故 / 碰撞';
+
+  @override
+  String get incidentOther => '其他';
+
+  @override
+  String get takePhoto => '拍照';
+
+  @override
+  String get chooseGallery => '从相册选择';
+
+  @override
+  String get errorSelectIncidentType => '请选择事件类型。';
+
+  @override
+  String get reportSubmittedTitle => '报告已提交';
+
+  @override
+  String get reportSubmittedMessage => '您的报告已安全提交至地方当局。如果需要，救援正在路上。';
+
+  @override
+  String get returnToHome => '返回主页';
+
+  @override
+  String get incidentTypeLabel => '事件类型';
+
+  @override
+  String get dateLabel => '日期';
+
+  @override
+  String get timeLabel => '时间';
+
+  @override
+  String get currentGpsLocation => '当前GPS位置';
+
+  @override
+  String get mapViewButton => '地图视图';
+
+  @override
+  String get descriptionLabel => '描述';
+
+  @override
+  String get attachmentsLabel => '附件';
+
+  @override
+  String get recordingAudio => '录音中...';
+
+  @override
+  String get voiceNote => '语音备忘录';
+
+  @override
+  String get mediaAdded => '已添加媒体';
+
+  @override
+  String get addMedia => '添加媒体';
+
+  @override
+  String get submitReportButton => '提交报告';
+
+  @override
+  String get govHelplines => '政府求助热线';
+
+  @override
+  String get touristHelpline => '旅游求助热线';
+
+  @override
+  String get policeHelpline => '警察';
+
+  @override
+  String get ambulanceHelpline => '救护车';
+
+  @override
+  String get fireBrigadeHelpline => '消防队';
+
+  @override
+  String get womensHelpline => '妇女求助热线';
+
+  @override
+  String get cyberCrimeHelpline => '网络犯罪求助热线';
+
+  @override
+  String get yourEmergencyContacts => '您的紧急联系人';
+
+  @override
+  String get noContactsAdded => '尚未添加任何个人联系人。';
+
+  @override
+  String get addContactsOnboarding => '在引导过程中添加联系人以在此处查看。';
 }

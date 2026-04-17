@@ -237,4 +237,152 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get callHelpline => 'पर्यटक हेल्पलाइन पर कॉल करें';
+
+  @override
+  String get cancelSosTitle => 'SOS रद्द करें?';
+
+  @override
+  String get cancelSosMessage =>
+      'क्या आप वाकई आपातकालीन अलर्ट को रद्द करना चाहते हैं?';
+
+  @override
+  String get keepActive => 'सक्रिय रखें';
+
+  @override
+  String get cancelSosButton => 'SOS रद्द करें';
+
+  @override
+  String get sosActivated => 'SOS सक्रिय';
+
+  @override
+  String get sosNotified =>
+      'आपातकालीन सेवाओं को सूचित कर दिया गया है।\nमदद रास्ते में है।';
+
+  @override
+  String get sosNameLabel => 'नाम';
+
+  @override
+  String get sosLocationLabel => 'स्थान';
+
+  @override
+  String get sosTimestampLabel => 'समय';
+
+  @override
+  String cancellationAvailableFor(Object countdown) {
+    return 'रद्द करने के लिए उपलब्ध: ${countdown}s';
+  }
+
+  @override
+  String get mockLocation => '16th Road, Bandra West';
+
+  @override
+  String get reportIncidentTitle => 'घटना दर्ज करें';
+
+  @override
+  String get incidentTheft => 'चोरी / जेबकतरी';
+
+  @override
+  String get incidentMedical => 'चिकित्सा आपातकाल';
+
+  @override
+  String get incidentAssault => 'उत्पीड़न / हमला';
+
+  @override
+  String get incidentLostItem => 'खोई हुई वस्तु';
+
+  @override
+  String get incidentSuspicious => 'संदिग्ध गतिविधि';
+
+  @override
+  String get incidentAccident => 'दुर्घटना / टक्कर';
+
+  @override
+  String get incidentOther => 'अन्य';
+
+  @override
+  String get takePhoto => 'फोटो लें';
+
+  @override
+  String get chooseGallery => 'गैलरी से चुनें';
+
+  @override
+  String get errorSelectIncidentType => 'कृपया एक घटना का प्रकार चुनें।';
+
+  @override
+  String get reportSubmittedTitle => 'रिपोर्ट जमा की गई';
+
+  @override
+  String get reportSubmittedMessage =>
+      'आपकी रिपोर्ट सुरक्षित रूप से अधिकारियों को सौंप दी गई है।';
+
+  @override
+  String get returnToHome => 'होम पर वापस जाएं';
+
+  @override
+  String get incidentTypeLabel => 'घटना का प्रकार';
+
+  @override
+  String get dateLabel => 'तारीख';
+
+  @override
+  String get timeLabel => 'समय';
+
+  @override
+  String get currentGpsLocation => 'वर्तमान जीपीएस स्थान';
+
+  @override
+  String get mapViewButton => 'मानचित्र दृश्य';
+
+  @override
+  String get descriptionLabel => 'विवरण';
+
+  @override
+  String get attachmentsLabel => 'संलग्नक';
+
+  @override
+  String get recordingAudio => 'रिकॉर्डिंग...';
+
+  @override
+  String get voiceNote => 'ऑडियो नोट';
+
+  @override
+  String get mediaAdded => 'मीडिया जोड़ा गया';
+
+  @override
+  String get addMedia => 'मीडिया जोड़ें';
+
+  @override
+  String get submitReportButton => 'रिपोर्ट जमा करें';
+
+  @override
+  String get govHelplines => 'सरकारी हेल्पलाइन';
+
+  @override
+  String get touristHelpline => 'पर्यटक हेल्पलाइन';
+
+  @override
+  String get policeHelpline => 'पुलिस';
+
+  @override
+  String get ambulanceHelpline => 'एम्बुलेंस';
+
+  @override
+  String get fireBrigadeHelpline => 'फायर ब्रिगेड';
+
+  @override
+  String get womensHelpline => 'महिला हेल्पलाइन';
+
+  @override
+  String get cyberCrimeHelpline => 'साइबर अपराध हेल्पलाइन';
+
+  @override
+  String get yourEmergencyContacts => 'आपके आपातकालीन संपर्क';
+
+  @override
+  String get noContactsAdded =>
+      'अभी तक कोई व्यक्तिगत संपर्क नहीं जोड़ा गया है।';
+
+  @override
+  String get addContactsOnboarding =>
+      'उन्हें यहां देखने के लिए प्रारंभिक सेटअप के दौरान संपर्क जोड़ें।';
 }

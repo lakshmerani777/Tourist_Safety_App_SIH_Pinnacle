@@ -5,6 +5,7 @@ import '../core/theme/app_colors.dart';
 import '../core/theme/app_typography.dart';
 import '../core/widgets/safety_card.dart';
 import '../providers/onboarding_provider.dart';
+import '../l10n/app_localizations.dart';
 
 class EmergencyContactsScreen extends ConsumerWidget {
   const EmergencyContactsScreen({super.key});
@@ -30,7 +31,7 @@ class EmergencyContactsScreen extends ConsumerWidget {
           icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text('Emergency Contacts', style: AppTypography.h2),
+        title: Text(AppLocalizations.of(context)?.emergencyContacts ?? 'Emergency Contacts', style: AppTypography.h2),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -52,7 +53,7 @@ class EmergencyContactsScreen extends ConsumerWidget {
                       color: AppColors.alertRed, size: 20),
                 ),
                 const SizedBox(width: 12),
-                Text('Government Helplines',
+                Text(AppLocalizations.of(context)?.govHelplines ?? 'Government Helplines',
                     style: AppTypography.h2.copyWith(fontSize: 18)),
               ],
             ),
@@ -61,7 +62,7 @@ class EmergencyContactsScreen extends ConsumerWidget {
             _HelplineCard(
               icon: Icons.tour,
               iconColor: AppColors.accentBlue,
-              title: 'Tourist Helpline',
+              title: AppLocalizations.of(context)?.touristHelpline ?? 'Tourist Helpline',
               number: '1363',
               onCall: () => _makeCall('1363'),
             ),
@@ -69,7 +70,7 @@ class EmergencyContactsScreen extends ConsumerWidget {
             _HelplineCard(
               icon: Icons.local_police,
               iconColor: AppColors.accentBlue,
-              title: 'Police',
+              title: AppLocalizations.of(context)?.policeHelpline ?? 'Police',
               number: '100',
               onCall: () => _makeCall('100'),
             ),
@@ -77,7 +78,7 @@ class EmergencyContactsScreen extends ConsumerWidget {
             _HelplineCard(
               icon: Icons.local_hospital,
               iconColor: AppColors.success,
-              title: 'Ambulance',
+              title: AppLocalizations.of(context)?.ambulanceHelpline ?? 'Ambulance',
               number: '102',
               onCall: () => _makeCall('102'),
             ),
@@ -85,7 +86,7 @@ class EmergencyContactsScreen extends ConsumerWidget {
             _HelplineCard(
               icon: Icons.local_fire_department,
               iconColor: AppColors.warning,
-              title: 'Fire Brigade',
+              title: AppLocalizations.of(context)?.fireBrigadeHelpline ?? 'Fire Brigade',
               number: '101',
               onCall: () => _makeCall('101'),
             ),
@@ -93,7 +94,7 @@ class EmergencyContactsScreen extends ConsumerWidget {
             _HelplineCard(
               icon: Icons.female,
               iconColor: const Color(0xFFE040FB),
-              title: "Women's Helpline",
+              title: AppLocalizations.of(context)?.womensHelpline ?? "Women's Helpline",
               number: '1091',
               onCall: () => _makeCall('1091'),
             ),
@@ -101,7 +102,7 @@ class EmergencyContactsScreen extends ConsumerWidget {
             _HelplineCard(
               icon: Icons.computer,
               iconColor: AppColors.warning,
-              title: 'Cyber Crime Helpline',
+              title: AppLocalizations.of(context)?.cyberCrimeHelpline ?? 'Cyber Crime Helpline',
               number: '1930',
               onCall: () => _makeCall('1930'),
             ),
@@ -122,7 +123,7 @@ class EmergencyContactsScreen extends ConsumerWidget {
                       color: AppColors.accentBlue, size: 20),
                 ),
                 const SizedBox(width: 12),
-                Text('Your Emergency Contacts',
+                Text(AppLocalizations.of(context)?.yourEmergencyContacts ?? 'Your Emergency Contacts',
                     style: AppTypography.h2.copyWith(fontSize: 18)),
               ],
             ),
@@ -154,14 +155,14 @@ class EmergencyContactsScreen extends ConsumerWidget {
                         color: AppColors.textSecondary, size: 40),
                     const SizedBox(height: 12),
                     Text(
-                      'No personal contacts added yet.',
+                      AppLocalizations.of(context)?.noContactsAdded ?? 'No personal contacts added yet.',
                       style: AppTypography.body
                           .copyWith(color: AppColors.textSecondary),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Add contacts during onboarding to see them here.',
+                      AppLocalizations.of(context)?.addContactsOnboarding ?? 'Add contacts during onboarding to see them here.',
                       style: AppTypography.caption,
                       textAlign: TextAlign.center,
                     ),
