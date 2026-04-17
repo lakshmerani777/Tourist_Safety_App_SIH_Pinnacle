@@ -240,4 +240,152 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get callHelpline => 'Appeler l\'Assistance Touristique';
+
+  @override
+  String get cancelSosTitle => 'Annuler le SOS ?';
+
+  @override
+  String get cancelSosMessage =>
+      'Êtes-vous sûr de vouloir annuler l\'alerte d\'urgence ?';
+
+  @override
+  String get keepActive => 'Garder Actif';
+
+  @override
+  String get cancelSosButton => 'Annuler le SOS';
+
+  @override
+  String get sosActivated => 'SOS ACTIVÉ';
+
+  @override
+  String get sosNotified =>
+      'Les services d\'urgence ont été notifiés.\nLes secours arrivent.';
+
+  @override
+  String get sosNameLabel => 'Nom';
+
+  @override
+  String get sosLocationLabel => 'Emplacement';
+
+  @override
+  String get sosTimestampLabel => 'Horodatage';
+
+  @override
+  String cancellationAvailableFor(Object countdown) {
+    return 'Annulation disponible pendant : ${countdown}s';
+  }
+
+  @override
+  String get mockLocation => '16th Road, Bandra West';
+
+  @override
+  String get reportIncidentTitle => 'Signaler un Incident';
+
+  @override
+  String get incidentTheft => 'Vol / Pickpocket';
+
+  @override
+  String get incidentMedical => 'Urgence Médicale';
+
+  @override
+  String get incidentAssault => 'Harcèlement / Agression';
+
+  @override
+  String get incidentLostItem => 'Objet Perdu';
+
+  @override
+  String get incidentSuspicious => 'Activité Suspecte';
+
+  @override
+  String get incidentAccident => 'Accident / Collision';
+
+  @override
+  String get incidentOther => 'Autre';
+
+  @override
+  String get takePhoto => 'Prendre une photo';
+
+  @override
+  String get chooseGallery => 'Choisir dans la galerie';
+
+  @override
+  String get errorSelectIncidentType =>
+      'Veuillez sélectionner un type d\'incident.';
+
+  @override
+  String get reportSubmittedTitle => 'Rapport Soumis';
+
+  @override
+  String get reportSubmittedMessage =>
+      'Votre rapport a été soumis de manière sécurisée aux autorités. Les secours arrivent si demandés.';
+
+  @override
+  String get returnToHome => 'Retour à l\'Accueil';
+
+  @override
+  String get incidentTypeLabel => 'Type d\'Incident';
+
+  @override
+  String get dateLabel => 'Date';
+
+  @override
+  String get timeLabel => 'Heure';
+
+  @override
+  String get currentGpsLocation => 'Position GPS Actuelle';
+
+  @override
+  String get mapViewButton => 'Voir sur la Carte';
+
+  @override
+  String get descriptionLabel => 'Description';
+
+  @override
+  String get attachmentsLabel => 'Pièces jointes';
+
+  @override
+  String get recordingAudio => 'Enregistrement...';
+
+  @override
+  String get voiceNote => 'Note Vocale';
+
+  @override
+  String get mediaAdded => 'Médias Ajoutés';
+
+  @override
+  String get addMedia => 'Ajouter un Média';
+
+  @override
+  String get submitReportButton => 'Soumettre le Rapport';
+
+  @override
+  String get govHelplines => 'Assistance Gouvernementale';
+
+  @override
+  String get touristHelpline => 'Assistance Touristique';
+
+  @override
+  String get policeHelpline => 'Police';
+
+  @override
+  String get ambulanceHelpline => 'Ambulance';
+
+  @override
+  String get fireBrigadeHelpline => 'Pompiers';
+
+  @override
+  String get womensHelpline => 'Assistance aux Femmes';
+
+  @override
+  String get cyberCrimeHelpline => 'Cybersécurité';
+
+  @override
+  String get yourEmergencyContacts => 'Vos Contacts d\'Urgence';
+
+  @override
+  String get noContactsAdded => 'Aucun contact personnel ajouté.';
+
+  @override
+  String get addContactsOnboarding =>
+      'Ajoutez des contacts lors de l\'intégration pour les voir ici.';
 }

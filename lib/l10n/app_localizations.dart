@@ -561,6 +561,288 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Call Tourist Helpline'**
   String get callHelpline;
+
+  /// No description provided for @cancelSosTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel SOS?'**
+  String get cancelSosTitle;
+
+  /// No description provided for @cancelSosMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to cancel the emergency alert?'**
+  String get cancelSosMessage;
+
+  /// No description provided for @keepActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep Active'**
+  String get keepActive;
+
+  /// No description provided for @cancelSosButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel SOS'**
+  String get cancelSosButton;
+
+  /// No description provided for @sosActivated.
+  ///
+  /// In en, this message translates to:
+  /// **'SOS ACTIVATED'**
+  String get sosActivated;
+
+  /// No description provided for @sosNotified.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency services have been notified.\nHelp is on the way.'**
+  String get sosNotified;
+
+  /// No description provided for @sosNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get sosNameLabel;
+
+  /// No description provided for @sosLocationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get sosLocationLabel;
+
+  /// No description provided for @sosTimestampLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Timestamp'**
+  String get sosTimestampLabel;
+
+  /// No description provided for @cancellationAvailableFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancellation available for: {countdown}s'**
+  String cancellationAvailableFor(Object countdown);
+
+  /// No description provided for @mockLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'16th Road, Bandra West'**
+  String get mockLocation;
+
+  /// No description provided for @reportIncidentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Report Incident'**
+  String get reportIncidentTitle;
+
+  /// No description provided for @incidentTheft.
+  ///
+  /// In en, this message translates to:
+  /// **'Theft / Pickpocketing'**
+  String get incidentTheft;
+
+  /// No description provided for @incidentMedical.
+  ///
+  /// In en, this message translates to:
+  /// **'Medical Emergency'**
+  String get incidentMedical;
+
+  /// No description provided for @incidentAssault.
+  ///
+  /// In en, this message translates to:
+  /// **'Harassment / Assault'**
+  String get incidentAssault;
+
+  /// No description provided for @incidentLostItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Lost Item'**
+  String get incidentLostItem;
+
+  /// No description provided for @incidentSuspicious.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspicious Activity'**
+  String get incidentSuspicious;
+
+  /// No description provided for @incidentAccident.
+  ///
+  /// In en, this message translates to:
+  /// **'Accident / Collision'**
+  String get incidentAccident;
+
+  /// No description provided for @incidentOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get incidentOther;
+
+  /// No description provided for @takePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a photo'**
+  String get takePhoto;
+
+  /// No description provided for @chooseGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from gallery'**
+  String get chooseGallery;
+
+  /// No description provided for @errorSelectIncidentType.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select an incident type.'**
+  String get errorSelectIncidentType;
+
+  /// No description provided for @reportSubmittedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Report Submitted'**
+  String get reportSubmittedTitle;
+
+  /// No description provided for @reportSubmittedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your report has been securely submitted to the local authorities. Help is on the way if requested.'**
+  String get reportSubmittedMessage;
+
+  /// No description provided for @returnToHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Return to Home'**
+  String get returnToHome;
+
+  /// No description provided for @incidentTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Incident Type'**
+  String get incidentTypeLabel;
+
+  /// No description provided for @dateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get dateLabel;
+
+  /// No description provided for @timeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get timeLabel;
+
+  /// No description provided for @currentGpsLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Current GPS Location'**
+  String get currentGpsLocation;
+
+  /// No description provided for @mapViewButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Map View'**
+  String get mapViewButton;
+
+  /// No description provided for @descriptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get descriptionLabel;
+
+  /// No description provided for @attachmentsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Attachments'**
+  String get attachmentsLabel;
+
+  /// No description provided for @recordingAudio.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording...'**
+  String get recordingAudio;
+
+  /// No description provided for @voiceNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Voice Note'**
+  String get voiceNote;
+
+  /// No description provided for @mediaAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Media Added'**
+  String get mediaAdded;
+
+  /// No description provided for @addMedia.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Media'**
+  String get addMedia;
+
+  /// No description provided for @submitReportButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit Report'**
+  String get submitReportButton;
+
+  /// No description provided for @govHelplines.
+  ///
+  /// In en, this message translates to:
+  /// **'Government Helplines'**
+  String get govHelplines;
+
+  /// No description provided for @touristHelpline.
+  ///
+  /// In en, this message translates to:
+  /// **'Tourist Helpline'**
+  String get touristHelpline;
+
+  /// No description provided for @policeHelpline.
+  ///
+  /// In en, this message translates to:
+  /// **'Police'**
+  String get policeHelpline;
+
+  /// No description provided for @ambulanceHelpline.
+  ///
+  /// In en, this message translates to:
+  /// **'Ambulance'**
+  String get ambulanceHelpline;
+
+  /// No description provided for @fireBrigadeHelpline.
+  ///
+  /// In en, this message translates to:
+  /// **'Fire Brigade'**
+  String get fireBrigadeHelpline;
+
+  /// No description provided for @womensHelpline.
+  ///
+  /// In en, this message translates to:
+  /// **'Women\'s Helpline'**
+  String get womensHelpline;
+
+  /// No description provided for @cyberCrimeHelpline.
+  ///
+  /// In en, this message translates to:
+  /// **'Cyber Crime Helpline'**
+  String get cyberCrimeHelpline;
+
+  /// No description provided for @yourEmergencyContacts.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Emergency Contacts'**
+  String get yourEmergencyContacts;
+
+  /// No description provided for @noContactsAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'No personal contacts added yet.'**
+  String get noContactsAdded;
+
+  /// No description provided for @addContactsOnboarding.
+  ///
+  /// In en, this message translates to:
+  /// **'Add contacts during onboarding to see them here.'**
+  String get addContactsOnboarding;
 }
 
 class _AppLocalizationsDelegate

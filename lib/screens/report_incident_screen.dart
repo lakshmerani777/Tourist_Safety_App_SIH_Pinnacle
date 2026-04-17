@@ -9,6 +9,7 @@ import '../core/widgets/safety_button.dart';
 import '../core/widgets/safety_card.dart';
 import '../core/widgets/dropdown.dart';
 import '../core/widgets/input_field.dart';
+import '../l10n/app_localizations.dart';
 
 class ReportIncidentScreen extends ConsumerStatefulWidget {
   const ReportIncidentScreen({super.key});
@@ -20,14 +21,15 @@ class ReportIncidentScreen extends ConsumerStatefulWidget {
 class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
   final _descController = TextEditingController();
   String? _selectedIncidentType;
-  final List<String> _incidentTypes = [
-    'Theft / Pickpocketing',
-    'Medical Emergency',
-    'Harassment / Assault',
-    'Lost Item',
-    'Suspicious Activity',
-    'Accident / Collision',
-    'Other'
+  String? _selectedIncidentType;
+  List<String> get _incidentTypes => [
+    AppLocalizations.of(context)?.incidentTheft ?? 'Theft / Pickpocketing',
+    AppLocalizations.of(context)?.incidentMedical ?? 'Medical Emergency',
+    AppLocalizations.of(context)?.incidentAssault ?? 'Harassment / Assault',
+    AppLocalizations.of(context)?.incidentLostItem ?? 'Lost Item',
+    AppLocalizations.of(context)?.incidentSuspicious ?? 'Suspicious Activity',
+    AppLocalizations.of(context)?.incidentAccident ?? 'Accident / Collision',
+    AppLocalizations.of(context)?.incidentOther ?? 'Other'
   ];
 
   DateTime _selectedDate = DateTime.now();
@@ -51,12 +53,12 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
           children: [
             ListTile(
               leading: const Icon(Icons.camera_alt, color: AppColors.textPrimary),
-              title: Text('Take a photo', style: AppTypography.body),
+              title: Text(AppLocalizations.of(context)?.takePhoto ?? 'Take a photo', style: AppTypography.body),
               onTap: () => Navigator.pop(context, ImageSource.camera),
             ),
             ListTile(
               leading: const Icon(Icons.photo_library, color: AppColors.textPrimary),
-              title: Text('Choose from gallery', style: AppTypography.body),
+              title: Text(AppLocalizations.of(context)?.chooseGallery ?? 'Choose from gallery', style: AppTypography.body),
               onTap: () => Navigator.pop(context, ImageSource.gallery),
             ),
           ],
@@ -76,7 +78,7 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
     if (_selectedIncidentType == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Please select an incident type.', style: AppTypography.caption),
+          content: Text(AppLocalizations.of(context)?.errorSelectIncidentType ?? 'Please select an incident type.', style: AppTypography.caption),
           backgroundColor: AppColors.alertRed,
         ),
       );
@@ -103,17 +105,17 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
               child: const Icon(Icons.check, color: AppColors.success, size: 32),
             ),
             const SizedBox(height: 24),
-            Text('Report Submitted',
+            Text(AppLocalizations.of(context)?.reportSubmittedTitle ?? 'Report Submitted',
                 style: AppTypography.h2, textAlign: TextAlign.center),
             const SizedBox(height: 12),
             Text(
-              'Your report has been securely submitted to the local authorities. Help is on the way if requested.',
+              AppLocalizations.of(context)?.reportSubmittedMessage ?? 'Your report has been securely submitted to the local authorities. Help is on the way if requested.',
               style: AppTypography.body.copyWith(color: AppColors.textSecondary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
             SafetyButton(
-              text: 'Return to Home',
+              text: AppLocalizations.of(context)?.returnToHome ?? 'Return to Home',
               onPressed: () {
                 Navigator.pop(context); // Close dialog
                 context.go('/home');    // Go back to home
@@ -133,7 +135,7 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('Report Incident', style: AppTypography.h2),
+        title: Text(AppLocalizations.of(context)?.reportIncidentTitle ?? 'Report Incident', style: AppTypography.h2),
         backgroundColor: AppColors.background,
         elevation: 0,
         centerTitle: true,
@@ -149,7 +151,7 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
           children: [
             // Incident Type Dropdown
             AppDropdown(
-              label: 'Incident Type',
+              label: AppLocalizations.of(context)?.incidentTypeLabel ?? 'Incident Type',
               selectedValue: _selectedIncidentType,
               items: _incidentTypes,
               onChanged: (val) => setState(() => _selectedIncidentType = val),
@@ -163,7 +165,7 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Date', style: AppTypography.caption),
+                      Text(AppLocalizations.of(context)?.dateLabel ?? 'Date', style: AppTypography.caption),
                       const SizedBox(height: 8),
                       GestureDetector(
                         onTap: () async {
@@ -202,7 +204,7 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Time', style: AppTypography.caption),
+                      Text(AppLocalizations.of(context)?.timeLabel ?? 'Time', style: AppTypography.caption),
                       const SizedBox(height: 8),
                       GestureDetector(
                         onTap: () async {
@@ -239,7 +241,7 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
             const SizedBox(height: 24),
 
             // Location
-            Text('Location', style: AppTypography.caption),
+            Text(AppLocalizations.of(context)?.sosLocationLabel ?? 'Location', style: AppTypography.caption),
             const SizedBox(height: 8),
             SafetyCard(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -259,7 +261,7 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Current GPS Location',
+                        Text(AppLocalizations.of(context)?.currentGpsLocation ?? 'Current GPS Location',
                             style: AppTypography.body.copyWith(fontWeight: FontWeight.w600)),
                         const SizedBox(height: 2),
                         Text(locationText, style: AppTypography.caption),
@@ -268,7 +270,7 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
                   ),
                   TextButton(
                     onPressed: () => context.push('/map'),
-                    child: Text('Map View', style: AppTypography.body.copyWith(color: AppColors.accentBlue)),
+                    child: Text(AppLocalizations.of(context)?.mapViewButton ?? 'Map View', style: AppTypography.body.copyWith(color: AppColors.accentBlue)),
                   ),
                 ],
               ),
@@ -277,14 +279,14 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
 
             // Description Box
             InputField(
-              label: 'Description',
+              label: AppLocalizations.of(context)?.descriptionLabel ?? 'Description',
               controller: _descController,
               maxLines: 4,
             ),
             const SizedBox(height: 24),
 
             // Voice Details / Media Upload
-            Text('Attachments', style: AppTypography.caption),
+            Text(AppLocalizations.of(context)?.attachmentsLabel ?? 'Attachments', style: AppTypography.caption),
             const SizedBox(height: 8),
             Row(
               children: [
@@ -309,7 +311,7 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            _isRecording ? 'Recording...' : 'Voice Note',
+                            _isRecording ? (AppLocalizations.of(context)?.recordingAudio ?? 'Recording...') : (AppLocalizations.of(context)?.voiceNote ?? 'Voice Note'),
                             style: AppTypography.body.copyWith(
                               color: _isRecording ? AppColors.alertRed : AppColors.textPrimary,
                               fontWeight: FontWeight.w600,
@@ -340,7 +342,7 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            _attachedMedia != null ? 'Media Added' : 'Add Media',
+                            _attachedMedia != null ? (AppLocalizations.of(context)?.mediaAdded ?? 'Media Added') : (AppLocalizations.of(context)?.addMedia ?? 'Add Media'),
                             style: AppTypography.body.copyWith(
                               color: _attachedMedia != null ? AppColors.success : AppColors.textPrimary,
                               fontWeight: FontWeight.w600,
@@ -358,7 +360,7 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
 
             // Submit Button
             SafetyButton(
-              text: 'Submit Report',
+              text: AppLocalizations.of(context)?.submitReportButton ?? 'Submit Report',
               onPressed: _submitReport,
             ),
             const SizedBox(height: 32),
