@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/widgets/input_field.dart';
@@ -20,10 +22,10 @@ class Step5Stay extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 16),
-          Text('Stay Details', style: AppTypography.h1),
+          Text(AppLocalizations.of(context)?.stayDetailsTitle ?? 'Stay Details', style: AppTypography.h1),
           const SizedBox(height: 32),
           AppDropdown(
-            label: 'Accommodation Type',
+            label: AppLocalizations.of(context)?.accommodationType ?? 'Accommodation Type',
             selectedValue: data.accommodationType,
             items: const [
               'Hotel',
@@ -36,14 +38,14 @@ class Step5Stay extends ConsumerWidget {
           ),
           const SizedBox(height: 20),
           InputField(
-            label: 'Hotel/Property Name',
+            label: AppLocalizations.of(context)?.propertyName ?? 'Hotel/Property Name',
             prefixIcon: Icons.business_outlined,
             hintText: 'Enter property name',
             onChanged: (val) => onboarding.setPropertyName(val),
           ),
           const SizedBox(height: 20),
           InputField(
-            label: 'Full Address',
+            label: AppLocalizations.of(context)?.fullAddress ?? 'Full Address',
             prefixIcon: Icons.location_on_outlined,
             hintText: 'Enter full address',
             maxLines: 2,
@@ -51,14 +53,14 @@ class Step5Stay extends ConsumerWidget {
           ),
           const SizedBox(height: 20),
           InputField(
-            label: 'Room/Unit Number',
+            label: AppLocalizations.of(context)?.roomUnit ?? 'Room/Unit Number',
             prefixIcon: Icons.meeting_room_outlined,
             hintText: 'Enter room or unit number',
             onChanged: (val) => onboarding.setRoomNumber(val),
           ),
           const SizedBox(height: 20),
           PhoneInput(
-            label: 'Accommodation Phone',
+            label: AppLocalizations.of(context)?.accommodationPhone ?? 'Accommodation Phone',
             onChanged: (val) => onboarding.setAccommodationPhone(val),
           ),
           const SizedBox(height: 24),

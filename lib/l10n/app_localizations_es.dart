@@ -78,7 +78,7 @@ class AppLocalizationsEs extends AppLocalizations {
       'Regístrese para acceder al Sistema de Seguridad';
 
   @override
-  String get fullName => 'Nombre completo';
+  String get fullName => 'Nombre Completo';
 
   @override
   String get enterFullName => 'Ingresa tu nombre completo';
@@ -389,4 +389,150 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get addContactsOnboarding =>
       'Añade contactos durante la introducción para verlos aquí.';
+
+  @override
+  String get personalIdentity => 'Identidad Personal';
+
+  @override
+  String get firstName => 'Nombre';
+
+  @override
+  String get lastName => 'Apellido';
+
+  @override
+  String get dob => 'Fecha de Nacimiento';
+
+  @override
+  String get nationality => 'Nacionalidad';
+
+  @override
+  String get passportNum => 'Número de Pasaporte/ID';
+
+  @override
+  String get passportExpiry => 'Fecha de Vencimiento de Pasaporte';
+
+  @override
+  String get phoneTitle => 'Verificación de Teléfono';
+
+  @override
+  String get phoneNumberLabel => 'Número de Teléfono';
+
+  @override
+  String get verifyCode => 'Ingrese código de verificación';
+
+  @override
+  String get travelTimeline => 'Cronología de Viaje';
+
+  @override
+  String get arrivalDate => 'Fecha de Llegada';
+
+  @override
+  String get departureDate => 'Fecha de Salida';
+
+  @override
+  String get purposeOfVisit => 'Motivo de la Visita';
+
+  @override
+  String get placesToVisit => 'Lugares a Visitar';
+
+  @override
+  String get contact1 => 'Contacto 1';
+
+  @override
+  String get contact2 => 'Contacto 2';
+
+  @override
+  String get relationship => 'Relación';
+
+  @override
+  String get stayDetailsTitle => 'Detalles de Estancia';
+
+  @override
+  String get accommodationType => 'Tipo de Alojamiento';
+
+  @override
+  String get propertyName => 'Nombre del Hotel/Propiedad';
+
+  @override
+  String get fullAddress => 'Dirección Completa';
+
+  @override
+  String get roomUnit => 'Número de Habitación/Unidad';
+
+  @override
+  String get accommodationPhone => 'Teléfono de Alojamiento';
+
+  @override
+  String get medicalSafety => 'Seguridad Médica';
+
+  @override
+  String get bloodType => 'Tipo de Sangre';
+
+  @override
+  String get allergiesLabel => '¿Alguna alergia?';
+
+  @override
+  String get allergyDetails => 'Detalles de Alergia';
+
+  @override
+  String get conditionsLabel => '¿Enfermedades Crónicas?';
+
+  @override
+  String get conditionDetails => 'Detalles de Condición';
+
+  @override
+  String get medicationsLabel => '¿Medicamentos Regulares?';
+
+  @override
+  String get medicationDetails => 'Detalles de Medicación';
+
+  @override
+  String get insurancePolicy => 'Número de Póliza de Seguro';
+
+  @override
+  String get consentPrivacy => 'Consentimiento y Privacidad';
+
+  @override
+  String get consentTerms =>
+      'Acepto los Términos de Servicio y la Política de Privacidad';
+
+  @override
+  String get consentLocation =>
+      'Doy mi consentimiento para el rastreo de ubicación';
+
+  @override
+  String get consentData =>
+      'Doy mi consentimiento para compartir mis datos con servicios de emergencia';
+
+  @override
+  String get consentAlerts =>
+      'Acepto recibir alertas y notificaciones de seguridad';
+
+  @override
+  String get reqLabel => 'Obligatorio';
+
+  @override
+  String get optLabel => 'Opcional';
+
+  @override
+  String get editBtn => 'Editar';
+
+  @override
+  String get doneBtn => 'Hecho';
+
+  @override
+  String get signOutBtn => 'Cerrar Sesión';
+
+  @override
+  String get deleteAccBtn => 'Eliminar Cuenta';
+
+  @override
+  String get deleteAccPrompt =>
+      '¿Estás seguro de que deseas eliminar permanentemente tu cuenta? Esta acción no se puede deshacer.';
+
+  @override
+  String get deleteBtn => 'Eliminar';
+
+  @override
+  String get cancelBtn => 'Cancelar';
 }

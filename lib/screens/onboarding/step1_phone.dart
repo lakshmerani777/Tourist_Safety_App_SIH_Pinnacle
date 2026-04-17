@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
@@ -73,7 +75,7 @@ class _Step1PhoneState extends ConsumerState<Step1Phone> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 16),
-          Text('Phone Verification', style: AppTypography.h1),
+          Text(AppLocalizations.of(context)?.phoneTitle ?? 'Phone Verification', style: AppTypography.h1),
           const SizedBox(height: 8),
           Text(
             'We\'ll send a verification code via SMS to confirm your phone number for safety alerts.',
@@ -81,7 +83,7 @@ class _Step1PhoneState extends ConsumerState<Step1Phone> {
           ),
           const SizedBox(height: 32),
           PhoneInput(
-            label: 'Phone Number',
+            label: AppLocalizations.of(context)?.phoneNumberLabel ?? 'Phone Number',
             onChanged: (val) =>
                 ref.read(onboardingProvider).setPhoneNumber(val),
           ),
@@ -93,7 +95,7 @@ class _Step1PhoneState extends ConsumerState<Step1Phone> {
             ),
           if (_otpSent) ...[
             const SizedBox(height: 8),
-            Text('Enter verification code', style: AppTypography.caption),
+            Text(AppLocalizations.of(context)?.verifyCode ?? 'Enter verification code', style: AppTypography.caption),
             if (_otpError)
               Padding(
                 padding: const EdgeInsets.only(top: 8),

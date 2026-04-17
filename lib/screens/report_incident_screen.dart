@@ -21,7 +21,6 @@ class ReportIncidentScreen extends ConsumerStatefulWidget {
 class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
   final _descController = TextEditingController();
   String? _selectedIncidentType;
-  String? _selectedIncidentType;
   List<String> get _incidentTypes => [
     AppLocalizations.of(context)?.incidentTheft ?? 'Theft / Pickpocketing',
     AppLocalizations.of(context)?.incidentMedical ?? 'Medical Emergency',

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/widgets/input_field.dart';
@@ -29,24 +31,24 @@ class Step4Emergency extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 16),
-          Text('Emergency Contacts', style: AppTypography.h1),
+          Text(AppLocalizations.of(context)?.yourEmergencyContacts ?? 'Emergency Contacts', style: AppTypography.h1),
           const SizedBox(height: 24),
           // Contact 1
           SafetyCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Contact 1', style: AppTypography.h2),
+                Text(AppLocalizations.of(context)?.contact1 ?? 'Contact 1', style: AppTypography.h2),
                 const SizedBox(height: 16),
                 InputField(
-                  label: 'Full Name',
+                  label: AppLocalizations.of(context)?.fullName ?? 'Full Name',
                   prefixIcon: Icons.person_outline,
                   hintText: 'Contact name',
                   onChanged: (val) => onboarding.setContact1Name(val),
                 ),
                 const SizedBox(height: 16),
                 AppDropdown(
-                  label: 'Relationship',
+                  label: AppLocalizations.of(context)?.relationship ?? 'Relationship',
                   selectedValue: data.contact1Relationship,
                   items: relationships,
                   onChanged: (val) =>
@@ -54,7 +56,7 @@ class Step4Emergency extends ConsumerWidget {
                 ),
                 const SizedBox(height: 16),
                 PhoneInput(
-                  label: 'Phone Number',
+                  label: AppLocalizations.of(context)?.phoneNumberLabel ?? 'Phone Number',
                   onChanged: (val) => onboarding.setContact1Phone(val),
                 ),
               ],
@@ -66,17 +68,17 @@ class Step4Emergency extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Contact 2', style: AppTypography.h2),
+                Text(AppLocalizations.of(context)?.contact2 ?? 'Contact 2', style: AppTypography.h2),
                 const SizedBox(height: 16),
                 InputField(
-                  label: 'Full Name',
+                  label: AppLocalizations.of(context)?.fullName ?? 'Full Name',
                   prefixIcon: Icons.person_outline,
                   hintText: 'Contact name',
                   onChanged: (val) => onboarding.setContact2Name(val),
                 ),
                 const SizedBox(height: 16),
                 AppDropdown(
-                  label: 'Relationship',
+                  label: AppLocalizations.of(context)?.relationship ?? 'Relationship',
                   selectedValue: data.contact2Relationship,
                   items: relationships,
                   onChanged: (val) =>
@@ -84,7 +86,7 @@ class Step4Emergency extends ConsumerWidget {
                 ),
                 const SizedBox(height: 16),
                 PhoneInput(
-                  label: 'Phone Number',
+                  label: AppLocalizations.of(context)?.phoneNumberLabel ?? 'Phone Number',
                   onChanged: (val) => onboarding.setContact2Phone(val),
                 ),
               ],
