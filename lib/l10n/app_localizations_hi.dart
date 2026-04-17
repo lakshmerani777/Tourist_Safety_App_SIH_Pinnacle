@@ -117,4 +117,124 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get rememberPassword => 'क्या आपको अपना पासवर्ड याद है? ';
+
+  @override
+  String get protectedStatus => 'सुरक्षित';
+
+  @override
+  String get currentLocation => 'वर्तमान स्थान';
+
+  @override
+  String get lastUpdatedNow => 'अंतिम अपडेट: अभी-अभी';
+
+  @override
+  String get quickActions => 'त्वरित कार्रवाइयां';
+
+  @override
+  String get reportIncident => 'घटना\nदर्ज करें';
+
+  @override
+  String get shareLocation => 'स्थान\nसाझा करें';
+
+  @override
+  String get emergencyContacts => 'आपातकालीन\nसंपर्क';
+
+  @override
+  String get safetyMap => 'सुरक्षा\nमानचित्र';
+
+  @override
+  String get sosText => 'SOS';
+
+  @override
+  String get recentAlerts => 'हाल की चेतावनियाँ';
+
+  @override
+  String get viewAll => 'सभी देखें';
+
+  @override
+  String get navHome => 'होम';
+
+  @override
+  String get navMap => 'नक्शा';
+
+  @override
+  String get navChat => 'चैट';
+
+  @override
+  String get navAlerts => 'अलर्ट';
+
+  @override
+  String get navProfile => 'प्रोफ़ाइल';
+
+  @override
+  String get errorMapSearch => 'खोज नहीं कर सका';
+
+  @override
+  String get searchLocation => 'स्थान खोजें...';
+
+  @override
+  String get nearbyHospitals => 'आसपास के अस्पताल';
+
+  @override
+  String get policeStations => 'पुलिस स्टेशन';
+
+  @override
+  String get pharmacies => 'दवाखाने';
+
+  @override
+  String get embassies => 'दूतावास';
+
+  @override
+  String get atms => 'एटीएम';
+
+  @override
+  String get publicTransit => 'सार्वजनिक परिवहन';
+
+  @override
+  String get publicRestrooms => 'सार्वजनिक शौचालय';
+
+  @override
+  String get touristAttractions => 'पर्यटक आकर्षण';
+
+  @override
+  String get mapLegend => 'नक्शा संकेत';
+
+  @override
+  String get legendYourLocation => 'आपका स्थान';
+
+  @override
+  String get legendIncidentReports => 'घटना रिपोर्ट';
+
+  @override
+  String get legendCautionZones => 'सावधानी क्षेत्र';
+
+  @override
+  String get legendHighRiskZones => 'उच्च जोखिम क्षेत्र';
+
+  @override
+  String get legendSafeZones => 'सुरक्षित क्षेत्र';
+
+  @override
+  String get activeBadge => 'सक्रिय';
+
+  @override
+  String get alertBadge => 'अलर्ट';
+
+  @override
+  String get warningBadge => 'चेतावनी';
+
+  @override
+  String get dangerBadge => 'खतरा';
+
+  @override
+  String get safeBadge => 'सुरक्षित';
+
+  @override
+  String get mapCopyright => 'मानचित्र डेटा © OpenStreetMap योगदानकर्ता';
+
+  @override
+  String get activeAlerts => 'सक्रिय चेतावनियाँ';
+
+  @override
+  String get callHelpline => 'पर्यटक हेल्पलाइन पर कॉल करें';
 }

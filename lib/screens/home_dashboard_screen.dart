@@ -10,6 +10,7 @@ import '../core/router/app_router.dart';
 import '../widgets/chatbot_overlay.dart';
 import '../providers/location_provider.dart';
 import '../services/widget_service.dart';
+import '../l10n/app_localizations.dart';
 
 class HomeDashboardScreen extends ConsumerStatefulWidget {
   const HomeDashboardScreen({super.key});
@@ -107,7 +108,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
             children: [
               Expanded(
                 child: Text(
-                  'Tourist Safety',
+                  AppLocalizations.of(context)?.appTitle ?? 'Tourist Safety',
                   style: AppTypography.h2,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
@@ -115,8 +116,8 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
               ),
               Row(
                 children: [
-                  const StatusBadge(
-                    label: 'Protected',
+                  StatusBadge(
+                    label: AppLocalizations.of(context)?.protectedStatus ?? 'Protected',
                     type: BadgeType.active,
                   ),
                   const SizedBox(width: 12),
@@ -170,7 +171,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Current Location',
+                              AppLocalizations.of(context)?.currentLocation ?? 'Current Location',
                               style: AppTypography.caption.copyWith(
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.accentBlue,
@@ -237,7 +238,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'PROTECTED',
+                        (AppLocalizations.of(context)?.protectedStatus ?? 'Protected').toUpperCase(),
                         style: AppTypography.body.copyWith(
                           color: AppColors.success,
                           letterSpacing: 1.2,
@@ -247,7 +248,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'Last updated: Just now',
+                        AppLocalizations.of(context)?.lastUpdatedNow ?? 'Last updated: Just now',
                         style: AppTypography.caption,
                       ),
                     ],
@@ -259,7 +260,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
           const SizedBox(height: 24),
 
           // Quick Actions
-          Text('Quick Actions', style: AppTypography.h2),
+          Text(AppLocalizations.of(context)?.quickActions ?? 'Quick Actions', style: AppTypography.h2),
           const SizedBox(height: 16),
           GridView.count(
             crossAxisCount: 2,
@@ -270,25 +271,25 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
             childAspectRatio: 1.4,
             children: [
               _QuickActionCard(
-                title: 'Report\nIncident',
+                title: AppLocalizations.of(context)?.reportIncident ?? 'Report\nIncident',
                 icon: Icons.report_problem_outlined,
                 color: AppColors.warning,
                 onTap: () => context.push('/report'),
               ),
               _QuickActionCard(
-                title: 'Share\nLocation',
+                title: AppLocalizations.of(context)?.shareLocation ?? 'Share\nLocation',
                 icon: Icons.share_location,
                 color: AppColors.accentBlue,
                 onTap: () {},
               ),
               _QuickActionCard(
-                title: 'Emergency\nContacts',
+                title: AppLocalizations.of(context)?.emergencyContacts ?? 'Emergency\nContacts',
                 icon: Icons.phone_in_talk,
                 color: AppColors.alertRed,
                 onTap: () => context.push('/emergency'),
               ),
               _QuickActionCard(
-                title: 'Safety\nMap',
+                title: AppLocalizations.of(context)?.safetyMap ?? 'Safety\nMap',
                 icon: Icons.map_outlined,
                 color: AppColors.accentBlue,
                 onTap: () => context.push('/map'),
@@ -333,7 +334,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
                           ),
                           child: Center(
                             child: Text(
-                              'SOS',
+                              AppLocalizations.of(context)?.sosText ?? 'SOS',
                               style: AppTypography.h1.copyWith(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w900,
@@ -356,7 +357,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
             children: [
               Expanded(
                 child: Text(
-                  'Recent Alerts',
+                  AppLocalizations.of(context)?.recentAlerts ?? 'Recent Alerts',
                   style: AppTypography.h2,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
@@ -366,7 +367,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
                 onTap: () => context.push('/alerts'),
                 child: Row(
                   children: [
-                    Text('View All',
+                    Text(AppLocalizations.of(context)?.viewAll ?? 'View All',
                         style: AppTypography.body.copyWith(
                           color: AppColors.accentBlue,
                           fontWeight: FontWeight.w600,
@@ -432,25 +433,25 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
         unselectedItemColor: AppColors.textSecondary,
         type: BottomNavigationBarType.fixed,
         elevation: 0,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.map), label: 'Map'),
-          BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), activeIcon: Icon(Icons.chat_bubble_rounded), label: 'Chat'),
+        items: [
+          BottomNavigationBarItem(icon: const Icon(Icons.home), label: AppLocalizations.of(context)?.navHome ?? 'Home'),
+          BottomNavigationBarItem(icon: const Icon(Icons.map), label: AppLocalizations.of(context)?.navMap ?? 'Map'),
+          BottomNavigationBarItem(icon: const Icon(Icons.chat_bubble_outline), activeIcon: const Icon(Icons.chat_bubble_rounded), label: AppLocalizations.of(context)?.navChat ?? 'Chat'),
           BottomNavigationBarItem(
-            icon: Badge(
+            icon: const Badge(
               backgroundColor: AppColors.alertRed,
               smallSize: 8,
               child: Icon(Icons.notifications_outlined),
             ),
-            activeIcon: Badge(
+            activeIcon: const Badge(
               backgroundColor: AppColors.alertRed,
               smallSize: 8,
               child: Icon(Icons.notifications),
             ),
-            label: 'Alerts',
+            label: AppLocalizations.of(context)?.navAlerts ?? 'Alerts',
           ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline), label: 'Profile'),
+              icon: const Icon(Icons.person_outline), label: AppLocalizations.of(context)?.navProfile ?? 'Profile'),
         ],
       ),
     );

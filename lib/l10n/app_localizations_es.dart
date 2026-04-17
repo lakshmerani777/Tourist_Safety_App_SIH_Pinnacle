@@ -121,4 +121,124 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get rememberPassword => '¿Recuerdas tu contraseña? ';
+
+  @override
+  String get protectedStatus => 'Protegido';
+
+  @override
+  String get currentLocation => 'Ubicación actual';
+
+  @override
+  String get lastUpdatedNow => 'Última actualización: Justo ahora';
+
+  @override
+  String get quickActions => 'Acciones Rápidas';
+
+  @override
+  String get reportIncident => 'Reportar\nIncidente';
+
+  @override
+  String get shareLocation => 'Compartir\nUbicación';
+
+  @override
+  String get emergencyContacts => 'Contactos de\nEmergencia';
+
+  @override
+  String get safetyMap => 'Mapa de\nSeguridad';
+
+  @override
+  String get sosText => 'SOS';
+
+  @override
+  String get recentAlerts => 'Alertas Recientes';
+
+  @override
+  String get viewAll => 'Ver Todo';
+
+  @override
+  String get navHome => 'Inicio';
+
+  @override
+  String get navMap => 'Mapa';
+
+  @override
+  String get navChat => 'Chat';
+
+  @override
+  String get navAlerts => 'Alertas';
+
+  @override
+  String get navProfile => 'Perfil';
+
+  @override
+  String get errorMapSearch => 'No se pudo abrir la búsqueda';
+
+  @override
+  String get searchLocation => 'Buscar ubicación...';
+
+  @override
+  String get nearbyHospitals => 'Hospitales Cercanos';
+
+  @override
+  String get policeStations => 'Estaciones de Policía';
+
+  @override
+  String get pharmacies => 'Farmacias';
+
+  @override
+  String get embassies => 'Embajadas';
+
+  @override
+  String get atms => 'Cajeros Automáticos';
+
+  @override
+  String get publicTransit => 'Transporte Público';
+
+  @override
+  String get publicRestrooms => 'Baños Públicos';
+
+  @override
+  String get touristAttractions => 'Atracciones Turísticas';
+
+  @override
+  String get mapLegend => 'Leyenda del Mapa';
+
+  @override
+  String get legendYourLocation => 'Tu Ubicación';
+
+  @override
+  String get legendIncidentReports => 'Reportes de Incidentes';
+
+  @override
+  String get legendCautionZones => 'Zonas de Precaución';
+
+  @override
+  String get legendHighRiskZones => 'Zonas de Alto Riesgo';
+
+  @override
+  String get legendSafeZones => 'Zonas Seguras';
+
+  @override
+  String get activeBadge => 'Activo';
+
+  @override
+  String get alertBadge => 'Alerta';
+
+  @override
+  String get warningBadge => 'Aviso';
+
+  @override
+  String get dangerBadge => 'Peligro';
+
+  @override
+  String get safeBadge => 'Seguro';
+
+  @override
+  String get mapCopyright => 'Datos del mapa © OpenStreetMap contributors';
+
+  @override
+  String get activeAlerts => 'Alertas Activas';
+
+  @override
+  String get callHelpline => 'Llamar a la Línea de Ayuda Turística';
 }

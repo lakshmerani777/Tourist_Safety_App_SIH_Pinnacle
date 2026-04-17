@@ -321,6 +321,246 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Remember your password? '**
   String get rememberPassword;
+
+  /// No description provided for @protectedStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Protected'**
+  String get protectedStatus;
+
+  /// No description provided for @currentLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Location'**
+  String get currentLocation;
+
+  /// No description provided for @lastUpdatedNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Last updated: Just now'**
+  String get lastUpdatedNow;
+
+  /// No description provided for @quickActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Actions'**
+  String get quickActions;
+
+  /// No description provided for @reportIncident.
+  ///
+  /// In en, this message translates to:
+  /// **'Report\nIncident'**
+  String get reportIncident;
+
+  /// No description provided for @shareLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Share\nLocation'**
+  String get shareLocation;
+
+  /// No description provided for @emergencyContacts.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency\nContacts'**
+  String get emergencyContacts;
+
+  /// No description provided for @safetyMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Safety\nMap'**
+  String get safetyMap;
+
+  /// No description provided for @sosText.
+  ///
+  /// In en, this message translates to:
+  /// **'SOS'**
+  String get sosText;
+
+  /// No description provided for @recentAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Alerts'**
+  String get recentAlerts;
+
+  /// No description provided for @viewAll.
+  ///
+  /// In en, this message translates to:
+  /// **'View All'**
+  String get viewAll;
+
+  /// No description provided for @navHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get navHome;
+
+  /// No description provided for @navMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Map'**
+  String get navMap;
+
+  /// No description provided for @navChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat'**
+  String get navChat;
+
+  /// No description provided for @navAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts'**
+  String get navAlerts;
+
+  /// No description provided for @navProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get navProfile;
+
+  /// No description provided for @errorMapSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open map search'**
+  String get errorMapSearch;
+
+  /// No description provided for @searchLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Search location...'**
+  String get searchLocation;
+
+  /// No description provided for @nearbyHospitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Nearby Hospitals'**
+  String get nearbyHospitals;
+
+  /// No description provided for @policeStations.
+  ///
+  /// In en, this message translates to:
+  /// **'Police Stations'**
+  String get policeStations;
+
+  /// No description provided for @pharmacies.
+  ///
+  /// In en, this message translates to:
+  /// **'Pharmacies'**
+  String get pharmacies;
+
+  /// No description provided for @embassies.
+  ///
+  /// In en, this message translates to:
+  /// **'Embassies'**
+  String get embassies;
+
+  /// No description provided for @atms.
+  ///
+  /// In en, this message translates to:
+  /// **'ATMs'**
+  String get atms;
+
+  /// No description provided for @publicTransit.
+  ///
+  /// In en, this message translates to:
+  /// **'Public Transit'**
+  String get publicTransit;
+
+  /// No description provided for @publicRestrooms.
+  ///
+  /// In en, this message translates to:
+  /// **'Public Restrooms'**
+  String get publicRestrooms;
+
+  /// No description provided for @touristAttractions.
+  ///
+  /// In en, this message translates to:
+  /// **'Tourist Attractions'**
+  String get touristAttractions;
+
+  /// No description provided for @mapLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'Map Legend'**
+  String get mapLegend;
+
+  /// No description provided for @legendYourLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Location'**
+  String get legendYourLocation;
+
+  /// No description provided for @legendIncidentReports.
+  ///
+  /// In en, this message translates to:
+  /// **'Incident Reports'**
+  String get legendIncidentReports;
+
+  /// No description provided for @legendCautionZones.
+  ///
+  /// In en, this message translates to:
+  /// **'Caution Zones'**
+  String get legendCautionZones;
+
+  /// No description provided for @legendHighRiskZones.
+  ///
+  /// In en, this message translates to:
+  /// **'High Risk Zones'**
+  String get legendHighRiskZones;
+
+  /// No description provided for @legendSafeZones.
+  ///
+  /// In en, this message translates to:
+  /// **'Safe Zones'**
+  String get legendSafeZones;
+
+  /// No description provided for @activeBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get activeBadge;
+
+  /// No description provided for @alertBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert'**
+  String get alertBadge;
+
+  /// No description provided for @warningBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Warning'**
+  String get warningBadge;
+
+  /// No description provided for @dangerBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Danger'**
+  String get dangerBadge;
+
+  /// No description provided for @safeBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Safe'**
+  String get safeBadge;
+
+  /// No description provided for @mapCopyright.
+  ///
+  /// In en, this message translates to:
+  /// **'Map data © OpenStreetMap contributors'**
+  String get mapCopyright;
+
+  /// No description provided for @activeAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Active Alerts'**
+  String get activeAlerts;
+
+  /// No description provided for @callHelpline.
+  ///
+  /// In en, this message translates to:
+  /// **'Call Tourist Helpline'**
+  String get callHelpline;
 }
 
 class _AppLocalizationsDelegate
