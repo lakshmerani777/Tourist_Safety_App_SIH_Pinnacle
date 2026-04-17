@@ -14,6 +14,7 @@ import 'onboarding/step4_emergency.dart';
 import 'onboarding/step5_stay.dart';
 import 'onboarding/step6_medical.dart';
 import 'onboarding/step7_consent.dart';
+import '../core/widgets/language_switcher.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key, this.restoreStep});
@@ -57,9 +58,17 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              child: StepProgressBar(
-                currentStep: step,
-                totalSteps: 7,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: StepProgressBar(
+                      currentStep: step,
+                      totalSteps: 7,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  const LanguageSwitcher(),
+                ],
               ),
             ),
             Expanded(

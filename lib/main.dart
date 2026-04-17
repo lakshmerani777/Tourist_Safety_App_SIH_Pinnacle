@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:tourist_safety_app_sih_pinnacle/core/theme/app_theme.dart';
 import 'package:tourist_safety_app_sih_pinnacle/core/router/app_router.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:tourist_safety_app_sih_pinnacle/l10n/app_localizations.dart';
+import 'package:tourist_safety_app_sih_pinnacle/providers/locale_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -10,16 +13,26 @@ Future<void> main() async {
   runApp(const ProviderScope(child: TouristSafetyApp()));
 }
 
-class TouristSafetyApp extends StatelessWidget {
+class TouristSafetyApp extends ConsumerWidget {
   const TouristSafetyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentLocale = ref.watch(localeProvider);
+
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'Tourist Safety',
       theme: AppTheme.darkTheme,
       themeMode: ThemeMode.dark,
+      locale: currentLocale,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: LocaleNotifier.supportedLocales,
       routerConfig: appRouter,
     );
   }

@@ -12,6 +12,8 @@ import '../core/widgets/date_card.dart';
 import '../core/widgets/country_select.dart';
 import '../core/widgets/phone_input.dart';
 import '../providers/onboarding_provider.dart';
+import '../core/widgets/language_switcher.dart';
+import '../l10n/app_localizations.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -36,7 +38,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('My Profile', style: AppTypography.h2),
+        title: Text(AppLocalizations.of(context)?.profileSettings ?? 'My Profile', style: AppTypography.h2),
         backgroundColor: AppColors.background,
         elevation: 0,
         centerTitle: true,
@@ -92,6 +94,20 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               ),
             ),
             const SizedBox(height: 32),
+
+            // ─── LANGUAGE SWITCHER ───
+            SafetyCard(
+              child: Row(
+                children: [
+                  const Icon(Icons.language, color: AppColors.accentBlue, size: 24),
+                  const SizedBox(width: 12),
+                  Text(AppLocalizations.of(context)?.language ?? 'Language', style: AppTypography.body.copyWith(fontWeight: FontWeight.w600)),
+                  const Spacer(),
+                  const LanguageSwitcher(),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
 
             // ─── SECTION 1: PERSONAL IDENTITY (Editable) ───
             _SectionHeader(
