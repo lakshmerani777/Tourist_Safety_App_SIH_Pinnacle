@@ -11,6 +11,7 @@ import '../widgets/chatbot_overlay.dart';
 import '../providers/location_provider.dart';
 import '../services/widget_service.dart';
 import '../l10n/app_localizations.dart';
+import 'location_sharing_sheet.dart';
 
 class HomeDashboardScreen extends ConsumerStatefulWidget {
   const HomeDashboardScreen({super.key});
@@ -280,7 +281,20 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
                 title: AppLocalizations.of(context)?.shareLocation ?? 'Share\nLocation',
                 icon: Icons.share_location,
                 color: AppColors.accentBlue,
-                onTap: () {},
+                onTap: () {
+                  showModalBottomSheet<void>(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (ctx) => DraggableScrollableSheet(
+                      initialChildSize: 0.8,
+                      minChildSize: 0.5,
+                      maxChildSize: 0.95,
+                      expand: false,
+                      builder: (_, scrollController) => const LocationSharingSheet(),
+                    ),
+                  );
+                },
               ),
               _QuickActionCard(
                 title: AppLocalizations.of(context)?.emergencyContacts ?? 'Emergency\nContacts',
