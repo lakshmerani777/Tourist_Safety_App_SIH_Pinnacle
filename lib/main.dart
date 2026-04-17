@@ -7,14 +7,17 @@ import 'package:tourist_safety_app_sih_pinnacle/core/router/app_router.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:tourist_safety_app_sih_pinnacle/l10n/app_localizations.dart';
 import 'package:tourist_safety_app_sih_pinnacle/providers/locale_provider.dart';
+import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: '.env');
   try {
-    await Firebase.initializeApp();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
   } catch (e) {
-    debugPrint('Firebase init skipped: $e');
+    debugPrint('Firebase init failed: $e');
   }
   runApp(const ProviderScope(child: TouristSafetyApp()));
 }
