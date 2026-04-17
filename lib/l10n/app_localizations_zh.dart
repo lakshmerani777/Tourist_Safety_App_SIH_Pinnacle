@@ -75,7 +75,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get registerWelcome => '注册以访问游客安全系统';
 
   @override
-  String get fullName => '姓名';
+  String get fullName => '全名';
 
   @override
   String get enterFullName => '请输入您的全名';
@@ -378,4 +378,145 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get addContactsOnboarding => '在引导过程中添加联系人以在此处查看。';
+
+  @override
+  String get personalIdentity => '个人身份';
+
+  @override
+  String get firstName => '名';
+
+  @override
+  String get lastName => '姓';
+
+  @override
+  String get dob => '出生日期';
+
+  @override
+  String get nationality => '国籍';
+
+  @override
+  String get passportNum => '护照/ID 编号';
+
+  @override
+  String get passportExpiry => '护照有效期至';
+
+  @override
+  String get phoneTitle => '电话验证';
+
+  @override
+  String get phoneNumberLabel => '电话号码';
+
+  @override
+  String get verifyCode => '输入验证码';
+
+  @override
+  String get travelTimeline => '旅行时间表';
+
+  @override
+  String get arrivalDate => '抵达日期';
+
+  @override
+  String get departureDate => '离开日期';
+
+  @override
+  String get purposeOfVisit => '访问目的';
+
+  @override
+  String get placesToVisit => '计划访问的地点';
+
+  @override
+  String get contact1 => '联系人 1';
+
+  @override
+  String get contact2 => '联系人 2';
+
+  @override
+  String get relationship => '关系';
+
+  @override
+  String get stayDetailsTitle => '住宿详情';
+
+  @override
+  String get accommodationType => '住宿类型';
+
+  @override
+  String get propertyName => '酒店/物业名称';
+
+  @override
+  String get fullAddress => '详细地址';
+
+  @override
+  String get roomUnit => '房间/单元号';
+
+  @override
+  String get accommodationPhone => '住宿电话';
+
+  @override
+  String get medicalSafety => '医疗安全';
+
+  @override
+  String get bloodType => '血型';
+
+  @override
+  String get allergiesLabel => '有过敏史？';
+
+  @override
+  String get allergyDetails => '过敏详情';
+
+  @override
+  String get conditionsLabel => '有慢性疾病？';
+
+  @override
+  String get conditionDetails => '病情详情';
+
+  @override
+  String get medicationsLabel => '需要定期服药？';
+
+  @override
+  String get medicationDetails => '用药详情';
+
+  @override
+  String get insurancePolicy => '保险单号';
+
+  @override
+  String get consentPrivacy => '同意与隐私';
+
+  @override
+  String get consentTerms => '我同意服务条款和隐私政策';
+
+  @override
+  String get consentLocation => '我同意进行位置跟踪以进行安全监控';
+
+  @override
+  String get consentData => '我同意与紧急服务部门共享我的数据';
+
+  @override
+  String get consentAlerts => '我同意接收安全警报和通知';
+
+  @override
+  String get reqLabel => '必填';
+
+  @override
+  String get optLabel => '选填';
+
+  @override
+  String get editBtn => '编辑';
+
+  @override
+  String get doneBtn => '完成';
+
+  @override
+  String get signOutBtn => '退出';
+
+  @override
+  String get deleteAccBtn => '删除账号';
+
+  @override
+  String get deleteAccPrompt => '您确定要永久删除您的帐户吗？此操作无法撤消。';
+
+  @override
+  String get deleteBtn => '删除';
+
+  @override
+  String get cancelBtn => '取消';
 }

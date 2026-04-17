@@ -843,6 +843,288 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add contacts during onboarding to see them here.'**
   String get addContactsOnboarding;
+
+  /// No description provided for @personalIdentity.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal Identity'**
+  String get personalIdentity;
+
+  /// No description provided for @firstName.
+  ///
+  /// In en, this message translates to:
+  /// **'First Name'**
+  String get firstName;
+
+  /// No description provided for @lastName.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Name'**
+  String get lastName;
+
+  /// No description provided for @dob.
+  ///
+  /// In en, this message translates to:
+  /// **'Date of Birth'**
+  String get dob;
+
+  /// No description provided for @nationality.
+  ///
+  /// In en, this message translates to:
+  /// **'Nationality'**
+  String get nationality;
+
+  /// No description provided for @passportNum.
+  ///
+  /// In en, this message translates to:
+  /// **'Passport/ID Number'**
+  String get passportNum;
+
+  /// No description provided for @passportExpiry.
+  ///
+  /// In en, this message translates to:
+  /// **'Passport Expiry Date'**
+  String get passportExpiry;
+
+  /// No description provided for @phoneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone Verification'**
+  String get phoneTitle;
+
+  /// No description provided for @phoneNumberLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone Number'**
+  String get phoneNumberLabel;
+
+  /// No description provided for @verifyCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter verification code'**
+  String get verifyCode;
+
+  /// No description provided for @travelTimeline.
+  ///
+  /// In en, this message translates to:
+  /// **'Travel Timeline'**
+  String get travelTimeline;
+
+  /// No description provided for @arrivalDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrival Date'**
+  String get arrivalDate;
+
+  /// No description provided for @departureDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Departure Date'**
+  String get departureDate;
+
+  /// No description provided for @purposeOfVisit.
+  ///
+  /// In en, this message translates to:
+  /// **'Purpose of Visit'**
+  String get purposeOfVisit;
+
+  /// No description provided for @placesToVisit.
+  ///
+  /// In en, this message translates to:
+  /// **'Places Planning to Visit'**
+  String get placesToVisit;
+
+  /// No description provided for @contact1.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact 1'**
+  String get contact1;
+
+  /// No description provided for @contact2.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact 2'**
+  String get contact2;
+
+  /// No description provided for @relationship.
+  ///
+  /// In en, this message translates to:
+  /// **'Relationship'**
+  String get relationship;
+
+  /// No description provided for @stayDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay Details'**
+  String get stayDetailsTitle;
+
+  /// No description provided for @accommodationType.
+  ///
+  /// In en, this message translates to:
+  /// **'Accommodation Type'**
+  String get accommodationType;
+
+  /// No description provided for @propertyName.
+  ///
+  /// In en, this message translates to:
+  /// **'Hotel/Property Name'**
+  String get propertyName;
+
+  /// No description provided for @fullAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Address'**
+  String get fullAddress;
+
+  /// No description provided for @roomUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Room/Unit Number'**
+  String get roomUnit;
+
+  /// No description provided for @accommodationPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Accommodation Phone'**
+  String get accommodationPhone;
+
+  /// No description provided for @medicalSafety.
+  ///
+  /// In en, this message translates to:
+  /// **'Medical Safety'**
+  String get medicalSafety;
+
+  /// No description provided for @bloodType.
+  ///
+  /// In en, this message translates to:
+  /// **'Blood Type'**
+  String get bloodType;
+
+  /// No description provided for @allergiesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Any Allergies?'**
+  String get allergiesLabel;
+
+  /// No description provided for @allergyDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Allergy Details'**
+  String get allergyDetails;
+
+  /// No description provided for @conditionsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Chronic Conditions?'**
+  String get conditionsLabel;
+
+  /// No description provided for @conditionDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Condition Details'**
+  String get conditionDetails;
+
+  /// No description provided for @medicationsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Regular Medications?'**
+  String get medicationsLabel;
+
+  /// No description provided for @medicationDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Medication Details'**
+  String get medicationDetails;
+
+  /// No description provided for @insurancePolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Insurance Policy Number'**
+  String get insurancePolicy;
+
+  /// No description provided for @consentPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Consent & Privacy'**
+  String get consentPrivacy;
+
+  /// No description provided for @consentTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'I agree to the Terms of Service and Privacy Policy'**
+  String get consentTerms;
+
+  /// No description provided for @consentLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'I consent to location tracking for safety monitoring'**
+  String get consentLocation;
+
+  /// No description provided for @consentData.
+  ///
+  /// In en, this message translates to:
+  /// **'I consent to sharing my data with emergency services'**
+  String get consentData;
+
+  /// No description provided for @consentAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'I agree to receive safety alerts and notifications'**
+  String get consentAlerts;
+
+  /// No description provided for @reqLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get reqLabel;
+
+  /// No description provided for @optLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional'**
+  String get optLabel;
+
+  /// No description provided for @editBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get editBtn;
+
+  /// No description provided for @doneBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get doneBtn;
+
+  /// No description provided for @signOutBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign Out'**
+  String get signOutBtn;
+
+  /// No description provided for @deleteAccBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Account'**
+  String get deleteAccBtn;
+
+  /// No description provided for @deleteAccPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to permanently delete your account? This action cannot be undone.'**
+  String get deleteAccPrompt;
+
+  /// No description provided for @deleteBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get deleteBtn;
+
+  /// No description provided for @cancelBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancelBtn;
 }
 
 class _AppLocalizationsDelegate

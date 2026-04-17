@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
@@ -20,7 +22,7 @@ class Step7Consent extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 16),
-          Text('Consent & Privacy', style: AppTypography.h1),
+          Text(AppLocalizations.of(context)?.consentPrivacy ?? 'Consent & Privacy', style: AppTypography.h1),
           const SizedBox(height: 24),
           // Terms card
           SafetyCard(
@@ -56,29 +58,29 @@ class Step7Consent extends ConsumerWidget {
           ),
           const SizedBox(height: 24),
           ToggleRow(
-            label: 'I agree to the Terms of Service and Privacy Policy',
-            subtitle: 'Required',
+            label: AppLocalizations.of(context)?.consentTerms ?? 'I agree to the Terms of Service and Privacy Policy',
+            subtitle: AppLocalizations.of(context)?.reqLabel ?? 'Required',
             value: data.termsAccepted,
             onChanged: (val) => onboarding.setTermsAccepted(val),
           ),
           const Divider(color: AppColors.border),
           ToggleRow(
-            label: 'I consent to location tracking for safety monitoring',
-            subtitle: 'Required',
+            label: AppLocalizations.of(context)?.consentLocation ?? 'I consent to location tracking for safety monitoring',
+            subtitle: AppLocalizations.of(context)?.reqLabel ?? 'Required',
             value: data.locationConsent,
             onChanged: (val) => onboarding.setLocationConsent(val),
           ),
           const Divider(color: AppColors.border),
           ToggleRow(
-            label: 'I consent to sharing my data with emergency services',
-            subtitle: 'Required',
+            label: AppLocalizations.of(context)?.consentData ?? 'I consent to sharing my data with emergency services',
+            subtitle: AppLocalizations.of(context)?.reqLabel ?? 'Required',
             value: data.dataShareConsent,
             onChanged: (val) => onboarding.setDataShareConsent(val),
           ),
           const Divider(color: AppColors.border),
           ToggleRow(
-            label: 'I agree to receive safety alerts and notifications',
-            subtitle: 'Optional',
+            label: AppLocalizations.of(context)?.consentAlerts ?? 'I agree to receive safety alerts and notifications',
+            subtitle: AppLocalizations.of(context)?.optLabel ?? 'Optional',
             value: data.alertsConsent,
             onChanged: (val) => onboarding.setAlertsConsent(val),
           ),

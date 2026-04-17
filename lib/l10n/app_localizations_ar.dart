@@ -381,4 +381,146 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get addContactsOnboarding =>
       'أضف جهات اتصال أثناء الإعداد لرؤيتها هنا.';
+
+  @override
+  String get personalIdentity => 'الهوية الشخصية';
+
+  @override
+  String get firstName => 'الاسم الأول';
+
+  @override
+  String get lastName => 'اسم العائلة';
+
+  @override
+  String get dob => 'تاريخ الميلاد';
+
+  @override
+  String get nationality => 'الجنسية';
+
+  @override
+  String get passportNum => 'رقم الجواز/الهوية';
+
+  @override
+  String get passportExpiry => 'تاريخ انتهاء الجواز';
+
+  @override
+  String get phoneTitle => 'التحقق من الهاتف';
+
+  @override
+  String get phoneNumberLabel => 'رقم الهاتف';
+
+  @override
+  String get verifyCode => 'أدخل رمز التحقق';
+
+  @override
+  String get travelTimeline => 'الجدول الزمني للسفر';
+
+  @override
+  String get arrivalDate => 'تاريخ الوصول';
+
+  @override
+  String get departureDate => 'تاريخ المغادرة';
+
+  @override
+  String get purposeOfVisit => 'غرض الزيارة';
+
+  @override
+  String get placesToVisit => 'الأماكن المراد زيارتها';
+
+  @override
+  String get contact1 => 'جهة اتصال 1';
+
+  @override
+  String get contact2 => 'جهة اتصال 2';
+
+  @override
+  String get relationship => 'صلة القرابة';
+
+  @override
+  String get stayDetailsTitle => 'تفاصيل الإقامة';
+
+  @override
+  String get accommodationType => 'نوع السكن';
+
+  @override
+  String get propertyName => 'اسم الفندق/العقار';
+
+  @override
+  String get fullAddress => 'العنوان الكامل';
+
+  @override
+  String get roomUnit => 'رقم الغرفة/الوحدة';
+
+  @override
+  String get accommodationPhone => 'هاتف السكن';
+
+  @override
+  String get medicalSafety => 'السلامة الطبية';
+
+  @override
+  String get bloodType => 'فصيلة الدم';
+
+  @override
+  String get allergiesLabel => 'أي حساسية؟';
+
+  @override
+  String get allergyDetails => 'تفاصيل الحساسية';
+
+  @override
+  String get conditionsLabel => 'أمراض مزمنة؟';
+
+  @override
+  String get conditionDetails => 'تفاصيل الحالة';
+
+  @override
+  String get medicationsLabel => 'أدوية بانتظام؟';
+
+  @override
+  String get medicationDetails => 'تفاصيل الدواء';
+
+  @override
+  String get insurancePolicy => 'رقم بوليصة التأمين';
+
+  @override
+  String get consentPrivacy => 'الموافقة والخصوصية';
+
+  @override
+  String get consentTerms => 'أوافق على شروط الخدمة وسياسة الخصوصية';
+
+  @override
+  String get consentLocation => 'أوافق على تتبع الموقع لمراقبة السلامة';
+
+  @override
+  String get consentData => 'أوافق على مشاركة بياناتي مع خدمات الطوارئ';
+
+  @override
+  String get consentAlerts => 'أوافق على استلام تنبيهات السلامة';
+
+  @override
+  String get reqLabel => 'مطلوب';
+
+  @override
+  String get optLabel => 'اختياري';
+
+  @override
+  String get editBtn => 'تعديل';
+
+  @override
+  String get doneBtn => 'تم';
+
+  @override
+  String get signOutBtn => 'تسجيل الخروج';
+
+  @override
+  String get deleteAccBtn => 'حذف الحساب';
+
+  @override
+  String get deleteAccPrompt =>
+      'هل أنت متأكد أنك تريد حذف حسابك نهائياً؟ هذا الإجراء لا يمكن التراجع عنه.';
+
+  @override
+  String get deleteBtn => 'حذف';
+
+  @override
+  String get cancelBtn => 'إلغاء';
 }

@@ -111,7 +111,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
             // ─── SECTION 1: PERSONAL IDENTITY (Editable) ───
             _SectionHeader(
-              title: 'Personal Identity',
+              title: AppLocalizations.of(context)?.personalIdentity ?? 'Personal Identity',
               icon: Icons.person,
               onEdit: () => setState(() => _editingIdentity = !_editingIdentity),
               isEditing: _editingIdentity,
@@ -122,26 +122,26 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 : SafetyCard(
                     child: Column(
                       children: [
-                        _InfoRow(label: 'First Name', value: data.firstName.isNotEmpty ? data.firstName : 'John'),
+                        _InfoRow(label: AppLocalizations.of(context)?.firstName ?? 'First Name', value: data.firstName.isNotEmpty ? data.firstName : 'John'),
                         const Divider(color: AppColors.border, height: 1),
-                        _InfoRow(label: 'Last Name', value: data.lastName.isNotEmpty ? data.lastName : 'Doe'),
+                        _InfoRow(label: AppLocalizations.of(context)?.lastName ?? 'Last Name', value: data.lastName.isNotEmpty ? data.lastName : 'Doe'),
                         const Divider(color: AppColors.border, height: 1),
                         _InfoRow(
-                          label: 'Date of Birth',
+                          label: AppLocalizations.of(context)?.dob ?? 'Date of Birth',
                           value: data.dateOfBirth != null
                               ? DateFormat('MMM d, yyyy').format(data.dateOfBirth!)
                               : 'Jan 15, 1990',
                         ),
                         const Divider(color: AppColors.border, height: 1),
-                        _InfoRow(label: 'Nationality', value: data.nationality?.name ?? 'India'),
+                        _InfoRow(label: AppLocalizations.of(context)?.nationality ?? 'Nationality', value: data.nationality?.name ?? 'India'),
                         const Divider(color: AppColors.border, height: 1),
                         _InfoRow(
-                          label: 'Passport No.',
+                          label: AppLocalizations.of(context)?.passportNum ?? 'Passport No.',
                           value: data.passportNumber.isNotEmpty ? data.passportNumber : 'A1234567',
                         ),
                         const Divider(color: AppColors.border, height: 1),
                         _InfoRow(
-                          label: 'Passport Expiry',
+                          label: AppLocalizations.of(context)?.passportExpiry ?? 'Passport Expiry',
                           value: data.passportExpiry != null
                               ? DateFormat('MMM d, yyyy').format(data.passportExpiry!)
                               : 'Dec 31, 2030',
@@ -153,7 +153,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
             // ─── SECTION 2: PHONE (Editable) ───
             _SectionHeader(
-              title: 'Phone',
+              title: AppLocalizations.of(context)?.phoneNumberLabel ?? 'Phone',
               icon: Icons.phone,
               onEdit: () => setState(() => _editingPhone = !_editingPhone),
               isEditing: _editingPhone,
@@ -163,7 +163,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 ? _buildPhoneEditForm(data, notifier)
                 : SafetyCard(
                     child: _InfoRow(
-                      label: 'Phone',
+                      label: AppLocalizations.of(context)?.phoneNumberLabel ?? 'Phone',
                       value: data.phoneNumber.isNotEmpty
                           ? '+${data.phoneCode} ${data.phoneNumber}'
                           : 'Not set',
@@ -173,7 +173,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
             // ─── SECTION 3: TRAVEL DETAILS (Editable) ───
             _SectionHeader(
-              title: 'Travel Details',
+              title: AppLocalizations.of(context)?.travelTimeline ?? 'Travel Details',
               icon: Icons.flight,
               onEdit: () => setState(() => _editingTravel = !_editingTravel),
               isEditing: _editingTravel,
@@ -185,23 +185,23 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     child: Column(
                       children: [
                         _InfoRow(
-                          label: 'Arrival',
+                          label: AppLocalizations.of(context)?.arrivalDate ?? 'Arrival',
                           value: data.arrivalDate != null
                               ? DateFormat('MMM d, yyyy').format(data.arrivalDate!)
                               : 'Mar 5, 2026',
                         ),
                         const Divider(color: AppColors.border, height: 1),
                         _InfoRow(
-                          label: 'Departure',
+                          label: AppLocalizations.of(context)?.departureDate ?? 'Departure',
                           value: data.departureDate != null
                               ? DateFormat('MMM d, yyyy').format(data.departureDate!)
                               : 'Mar 15, 2026',
                         ),
                         const Divider(color: AppColors.border, height: 1),
-                        _InfoRow(label: 'Purpose', value: data.purposeOfVisit ?? 'Tourism'),
+                        _InfoRow(label: AppLocalizations.of(context)?.purposeOfVisit ?? 'Purpose', value: data.purposeOfVisit ?? 'Tourism'),
                         const Divider(color: AppColors.border, height: 1),
                         _InfoRow(
-                          label: 'Places',
+                          label: AppLocalizations.of(context)?.placesToVisit ?? 'Places',
                           value: data.placesToVisit.isNotEmpty
                               ? data.placesToVisit
                               : 'Gateway of India, Marine Drive',
@@ -213,7 +213,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
             // ─── SECTION 4: EMERGENCY CONTACTS (Editable) ───
             _SectionHeader(
-              title: 'Emergency Contacts',
+              title: AppLocalizations.of(context)?.yourEmergencyContacts ?? 'Emergency Contacts',
               icon: Icons.contact_phone,
               onEdit: () => setState(() => _editingEmergency = !_editingEmergency),
               isEditing: _editingEmergency,
@@ -225,26 +225,26 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     child: Column(
                       children: [
                         _InfoRow(
-                          label: 'Contact 1',
+                          label: AppLocalizations.of(context)?.contact1 ?? 'Contact 1',
                           value: data.contact1Name.isNotEmpty
                               ? '${data.contact1Name} (${data.contact1Relationship ?? "Family"})'
                               : 'Jane Doe (Family)',
                         ),
                         const Divider(color: AppColors.border, height: 1),
                         _InfoRow(
-                          label: 'Phone',
+                          label: AppLocalizations.of(context)?.phoneNumberLabel ?? 'Phone',
                           value: data.contact1Phone.isNotEmpty ? data.contact1Phone : '+91 1234567890',
                         ),
                         const Divider(color: AppColors.border, height: 1),
                         _InfoRow(
-                          label: 'Contact 2',
+                          label: AppLocalizations.of(context)?.contact2 ?? 'Contact 2',
                           value: data.contact2Name.isNotEmpty
                               ? '${data.contact2Name} (${data.contact2Relationship ?? "Friend"})'
                               : 'Bob Smith (Friend)',
                         ),
                         const Divider(color: AppColors.border, height: 1),
                         _InfoRow(
-                          label: 'Phone',
+                          label: AppLocalizations.of(context)?.phoneNumberLabel ?? 'Phone',
                           value: data.contact2Phone.isNotEmpty ? data.contact2Phone : '+91 0987654321',
                         ),
                       ],
@@ -254,7 +254,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
             // ─── SECTION 5: STAY DETAILS (Editable) ───
             _SectionHeader(
-              title: 'Stay Details',
+              title: AppLocalizations.of(context)?.stayDetailsTitle ?? 'Stay Details',
               icon: Icons.hotel,
               onEdit: () => setState(() => _editingStay = !_editingStay),
               isEditing: _editingStay,
@@ -265,22 +265,22 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 : SafetyCard(
                     child: Column(
                       children: [
-                        _InfoRow(label: 'Type', value: data.accommodationType ?? 'Hotel'),
+                        _InfoRow(label: AppLocalizations.of(context)?.accommodationType ?? 'Type', value: data.accommodationType ?? 'Hotel'),
                         const Divider(color: AppColors.border, height: 1),
                         _InfoRow(
-                          label: 'Property',
+                          label: AppLocalizations.of(context)?.propertyName ?? 'Property',
                           value: data.propertyName.isNotEmpty ? data.propertyName : 'Taj Lands End',
                         ),
                         const Divider(color: AppColors.border, height: 1),
                         _InfoRow(
-                          label: 'Address',
+                          label: AppLocalizations.of(context)?.fullAddress ?? 'Address',
                           value: data.fullAddress.isNotEmpty
                               ? data.fullAddress
                               : 'Byramji Jeejeebhoy Rd, Bandra West',
                         ),
                         const Divider(color: AppColors.border, height: 1),
                         _InfoRow(
-                          label: 'Room',
+                          label: AppLocalizations.of(context)?.roomUnit ?? 'Room',
                           value: data.roomNumber.isNotEmpty ? data.roomNumber : '402',
                         ),
                       ],
@@ -290,7 +290,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
             // ─── SECTION 6: MEDICAL INFO (Editable) ───
             _SectionHeader(
-              title: 'Medical Info',
+              title: AppLocalizations.of(context)?.medicalSafety ?? 'Medical Info',
               icon: Icons.medical_services,
               onEdit: () => setState(() => _editingMedical = !_editingMedical),
               isEditing: _editingMedical,
@@ -301,22 +301,22 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 : SafetyCard(
                     child: Column(
                       children: [
-                        _InfoRow(label: 'Blood Type', value: data.bloodType ?? 'O+'),
+                        _InfoRow(label: AppLocalizations.of(context)?.bloodType ?? 'Blood Type', value: data.bloodType ?? 'O+'),
                         const Divider(color: AppColors.border, height: 1),
-                        _InfoRow(label: 'Allergies', value: data.hasAllergies ? data.allergyDetails : 'None'),
+                        _InfoRow(label: AppLocalizations.of(context)?.allergiesLabel ?? 'Allergies', value: data.hasAllergies ? data.allergyDetails : 'None'),
                         const Divider(color: AppColors.border, height: 1),
                         _InfoRow(
-                          label: 'Conditions',
+                          label: AppLocalizations.of(context)?.conditionsLabel ?? 'Conditions',
                           value: data.hasChronicConditions ? data.conditionDetails : 'None',
                         ),
                         const Divider(color: AppColors.border, height: 1),
                         _InfoRow(
-                          label: 'Medications',
+                          label: AppLocalizations.of(context)?.medicationsLabel ?? 'Medications',
                           value: data.takesRegularMedication ? data.medicationDetails : 'None',
                         ),
                         const Divider(color: AppColors.border, height: 1),
                         _InfoRow(
-                          label: 'Insurance',
+                          label: AppLocalizations.of(context)?.insurancePolicy ?? 'Insurance',
                           value: data.insurancePolicyNumber.isNotEmpty
                               ? data.insurancePolicyNumber
                               : 'POL-IN-29384',
@@ -329,7 +329,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
             // ─── DANGER ZONE ───
             SafetyButton(
-              text: 'Sign Out',
+              text: AppLocalizations.of(context)?.signOutBtn ?? 'Sign Out',
               icon: Icons.logout,
               variant: SafetyButtonVariant.outlined,
               onPressed: () {
@@ -339,7 +339,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             ),
             const SizedBox(height: 16),
             SafetyButton(
-              text: 'Delete Account',
+              text: AppLocalizations.of(context)?.deleteAccBtn ?? 'Delete Account',
               icon: Icons.delete_forever,
               variant: SafetyButtonVariant.danger,
               onPressed: () {
@@ -351,7 +351,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       borderRadius: BorderRadius.circular(16),
                       side: BorderSide(color: AppColors.border),
                     ),
-                    title: Text('Delete Account', style: AppTypography.h2),
+                    title: Text(AppLocalizations.of(context)?.deleteAccBtn ?? 'Delete Account', style: AppTypography.h2),
                     content: Text(
                       'Are you sure you want to permanently delete your account? This action cannot be undone.',
                       style: AppTypography.body.copyWith(color: AppColors.textSecondary),
@@ -400,7 +400,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       child: Column(
         children: [
           InputField(
-            label: 'First Name',
+            label: AppLocalizations.of(context)?.firstName ?? 'First Name',
             controller: TextEditingController(
               text: data.firstName.isNotEmpty ? data.firstName : '',
             ),
@@ -408,7 +408,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           ),
           const SizedBox(height: 12),
           InputField(
-            label: 'Last Name',
+            label: AppLocalizations.of(context)?.lastName ?? 'Last Name',
             controller: TextEditingController(
               text: data.lastName.isNotEmpty ? data.lastName : '',
             ),
@@ -416,20 +416,20 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           ),
           const SizedBox(height: 12),
           DateCard(
-            label: 'Date of Birth',
+            label: AppLocalizations.of(context)?.dob ?? 'Date of Birth',
             selectedDate: data.dateOfBirth,
             onDateSelected: (date) => notifier.setDateOfBirth(date),
             lastDate: DateTime.now(),
           ),
           const SizedBox(height: 12),
           CountrySelect(
-            label: 'Nationality',
+            label: AppLocalizations.of(context)?.nationality ?? 'Nationality',
             selectedCountry: data.nationality,
             onSelect: (country) => notifier.setNationality(country),
           ),
           const SizedBox(height: 12),
           InputField(
-            label: 'Passport/ID Number',
+            label: AppLocalizations.of(context)?.passportNum ?? 'Passport/ID Number',
             controller: TextEditingController(
               text: data.passportNumber.isNotEmpty ? data.passportNumber : '',
             ),
@@ -437,7 +437,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           ),
           const SizedBox(height: 12),
           DateCard(
-            label: 'Passport Expiry Date',
+            label: AppLocalizations.of(context)?.passportExpiry ?? 'Passport Expiry Date',
             selectedDate: data.passportExpiry,
             onDateSelected: (date) => notifier.setPassportExpiry(date),
             firstDate: DateTime.now(),
@@ -450,7 +450,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Widget _buildPhoneEditForm(OnboardingData data, OnboardingNotifier notifier) {
     return SafetyCard(
       child: PhoneInput(
-        label: 'Phone Number',
+        label: AppLocalizations.of(context)?.phoneNumberLabel ?? 'Phone Number',
         controller: TextEditingController(
           text: data.phoneNumber.isNotEmpty ? data.phoneNumber : '',
         ),
@@ -465,28 +465,28 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       child: Column(
         children: [
           _EditableDateRow(
-            label: 'Arrival Date',
+            label: AppLocalizations.of(context)?.arrivalDate ?? 'Arrival Date',
             date: data.arrivalDate,
             fallback: 'Mar 5, 2026',
             onPicked: (d) => notifier.setArrivalDate(d),
           ),
           const SizedBox(height: 12),
           _EditableDateRow(
-            label: 'Departure Date',
+            label: AppLocalizations.of(context)?.departureDate ?? 'Departure Date',
             date: data.departureDate,
             fallback: 'Mar 15, 2026',
             onPicked: (d) => notifier.setDepartureDate(d),
           ),
           const SizedBox(height: 12),
           AppDropdown(
-            label: 'Purpose of Visit',
+            label: AppLocalizations.of(context)?.purposeOfVisit ?? 'Purpose of Visit',
             selectedValue: data.purposeOfVisit ?? 'Tourism',
             items: const ['Tourism', 'Business', 'Education', 'Medical', 'Other'],
             onChanged: (val) => notifier.setPurposeOfVisit(val),
           ),
           const SizedBox(height: 12),
           InputField(
-            label: 'Places to Visit',
+            label: AppLocalizations.of(context)?.placesToVisit ?? 'Places to Visit',
             controller: TextEditingController(
               text: data.placesToVisit.isNotEmpty ? data.placesToVisit : 'Gateway of India, Marine Drive',
             ),
@@ -503,7 +503,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       child: Column(
         children: [
           InputField(
-            label: 'Contact 1 Name',
+            label: AppLocalizations.of(context)?.fullName ?? 'Contact 1 Name',
             controller: TextEditingController(
               text: data.contact1Name.isNotEmpty ? data.contact1Name : 'Jane Doe',
             ),
@@ -511,7 +511,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           ),
           const SizedBox(height: 12),
           InputField(
-            label: 'Contact 1 Phone',
+            label: AppLocalizations.of(context)?.phoneNumberLabel ?? 'Contact 1 Phone',
             controller: TextEditingController(
               text: data.contact1Phone.isNotEmpty ? data.contact1Phone : '+91 1234567890',
             ),
@@ -519,7 +519,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           ),
           const SizedBox(height: 12),
           InputField(
-            label: 'Contact 2 Name',
+            label: AppLocalizations.of(context)?.fullName ?? 'Contact 2 Name',
             controller: TextEditingController(
               text: data.contact2Name.isNotEmpty ? data.contact2Name : 'Bob Smith',
             ),
@@ -527,7 +527,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           ),
           const SizedBox(height: 12),
           InputField(
-            label: 'Contact 2 Phone',
+            label: AppLocalizations.of(context)?.phoneNumberLabel ?? 'Contact 2 Phone',
             controller: TextEditingController(
               text: data.contact2Phone.isNotEmpty ? data.contact2Phone : '+91 0987654321',
             ),
@@ -543,14 +543,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       child: Column(
         children: [
           AppDropdown(
-            label: 'Accommodation Type',
+            label: AppLocalizations.of(context)?.accommodationType ?? 'Accommodation Type',
             selectedValue: data.accommodationType ?? 'Hotel',
             items: const ['Hotel', 'Hostel', 'Airbnb', 'Guest House', 'Relative\'s Home', 'Other'],
             onChanged: (val) => notifier.setAccommodationType(val),
           ),
           const SizedBox(height: 12),
           InputField(
-            label: 'Property Name',
+            label: AppLocalizations.of(context)?.propertyName ?? 'Property Name',
             controller: TextEditingController(
               text: data.propertyName.isNotEmpty ? data.propertyName : 'Taj Lands End',
             ),
@@ -558,7 +558,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           ),
           const SizedBox(height: 12),
           InputField(
-            label: 'Full Address',
+            label: AppLocalizations.of(context)?.fullAddress ?? 'Full Address',
             controller: TextEditingController(
               text: data.fullAddress.isNotEmpty ? data.fullAddress : 'Byramji Jeejeebhoy Rd, Bandra West',
             ),
@@ -567,7 +567,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           ),
           const SizedBox(height: 12),
           InputField(
-            label: 'Room / Unit',
+            label: AppLocalizations.of(context)?.roomUnit ?? 'Room / Unit',
             controller: TextEditingController(
               text: data.roomNumber.isNotEmpty ? data.roomNumber : '402',
             ),
@@ -583,14 +583,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       child: Column(
         children: [
           AppDropdown(
-            label: 'Blood Type',
+            label: AppLocalizations.of(context)?.bloodType ?? 'Blood Type',
             selectedValue: data.bloodType ?? 'O+',
             items: const ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
             onChanged: (val) => notifier.setBloodType(val),
           ),
           const SizedBox(height: 12),
           InputField(
-            label: 'Allergies',
+            label: AppLocalizations.of(context)?.allergiesLabel ?? 'Allergies',
             controller: TextEditingController(
               text: data.hasAllergies ? data.allergyDetails : '',
             ),
@@ -601,7 +601,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           ),
           const SizedBox(height: 12),
           InputField(
-            label: 'Chronic Conditions',
+            label: AppLocalizations.of(context)?.conditionsLabel ?? 'Chronic Conditions',
             controller: TextEditingController(
               text: data.hasChronicConditions ? data.conditionDetails : '',
             ),
@@ -612,7 +612,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           ),
           const SizedBox(height: 12),
           InputField(
-            label: 'Regular Medications',
+            label: AppLocalizations.of(context)?.medicationsLabel ?? 'Regular Medications',
             controller: TextEditingController(
               text: data.takesRegularMedication ? data.medicationDetails : '',
             ),
@@ -623,7 +623,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           ),
           const SizedBox(height: 12),
           InputField(
-            label: 'Insurance Policy Number',
+            label: AppLocalizations.of(context)?.insurancePolicy ?? 'Insurance Policy Number',
             controller: TextEditingController(
               text: data.insurancePolicyNumber.isNotEmpty ? data.insurancePolicyNumber : 'POL-IN-29384',
             ),

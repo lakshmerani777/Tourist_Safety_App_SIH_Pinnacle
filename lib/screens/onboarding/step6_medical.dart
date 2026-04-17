@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/widgets/dropdown.dart';
@@ -20,10 +22,10 @@ class Step6Medical extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 16),
-          Text('Medical Safety', style: AppTypography.h1),
+          Text(AppLocalizations.of(context)?.medicalSafety ?? 'Medical Safety', style: AppTypography.h1),
           const SizedBox(height: 32),
           AppDropdown(
-            label: 'Blood Type',
+            label: AppLocalizations.of(context)?.bloodType ?? 'Blood Type',
             selectedValue: data.bloodType,
             items: const [
               'A+', 'A−', 'B+', 'B−', 'O+', 'O−', 'AB+', 'AB−',
@@ -40,7 +42,7 @@ class Step6Medical extends ConsumerWidget {
           if (data.hasAllergies) ...[
             const SizedBox(height: 8),
             InputField(
-              label: 'Allergy Details',
+              label: AppLocalizations.of(context)?.allergyDetails ?? 'Allergy Details',
               hintText: 'Describe your allergies...',
               maxLines: 3,
               onChanged: (val) => onboarding.setAllergyDetails(val),
@@ -56,7 +58,7 @@ class Step6Medical extends ConsumerWidget {
           if (data.hasChronicConditions) ...[
             const SizedBox(height: 8),
             InputField(
-              label: 'Condition Details',
+              label: AppLocalizations.of(context)?.conditionDetails ?? 'Condition Details',
               hintText: 'Describe your conditions...',
               maxLines: 3,
               onChanged: (val) => onboarding.setConditionDetails(val),

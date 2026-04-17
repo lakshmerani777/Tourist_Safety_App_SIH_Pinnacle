@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/widgets/date_card.dart';
@@ -20,22 +22,22 @@ class Step3Travel extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 16),
-          Text('Travel Timeline', style: AppTypography.h1),
+          Text(AppLocalizations.of(context)?.travelTimeline ?? 'Travel Timeline', style: AppTypography.h1),
           const SizedBox(height: 32),
           DateCard(
-            label: 'Arrival Date',
+            label: AppLocalizations.of(context)?.arrivalDate ?? 'Arrival Date',
             selectedDate: data.arrivalDate,
             onDateSelected: (date) => onboarding.setArrivalDate(date),
           ),
           const SizedBox(height: 20),
           DateCard(
-            label: 'Departure Date',
+            label: AppLocalizations.of(context)?.departureDate ?? 'Departure Date',
             selectedDate: data.departureDate,
             onDateSelected: (date) => onboarding.setDepartureDate(date),
           ),
           const SizedBox(height: 20),
           AppDropdown(
-            label: 'Purpose of Visit',
+            label: AppLocalizations.of(context)?.purposeOfVisit ?? 'Purpose of Visit',
             selectedValue: data.purposeOfVisit,
             items: const [
               'Tourism',
@@ -48,7 +50,7 @@ class Step3Travel extends ConsumerWidget {
           ),
           const SizedBox(height: 20),
           InputField(
-            label: 'Places Planning to Visit',
+            label: AppLocalizations.of(context)?.placesToVisit ?? 'Places Planning to Visit',
             hintText: 'Enter places you plan to visit...',
             maxLines: 3,
             prefixIcon: Icons.place_outlined,

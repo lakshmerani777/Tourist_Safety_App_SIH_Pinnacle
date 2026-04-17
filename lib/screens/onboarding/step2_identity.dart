@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/widgets/input_field.dart';
@@ -20,44 +22,44 @@ class Step2Identity extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 16),
-          Text('Personal Identity', style: AppTypography.h1),
+          Text(AppLocalizations.of(context)?.personalIdentity ?? 'Personal Identity', style: AppTypography.h1),
           const SizedBox(height: 32),
           InputField(
-            label: 'First Name',
+            label: AppLocalizations.of(context)?.firstName ?? 'First Name',
             prefixIcon: Icons.person_outline,
             hintText: 'Enter first name',
             onChanged: (val) => onboarding.setFirstName(val),
           ),
           const SizedBox(height: 20),
           InputField(
-            label: 'Last Name',
+            label: AppLocalizations.of(context)?.lastName ?? 'Last Name',
             prefixIcon: Icons.person_outline,
             hintText: 'Enter last name',
             onChanged: (val) => onboarding.setLastName(val),
           ),
           const SizedBox(height: 20),
           DateCard(
-            label: 'Date of Birth',
+            label: AppLocalizations.of(context)?.dob ?? 'Date of Birth',
             selectedDate: data.dateOfBirth,
             onDateSelected: (date) => onboarding.setDateOfBirth(date),
             lastDate: DateTime.now(),
           ),
           const SizedBox(height: 20),
           CountrySelect(
-            label: 'Nationality',
+            label: AppLocalizations.of(context)?.nationality ?? 'Nationality',
             selectedCountry: data.nationality,
             onSelect: (country) => onboarding.setNationality(country),
           ),
           const SizedBox(height: 20),
           InputField(
-            label: 'Passport/ID Number',
+            label: AppLocalizations.of(context)?.passportNum ?? 'Passport/ID Number',
             prefixIcon: Icons.badge_outlined,
             hintText: 'Enter passport or ID number',
             onChanged: (val) => onboarding.setPassportNumber(val),
           ),
           const SizedBox(height: 20),
           DateCard(
-            label: 'Passport Expiry Date',
+            label: AppLocalizations.of(context)?.passportExpiry ?? 'Passport Expiry Date',
             selectedDate: data.passportExpiry,
             onDateSelected: (date) => onboarding.setPassportExpiry(date),
             firstDate: DateTime.now(),

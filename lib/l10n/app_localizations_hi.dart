@@ -385,4 +385,148 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get addContactsOnboarding =>
       'उन्हें यहां देखने के लिए प्रारंभिक सेटअप के दौरान संपर्क जोड़ें।';
+
+  @override
+  String get personalIdentity => 'व्यक्तिगत पहचान';
+
+  @override
+  String get firstName => 'प्रथम नाम';
+
+  @override
+  String get lastName => 'अंतिम नाम';
+
+  @override
+  String get dob => 'जन्म तिथि';
+
+  @override
+  String get nationality => 'राष्ट्रीयता';
+
+  @override
+  String get passportNum => 'पासपोर्ट / आईडी नंबर';
+
+  @override
+  String get passportExpiry => 'पासपोर्ट समाप्ति तिथि';
+
+  @override
+  String get phoneTitle => 'फोन सत्यापन';
+
+  @override
+  String get phoneNumberLabel => 'फोन नंबर';
+
+  @override
+  String get verifyCode => 'सत्यापन कोड दर्ज करें';
+
+  @override
+  String get travelTimeline => 'यात्रा की समयसीमा';
+
+  @override
+  String get arrivalDate => 'प्रतिदिन आने की तिथि';
+
+  @override
+  String get departureDate => 'प्रस्थान तिथि';
+
+  @override
+  String get purposeOfVisit => 'यात्रा का उद्देश्य';
+
+  @override
+  String get placesToVisit => 'यात्रा के स्थान';
+
+  @override
+  String get contact1 => 'संपर्क 1';
+
+  @override
+  String get contact2 => 'संपर्क 2';
+
+  @override
+  String get relationship => 'रिश्ता';
+
+  @override
+  String get stayDetailsTitle => 'रहने का विवरण';
+
+  @override
+  String get accommodationType => 'आवास का प्रकार';
+
+  @override
+  String get propertyName => 'होटल/संपत्ति का नाम';
+
+  @override
+  String get fullAddress => 'पूरा पता';
+
+  @override
+  String get roomUnit => 'कमरा/इकाई संख्या';
+
+  @override
+  String get accommodationPhone => 'आवास फोन';
+
+  @override
+  String get medicalSafety => 'चिकित्सा सुरक्षा';
+
+  @override
+  String get bloodType => 'रक्त प्रकार';
+
+  @override
+  String get allergiesLabel => 'कोई एलर्जी?';
+
+  @override
+  String get allergyDetails => 'एलर्जी विवरण';
+
+  @override
+  String get conditionsLabel => 'कोई पुरानी बीमारियाँ?';
+
+  @override
+  String get conditionDetails => 'बीमारी का विवरण';
+
+  @override
+  String get medicationsLabel => 'क्या नियमित दवाएँ लेते हैं?';
+
+  @override
+  String get medicationDetails => 'दवा का विवरण';
+
+  @override
+  String get insurancePolicy => 'बीमा पॉलिसी नंबर';
+
+  @override
+  String get consentPrivacy => 'सहमति और गोपनीयता';
+
+  @override
+  String get consentTerms => 'मैं सेवा की शर्तों और गोपनीयता नीति से सहमत हूँ';
+
+  @override
+  String get consentLocation =>
+      'मैं सुरक्षा के लिए स्थान ट्रैकिंग की सहमति देता हूँ';
+
+  @override
+  String get consentData =>
+      'मैं आपातकालीन सेवाओं के साथ डेटा साझा करने की सहमति देता हूँ';
+
+  @override
+  String get consentAlerts => 'मैं सुरक्षा अलर्ट प्राप्त करने के लिए सहमत हूँ';
+
+  @override
+  String get reqLabel => 'आवश्यक';
+
+  @override
+  String get optLabel => 'वैकल्पिक';
+
+  @override
+  String get editBtn => 'संपादित करें';
+
+  @override
+  String get doneBtn => 'पूर्ण';
+
+  @override
+  String get signOutBtn => 'साइन आउट';
+
+  @override
+  String get deleteAccBtn => 'खाता हटाएँ';
+
+  @override
+  String get deleteAccPrompt =>
+      'क्या आप वाकई अपना खाता हटाना चाहते हैं? यह क्रिया पूर्ववत नहीं की जा सकती।';
+
+  @override
+  String get deleteBtn => 'हटाएँ';
+
+  @override
+  String get cancelBtn => 'रद्द करें';
 }

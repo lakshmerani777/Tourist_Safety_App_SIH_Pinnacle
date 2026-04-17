@@ -383,4 +383,150 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get addContactsOnboarding =>
       'Add contacts during onboarding to see them here.';
+
+  @override
+  String get personalIdentity => 'Personal Identity';
+
+  @override
+  String get firstName => 'First Name';
+
+  @override
+  String get lastName => 'Last Name';
+
+  @override
+  String get dob => 'Date of Birth';
+
+  @override
+  String get nationality => 'Nationality';
+
+  @override
+  String get passportNum => 'Passport/ID Number';
+
+  @override
+  String get passportExpiry => 'Passport Expiry Date';
+
+  @override
+  String get phoneTitle => 'Phone Verification';
+
+  @override
+  String get phoneNumberLabel => 'Phone Number';
+
+  @override
+  String get verifyCode => 'Enter verification code';
+
+  @override
+  String get travelTimeline => 'Travel Timeline';
+
+  @override
+  String get arrivalDate => 'Arrival Date';
+
+  @override
+  String get departureDate => 'Departure Date';
+
+  @override
+  String get purposeOfVisit => 'Purpose of Visit';
+
+  @override
+  String get placesToVisit => 'Places Planning to Visit';
+
+  @override
+  String get contact1 => 'Contact 1';
+
+  @override
+  String get contact2 => 'Contact 2';
+
+  @override
+  String get relationship => 'Relationship';
+
+  @override
+  String get stayDetailsTitle => 'Stay Details';
+
+  @override
+  String get accommodationType => 'Accommodation Type';
+
+  @override
+  String get propertyName => 'Hotel/Property Name';
+
+  @override
+  String get fullAddress => 'Full Address';
+
+  @override
+  String get roomUnit => 'Room/Unit Number';
+
+  @override
+  String get accommodationPhone => 'Accommodation Phone';
+
+  @override
+  String get medicalSafety => 'Medical Safety';
+
+  @override
+  String get bloodType => 'Blood Type';
+
+  @override
+  String get allergiesLabel => 'Any Allergies?';
+
+  @override
+  String get allergyDetails => 'Allergy Details';
+
+  @override
+  String get conditionsLabel => 'Chronic Conditions?';
+
+  @override
+  String get conditionDetails => 'Condition Details';
+
+  @override
+  String get medicationsLabel => 'Regular Medications?';
+
+  @override
+  String get medicationDetails => 'Medication Details';
+
+  @override
+  String get insurancePolicy => 'Insurance Policy Number';
+
+  @override
+  String get consentPrivacy => 'Consent & Privacy';
+
+  @override
+  String get consentTerms =>
+      'I agree to the Terms of Service and Privacy Policy';
+
+  @override
+  String get consentLocation =>
+      'I consent to location tracking for safety monitoring';
+
+  @override
+  String get consentData =>
+      'I consent to sharing my data with emergency services';
+
+  @override
+  String get consentAlerts =>
+      'I agree to receive safety alerts and notifications';
+
+  @override
+  String get reqLabel => 'Required';
+
+  @override
+  String get optLabel => 'Optional';
+
+  @override
+  String get editBtn => 'Edit';
+
+  @override
+  String get doneBtn => 'Done';
+
+  @override
+  String get signOutBtn => 'Sign Out';
+
+  @override
+  String get deleteAccBtn => 'Delete Account';
+
+  @override
+  String get deleteAccPrompt =>
+      'Are you sure you want to permanently delete your account? This action cannot be undone.';
+
+  @override
+  String get deleteBtn => 'Delete';
+
+  @override
+  String get cancelBtn => 'Cancel';
 }
