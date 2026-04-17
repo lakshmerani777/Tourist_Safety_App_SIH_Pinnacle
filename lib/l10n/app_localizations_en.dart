@@ -116,4 +116,124 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get rememberPassword => 'Remember your password? ';
+
+  @override
+  String get protectedStatus => 'Protected';
+
+  @override
+  String get currentLocation => 'Current Location';
+
+  @override
+  String get lastUpdatedNow => 'Last updated: Just now';
+
+  @override
+  String get quickActions => 'Quick Actions';
+
+  @override
+  String get reportIncident => 'Report\nIncident';
+
+  @override
+  String get shareLocation => 'Share\nLocation';
+
+  @override
+  String get emergencyContacts => 'Emergency\nContacts';
+
+  @override
+  String get safetyMap => 'Safety\nMap';
+
+  @override
+  String get sosText => 'SOS';
+
+  @override
+  String get recentAlerts => 'Recent Alerts';
+
+  @override
+  String get viewAll => 'View All';
+
+  @override
+  String get navHome => 'Home';
+
+  @override
+  String get navMap => 'Map';
+
+  @override
+  String get navChat => 'Chat';
+
+  @override
+  String get navAlerts => 'Alerts';
+
+  @override
+  String get navProfile => 'Profile';
+
+  @override
+  String get errorMapSearch => 'Could not open map search';
+
+  @override
+  String get searchLocation => 'Search location...';
+
+  @override
+  String get nearbyHospitals => 'Nearby Hospitals';
+
+  @override
+  String get policeStations => 'Police Stations';
+
+  @override
+  String get pharmacies => 'Pharmacies';
+
+  @override
+  String get embassies => 'Embassies';
+
+  @override
+  String get atms => 'ATMs';
+
+  @override
+  String get publicTransit => 'Public Transit';
+
+  @override
+  String get publicRestrooms => 'Public Restrooms';
+
+  @override
+  String get touristAttractions => 'Tourist Attractions';
+
+  @override
+  String get mapLegend => 'Map Legend';
+
+  @override
+  String get legendYourLocation => 'Your Location';
+
+  @override
+  String get legendIncidentReports => 'Incident Reports';
+
+  @override
+  String get legendCautionZones => 'Caution Zones';
+
+  @override
+  String get legendHighRiskZones => 'High Risk Zones';
+
+  @override
+  String get legendSafeZones => 'Safe Zones';
+
+  @override
+  String get activeBadge => 'Active';
+
+  @override
+  String get alertBadge => 'Alert';
+
+  @override
+  String get warningBadge => 'Warning';
+
+  @override
+  String get dangerBadge => 'Danger';
+
+  @override
+  String get safeBadge => 'Safe';
+
+  @override
+  String get mapCopyright => 'Map data © OpenStreetMap contributors';
+
+  @override
+  String get activeAlerts => 'Active Alerts';
+
+  @override
+  String get callHelpline => 'Call Tourist Helpline';
 }

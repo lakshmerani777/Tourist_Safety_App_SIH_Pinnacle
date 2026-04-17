@@ -7,7 +7,9 @@ import '../core/theme/app_colors.dart';
 import '../core/theme/app_typography.dart';
 import '../core/widgets/status_badge.dart';
 import '../providers/location_provider.dart';
+import '../providers/location_provider.dart';
 import '../providers/weather_provider.dart';
+import '../l10n/app_localizations.dart';
 
 class MapViewScreen extends ConsumerStatefulWidget {
   const MapViewScreen({super.key});
@@ -51,7 +53,7 @@ class _MapViewScreenState extends ConsumerState<MapViewScreen> {
     if (!await launchUrl(url)) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not open map search')),
+          SnackBar(content: Text(AppLocalizations.of(context)?.errorMapSearch ?? 'Could not open map search')),
         );
       }
     }
@@ -168,7 +170,7 @@ class _MapViewScreenState extends ConsumerState<MapViewScreen> {
                           child: TextField(
                             style: AppTypography.body.copyWith(fontSize: 14),
                             decoration: InputDecoration(
-                              hintText: 'Search location...',
+                              hintText: AppLocalizations.of(context)?.searchLocation ?? 'Search location...',
                               hintStyle: AppTypography.caption,
                               border: InputBorder.none,
                               enabledBorder: InputBorder.none,
@@ -223,7 +225,7 @@ class _MapViewScreenState extends ConsumerState<MapViewScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text('Current Location',
+                            Text(AppLocalizations.of(context)?.currentLocation ?? 'Current Location',
                                 style: AppTypography.caption.copyWith(
                                   color: AppColors.accentBlue,
                                   fontWeight: FontWeight.w600,
@@ -317,56 +319,56 @@ class _MapViewScreenState extends ConsumerState<MapViewScreen> {
                   _QuickActionButton(
                     icon: Icons.local_hospital,
                     color: Colors.redAccent,
-                    tooltip: 'Nearby Hospitals',
+                    tooltip: AppLocalizations.of(context)?.nearbyHospitals ?? 'Nearby Hospitals',
                     onPressed: () => _launchMapsSearch('hospitals near me'),
                   ),
                   const SizedBox(height: 12),
                   _QuickActionButton(
                     icon: Icons.local_police,
                     color: Colors.blueAccent,
-                    tooltip: 'Police Stations',
+                    tooltip: AppLocalizations.of(context)?.policeStations ?? 'Police Stations',
                     onPressed: () => _launchMapsSearch('police stations near me'),
                   ),
                   const SizedBox(height: 12),
                   _QuickActionButton(
                     icon: Icons.local_pharmacy,
                     color: Colors.green,
-                    tooltip: 'Pharmacies',
+                    tooltip: AppLocalizations.of(context)?.pharmacies ?? 'Pharmacies',
                     onPressed: () => _launchMapsSearch('pharmacies near me'),
                   ),
                   const SizedBox(height: 12),
                   _QuickActionButton(
                     icon: Icons.account_balance,
                     color: Colors.orange,
-                    tooltip: 'Embassies',
+                    tooltip: AppLocalizations.of(context)?.embassies ?? 'Embassies',
                     onPressed: () => _launchMapsSearch('embassy near me'),
                   ),
                   const SizedBox(height: 12),
                   _QuickActionButton(
                     icon: Icons.atm,
                     color: Colors.teal,
-                    tooltip: 'ATMs',
+                    tooltip: AppLocalizations.of(context)?.atms ?? 'ATMs',
                     onPressed: () => _launchMapsSearch('ATMs near me'),
                   ),
                   const SizedBox(height: 12),
                   _QuickActionButton(
                     icon: Icons.directions_transit,
                     color: Colors.purple,
-                    tooltip: 'Public Transit',
+                    tooltip: AppLocalizations.of(context)?.publicTransit ?? 'Public Transit',
                     onPressed: () => _launchMapsSearch('public transit near me'),
                   ),
                   const SizedBox(height: 12),
                   _QuickActionButton(
                     icon: Icons.wc,
                     color: Colors.brown,
-                    tooltip: 'Public Restrooms',
+                    tooltip: AppLocalizations.of(context)?.publicRestrooms ?? 'Public Restrooms',
                     onPressed: () => _launchMapsSearch('public restrooms near me'),
                   ),
                   const SizedBox(height: 12),
                   _QuickActionButton(
                     icon: Icons.camera_alt,
                     color: Colors.indigo,
-                    tooltip: 'Tourist Attractions',
+                    tooltip: AppLocalizations.of(context)?.touristAttractions ?? 'Tourist Attractions',
                     onPressed: () => _launchMapsSearch('tourist attractions near me'),
                   ),
                 ],
@@ -409,45 +411,45 @@ class _MapViewScreenState extends ConsumerState<MapViewScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    Text('Map Legend', style: AppTypography.h2),
+                    Text(AppLocalizations.of(context)?.mapLegend ?? 'Map Legend', style: AppTypography.h2),
                     const SizedBox(height: 12),
                     _LegendItem(
                       color: AppColors.accentBlue,
-                      label: 'Your Location',
-                      badge: const StatusBadge(
-                          label: 'Active', type: BadgeType.active),
+                      label: AppLocalizations.of(context)?.legendYourLocation ?? 'Your Location',
+                      badge: StatusBadge(
+                          label: AppLocalizations.of(context)?.activeBadge ?? 'Active', type: BadgeType.active),
                     ),
                     const SizedBox(height: 8),
                     _LegendItem(
                       color: AppColors.alertRed,
-                      label: 'Incident Reports',
-                      badge: const StatusBadge(
-                          label: 'Alert', type: BadgeType.alert),
+                      label: AppLocalizations.of(context)?.legendIncidentReports ?? 'Incident Reports',
+                      badge: StatusBadge(
+                          label: AppLocalizations.of(context)?.alertBadge ?? 'Alert', type: BadgeType.alert),
                     ),
                     const SizedBox(height: 8),
                     _LegendItem(
                       color: AppColors.warning,
-                      label: 'Caution Zones',
-                      badge: const StatusBadge(
-                          label: 'Warning', type: BadgeType.warning),
+                      label: AppLocalizations.of(context)?.legendCautionZones ?? 'Caution Zones',
+                      badge: StatusBadge(
+                          label: AppLocalizations.of(context)?.warningBadge ?? 'Warning', type: BadgeType.warning),
                     ),
                     const SizedBox(height: 8),
                     _LegendItem(
                       color: AppColors.alertRed.withValues(alpha: 0.4),
-                      label: 'High Risk Zones',
-                      badge: const StatusBadge(
-                          label: 'Danger', type: BadgeType.alert),
+                      label: AppLocalizations.of(context)?.legendHighRiskZones ?? 'High Risk Zones',
+                      badge: StatusBadge(
+                          label: AppLocalizations.of(context)?.dangerBadge ?? 'Danger', type: BadgeType.alert),
                     ),
                     const SizedBox(height: 8),
                     _LegendItem(
                       color: AppColors.success,
-                      label: 'Safe Zones',
-                      badge: const StatusBadge(
-                          label: 'Safe', type: BadgeType.active),
+                      label: AppLocalizations.of(context)?.legendSafeZones ?? 'Safe Zones',
+                      badge: StatusBadge(
+                          label: AppLocalizations.of(context)?.safeBadge ?? 'Safe', type: BadgeType.active),
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'Map data © OpenStreetMap contributors',
+                      AppLocalizations.of(context)?.mapCopyright ?? 'Map data © OpenStreetMap contributors',
                       style: AppTypography.caption.copyWith(
                         color: AppColors.textSecondary,
                         fontSize: 10,

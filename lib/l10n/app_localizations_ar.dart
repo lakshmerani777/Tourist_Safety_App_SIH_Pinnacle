@@ -116,4 +116,124 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get rememberPassword => 'هل تتذكر كلمة المرور؟ ';
+
+  @override
+  String get protectedStatus => 'مُحَمى';
+
+  @override
+  String get currentLocation => 'الموقع الحالي';
+
+  @override
+  String get lastUpdatedNow => 'تحديث: الآن';
+
+  @override
+  String get quickActions => 'إجراءات سريعة';
+
+  @override
+  String get reportIncident => 'الإبلاغ عن\nحادث';
+
+  @override
+  String get shareLocation => 'مشاركة\nالموقع';
+
+  @override
+  String get emergencyContacts => 'جهات اتصال\nالطوارئ';
+
+  @override
+  String get safetyMap => 'خريطة\nالسلامة';
+
+  @override
+  String get sosText => 'SOS';
+
+  @override
+  String get recentAlerts => 'التنبيهات الأخيرة';
+
+  @override
+  String get viewAll => 'عرض الكل';
+
+  @override
+  String get navHome => 'الرئيسية';
+
+  @override
+  String get navMap => 'خريطة';
+
+  @override
+  String get navChat => 'دردشة';
+
+  @override
+  String get navAlerts => 'تنبيهات';
+
+  @override
+  String get navProfile => 'الملف';
+
+  @override
+  String get errorMapSearch => 'لا يمكن فتح البحث';
+
+  @override
+  String get searchLocation => 'ابحث عن موقع...';
+
+  @override
+  String get nearbyHospitals => 'مستشفيات قريبة';
+
+  @override
+  String get policeStations => 'مراكز الشرطة';
+
+  @override
+  String get pharmacies => 'صيدليات';
+
+  @override
+  String get embassies => 'سفارات';
+
+  @override
+  String get atms => 'أجهزة الصراف الآلي';
+
+  @override
+  String get publicTransit => 'النقل العام';
+
+  @override
+  String get publicRestrooms => 'دورات مياه عامة';
+
+  @override
+  String get touristAttractions => 'معالم سياحية';
+
+  @override
+  String get mapLegend => 'دليل الخريطة';
+
+  @override
+  String get legendYourLocation => 'موقعك';
+
+  @override
+  String get legendIncidentReports => 'تقارير الحوادث';
+
+  @override
+  String get legendCautionZones => 'مناطق حذرة';
+
+  @override
+  String get legendHighRiskZones => 'مناطق عالية الخطر';
+
+  @override
+  String get legendSafeZones => 'مناطق آمنة';
+
+  @override
+  String get activeBadge => 'نشط';
+
+  @override
+  String get alertBadge => 'إنذار';
+
+  @override
+  String get warningBadge => 'تحذير';
+
+  @override
+  String get dangerBadge => 'خطر';
+
+  @override
+  String get safeBadge => 'آمن';
+
+  @override
+  String get mapCopyright => 'بيانات الخريطة © مساهمو OpenStreetMap';
+
+  @override
+  String get activeAlerts => 'تنبيهات نشطة';
+
+  @override
+  String get callHelpline => 'اتصل بخط المساعدة السياحية';
 }

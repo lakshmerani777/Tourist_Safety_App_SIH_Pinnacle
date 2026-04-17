@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_typography.dart';
+import '../core/theme/app_typography.dart';
 import '../core/widgets/status_badge.dart';
+import '../l10n/app_localizations.dart';
 
 enum AlertSeverity { high, medium, low }
 
@@ -83,7 +85,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('Active Alerts', style: AppTypography.h2),
+        title: Text(AppLocalizations.of(context)?.activeAlerts ?? 'Active Alerts', style: AppTypography.h2),
         backgroundColor: AppColors.background,
         elevation: 0,
         centerTitle: true,
@@ -256,7 +258,7 @@ class _AlertCardState extends State<_AlertCard> {
                       onPressed: widget.onCallPressed,
                       icon: const Icon(Icons.phone),
                       label: Text(
-                        'Call Tourist Helpline',
+                        AppLocalizations.of(context)?.callHelpline ?? 'Call Tourist Helpline',
                         style: AppTypography.body.copyWith(
                           color: AppColors.alertRed,
                           fontWeight: FontWeight.w600,
