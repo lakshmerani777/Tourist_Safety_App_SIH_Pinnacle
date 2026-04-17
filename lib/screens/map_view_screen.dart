@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_typography.dart';
 import '../core/widgets/status_badge.dart';
@@ -16,7 +17,7 @@ class MapViewScreen extends ConsumerStatefulWidget {
 }
 
 class _MapViewScreenState extends ConsumerState<MapViewScreen> {
-  GoogleMapController? _mapController;
+  final MapController _mapController = MapController();
 
   static const List<LatLng> _highRiskZoneCenters = [
     LatLng(19.066418, 72.878737),
@@ -56,42 +57,45 @@ class _MapViewScreenState extends ConsumerState<MapViewScreen> {
     }
   }
 
-  Set<Marker> _buildMarkers(LatLng userPosition) {
-    final markers = <Marker>{
+  List<Marker> _buildMarkers(LatLng userPosition) {
+    return [
       Marker(
-        markerId: const MarkerId('user'),
-        position: userPosition,
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+        point: userPosition,
+        width: 40,
+        height: 40,
+        child: const Icon(Icons.location_on, color: AppColors.accentBlue, size: 40),
       ),
       ..._incidents.asMap().entries.map((e) => Marker(
-            markerId: MarkerId('incident_${e.key}'),
-            position: e.value.position,
-            icon: e.value.type == BadgeType.alert
-                ? BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed)
-                : e.value.type == BadgeType.warning
-                    ? BitmapDescriptor.defaultMarkerWithHue(
-                        BitmapDescriptor.hueOrange)
-                    : BitmapDescriptor.defaultMarkerWithHue(
-                        BitmapDescriptor.hueGreen),
+            point: e.value.position,
+            width: 40,
+            height: 40,
+            child: Icon(
+              Icons.warning,
+              color: e.value.type == BadgeType.alert
+                  ? AppColors.alertRed
+                  : e.value.type == BadgeType.warning
+                      ? AppColors.warning
+                      : AppColors.success,
+              size: 30,
+            ),
           )),
-    };
-    return markers;
+    ];
   }
 
-  Set<Circle> _buildCircles() {
+  List<CircleMarker> _buildCircles() {
     const fillColor = AppColors.alertRed;
     const strokeColor = AppColors.alertRed;
-    return {
+    return [
       for (var i = 0; i < _highRiskZoneCenters.length; i++)
-        Circle(
-          circleId: CircleId('zone_$i'),
-          center: _highRiskZoneCenters[i],
+        CircleMarker(
+          point: _highRiskZoneCenters[i],
           radius: 500,
-          fillColor: fillColor.withValues(alpha: 0.15),
-          strokeColor: strokeColor.withValues(alpha: 0.4),
-          strokeWidth: 2,
+          useRadiusInMeter: true,
+          color: fillColor.withValues(alpha: 0.15),
+          borderColor: strokeColor.withValues(alpha: 0.4),
+          borderStrokeWidth: 2,
         ),
-    };
+    ];
   }
 
   @override
@@ -103,19 +107,24 @@ class _MapViewScreenState extends ConsumerState<MapViewScreen> {
       body: Stack(
         children: [
           // Map
-          GoogleMap(
-            initialCameraPosition: CameraPosition(
-              target: location.currentPosition,
-              zoom: 14,
+          FlutterMap(
+            mapController: _mapController,
+            options: MapOptions(
+              initialCenter: location.currentPosition,
+              initialZoom: 14.0,
             ),
-            myLocationEnabled: true,
-            myLocationButtonEnabled: false,
-            zoomControlsEnabled: false,
-            markers: _buildMarkers(location.currentPosition),
-            circles: _buildCircles(),
-            onMapCreated: (controller) {
-              setState(() => _mapController = controller);
-            },
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.example.tourist_safety_app_sih_pinnacle',
+              ),
+              CircleLayer(
+                circles: _buildCircles(),
+              ),
+              MarkerLayer(
+                markers: _buildMarkers(location.currentPosition),
+              ),
+            ],
           ),
 
           // Top search bar
@@ -438,7 +447,7 @@ class _MapViewScreenState extends ConsumerState<MapViewScreen> {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'Map data © Google',
+                      'Map data © OpenStreetMap contributors',
                       style: AppTypography.caption.copyWith(
                         color: AppColors.textSecondary,
                         fontSize: 10,
@@ -454,9 +463,7 @@ class _MapViewScreenState extends ConsumerState<MapViewScreen> {
       // FAB
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          _mapController?.animateCamera(
-            CameraUpdate.newLatLngZoom(location.currentPosition, 15),
-          );
+          _mapController.move(location.currentPosition, 15.0);
         },
         backgroundColor: AppColors.accentBlue,
         child: const Icon(Icons.my_location, color: Colors.white),
