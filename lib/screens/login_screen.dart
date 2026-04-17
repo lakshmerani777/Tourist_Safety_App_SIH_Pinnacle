@@ -9,6 +9,7 @@ import '../providers/api_providers.dart';
 import '../providers/user_profile_provider.dart';
 import '../services/api_client.dart';
 import '../services/auth_flow_persistence.dart';
+import '../l10n/app_localizations.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -37,15 +38,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final password = _passwordController.text;
 
     if (email.isEmpty) {
-      _showError('Please enter your email.');
+      _showError(AppLocalizations.of(context)?.errorEmptyEmail ?? 'Please enter your email.');
       return;
     }
     if (!_emailRegex.hasMatch(email)) {
-      _showError('Please enter a valid email address.');
+      _showError(AppLocalizations.of(context)?.errorInvalidEmail ?? 'Please enter a valid email address.');
       return;
     }
     if (password.isEmpty) {
-      _showError('Please enter your password.');
+      _showError(AppLocalizations.of(context)?.errorEmptyPassword ?? 'Please enter your password.');
       return;
     }
 
@@ -65,7 +66,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     } on ApiException catch (e) {
       if (mounted) _showError(e.message);
     } catch (_) {
-      if (mounted) _showError('Sign in failed. Please try again.');
+      if (mounted) _showError(AppLocalizations.of(context)?.errorLoginFailed ?? 'Sign in failed. Please try again.');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -122,31 +123,31 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   const SizedBox(height: 24),
                   Center(
-                    child: Text('Sign In', style: AppTypography.h1),
+                    child: Text(AppLocalizations.of(context)?.signIn ?? 'Sign In', style: AppTypography.h1),
                   ),
                   const SizedBox(height: 8),
                   Center(
                     child: Text(
-                      'Welcome back to the Tourist Safety System',
+                      AppLocalizations.of(context)?.loginWelcome ?? 'Welcome back to the Tourist Safety System',
                       style: AppTypography.caption,
                       textAlign: TextAlign.center,
                     ),
                   ),
                   const SizedBox(height: 40),
                   InputField(
-                    label: 'Email Address',
+                    label: AppLocalizations.of(context)?.emailAddress ?? 'Email Address',
                     controller: _emailController,
                     prefixIcon: Icons.email_outlined,
                     keyboardType: TextInputType.emailAddress,
-                    hintText: 'Enter your email',
+                    hintText: AppLocalizations.of(context)?.enterEmail ?? 'Enter your email',
                   ),
                   const SizedBox(height: 20),
                   InputField(
-                    label: 'Password',
+                    label: AppLocalizations.of(context)?.password ?? 'Password',
                     controller: _passwordController,
                     prefixIcon: Icons.lock_outline,
                     obscureText: _obscurePassword,
-                    hintText: 'Enter your password',
+                    hintText: AppLocalizations.of(context)?.enterPassword ?? 'Enter your password',
                     suffixIcon: IconButton(
                       icon: Icon(
                         _obscurePassword
@@ -165,7 +166,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     child: GestureDetector(
                       onTap: () => context.go('/reset-password'),
                       child: Text(
-                        'Forgot password?',
+                        AppLocalizations.of(context)?.forgotPassword ?? 'Forgot password?',
                         style: AppTypography.caption.copyWith(
                           color: AppColors.accentBlue,
                           fontWeight: FontWeight.w500,
@@ -175,7 +176,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   const SizedBox(height: 20),
                   SafetyButton(
-                    text: 'Sign In',
+                    text: AppLocalizations.of(context)?.signIn ?? 'Sign In',
                     onPressed: _onSignIn,
                     isLoading: _isLoading,
                   ),
@@ -185,11 +186,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       onTap: () => context.go('/register'),
                       child: RichText(
                         text: TextSpan(
-                          text: "Don't have an account? ",
+                          text: AppLocalizations.of(context)?.noAccount ?? "Don't have an account? ",
                           style: AppTypography.caption,
                           children: [
                             TextSpan(
-                              text: 'Create Account',
+                              text: AppLocalizations.of(context)?.createAccount ?? 'Create Account',
                               style: AppTypography.caption.copyWith(
                                 color: AppColors.accentBlue,
                                 fontWeight: FontWeight.w600,

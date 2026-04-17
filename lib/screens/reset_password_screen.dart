@@ -4,6 +4,7 @@ import '../core/theme/app_colors.dart';
 import '../core/theme/app_typography.dart';
 import '../core/widgets/input_field.dart';
 import '../core/widgets/safety_button.dart';
+import '../l10n/app_localizations.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   const ResetPasswordScreen({super.key});
@@ -60,27 +61,27 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   ),
                   const SizedBox(height: 24),
                   Center(
-                    child: Text('Reset Password', style: AppTypography.h1),
+                    child: Text(AppLocalizations.of(context)?.resetPassword ?? 'Reset Password', style: AppTypography.h1),
                   ),
                   const SizedBox(height: 8),
                   Center(
                     child: Text(
-                      'Enter your email and we\'ll send you a link to reset your password',
+                      AppLocalizations.of(context)?.resetPasswordCaption ?? 'Enter your email and we\'ll send you a link to reset your password',
                       style: AppTypography.caption,
                       textAlign: TextAlign.center,
                     ),
                   ),
                   const SizedBox(height: 40),
                   InputField(
-                    label: 'Email Address',
+                    label: AppLocalizations.of(context)?.emailAddress ?? 'Email Address',
                     controller: _emailController,
                     prefixIcon: Icons.email_outlined,
                     keyboardType: TextInputType.emailAddress,
-                    hintText: 'Enter your email',
+                    hintText: AppLocalizations.of(context)?.enterEmail ?? 'Enter your email',
                   ),
                   const SizedBox(height: 32),
                   SafetyButton(
-                    text: 'Send reset link',
+                    text: AppLocalizations.of(context)?.sendResetLink ?? 'Send reset link',
                     onPressed: () {
                       // TODO: wire to reset-password API
                     },
@@ -91,11 +92,11 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       onTap: () => context.go('/login'),
                       child: RichText(
                         text: TextSpan(
-                          text: 'Remember your password? ',
+                          text: AppLocalizations.of(context)?.rememberPassword ?? 'Remember your password? ',
                           style: AppTypography.caption,
                           children: [
                             TextSpan(
-                              text: 'Sign In',
+                              text: AppLocalizations.of(context)?.signIn ?? 'Sign In',
                               style: AppTypography.caption.copyWith(
                                 color: AppColors.accentBlue,
                                 fontWeight: FontWeight.w600,
