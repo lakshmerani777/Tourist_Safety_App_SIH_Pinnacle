@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "505941831514",
+    "project_id": "sih-pinnacle",
+    "storage_bucket": "sih-pinnacle.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:505941831514:android:764a3c514ec935476a8d63",
+        "android_client_info": {
+          "package_name": "com.example.tourist_safety_app_sih_pinnacle"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBq9F04QO9SSseBiAPunIwiQFUlLEn_fWw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
