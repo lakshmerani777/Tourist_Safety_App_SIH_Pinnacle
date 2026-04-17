@@ -43,7 +43,7 @@ class LocationSharingNotifier extends ChangeNotifier {
   LocationSharingState _state = const LocationSharingState();
   LocationSharingState get state => _state;
 
-  static const _baseUrl = 'https://lakshmerani777.github.io/Tourist_Safety_App_SIH_Pinnacle/share_location_page.html';
+  static const _baseUrl = 'https://lakshmerani777.github.io/Tourist_Safety_App_SIH_Pinnacle/web/share_location_page.html';
 
   LocationSharingNotifier() {
     _loadPersistedState();
