@@ -7,7 +7,6 @@ import '../core/theme/app_colors.dart';
 import '../core/theme/app_typography.dart';
 import '../core/widgets/safety_button.dart';
 import '../core/widgets/safety_card.dart';
-import '../core/widgets/dropdown.dart';
 import '../core/widgets/input_field.dart';
 import '../l10n/app_localizations.dart';
 import '../services/firestore_service.dart';
@@ -25,14 +24,15 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
   final _descController = TextEditingController();
   final FirestoreService _firestore = FirestoreService();
   String? _selectedIncidentType;
-  List<String> get _incidentTypes => [
-    AppLocalizations.of(context)?.incidentTheft ?? 'Theft / Pickpocketing',
-    AppLocalizations.of(context)?.incidentMedical ?? 'Medical Emergency',
-    AppLocalizations.of(context)?.incidentAssault ?? 'Harassment / Assault',
-    AppLocalizations.of(context)?.incidentLostItem ?? 'Lost Item',
-    AppLocalizations.of(context)?.incidentSuspicious ?? 'Suspicious Activity',
-    AppLocalizations.of(context)?.incidentAccident ?? 'Accident / Collision',
-    AppLocalizations.of(context)?.incidentOther ?? 'Other'
+
+  List<_IncidentTypeItem> get _incidentTypes => [
+    _IncidentTypeItem(Icons.shopping_bag_outlined, AppLocalizations.of(context)?.incidentTheft ?? 'Theft / Pickpocketing', AppColors.warning),
+    _IncidentTypeItem(Icons.medical_services_outlined, AppLocalizations.of(context)?.incidentMedical ?? 'Medical Emergency', const Color(0xFFFF6B9D)),
+    _IncidentTypeItem(Icons.person_off_outlined, AppLocalizations.of(context)?.incidentAssault ?? 'Harassment / Assault', AppColors.alertRed),
+    _IncidentTypeItem(Icons.search, AppLocalizations.of(context)?.incidentLostItem ?? 'Lost Item', AppColors.accentBlue),
+    _IncidentTypeItem(Icons.visibility_outlined, AppLocalizations.of(context)?.incidentSuspicious ?? 'Suspicious Activity', AppColors.warning),
+    _IncidentTypeItem(Icons.car_crash_outlined, AppLocalizations.of(context)?.incidentAccident ?? 'Accident / Collision', AppColors.alertRed),
+    _IncidentTypeItem(Icons.more_horiz, AppLocalizations.of(context)?.incidentOther ?? 'Other', AppColors.textSecondary),
   ];
 
   DateTime _selectedDate = DateTime.now();
@@ -43,7 +43,6 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
   final ImagePicker _picker = ImagePicker();
 
   Future<void> _pickMedia() async {
-    // Show bottom sheet to choose between Camera or Gallery
     final source = await showModalBottomSheet<ImageSource>(
       context: context,
       backgroundColor: AppColors.card,
@@ -68,12 +67,9 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
         ),
       ),
     );
-
     if (source != null) {
       final file = await _picker.pickImage(source: source);
-      if (file != null) {
-        setState(() => _attachedMedia = file);
-      }
+      if (file != null) setState(() => _attachedMedia = file);
     }
   }
 
@@ -87,7 +83,6 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
       );
       return;
     }
-    // Write to Firestore
     final locationState = ref.read(locationProvider);
     final incident = IncidentReport(
       id: '',
@@ -103,7 +98,6 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
     );
     _firestore.submitIncident(incident);
 
-    // Show success dialog
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -114,29 +108,30 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 60,
-              height: 60,
+              width: 64,
+              height: 64,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: AppColors.success.withValues(alpha: 0.15),
               ),
-              child: const Icon(Icons.check, color: AppColors.success, size: 32),
+              child: const Icon(Icons.check, color: AppColors.success, size: 34),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
             Text(AppLocalizations.of(context)?.reportSubmittedTitle ?? 'Report Submitted',
                 style: AppTypography.h2, textAlign: TextAlign.center),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
             Text(
-              AppLocalizations.of(context)?.reportSubmittedMessage ?? 'Your report has been securely submitted to the local authorities. Help is on the way if requested.',
-              style: AppTypography.body.copyWith(color: AppColors.textSecondary),
+              AppLocalizations.of(context)?.reportSubmittedMessage ??
+                  'Your report has been securely submitted to the local authorities.',
+              style: AppTypography.body.copyWith(color: AppColors.textSecondary, height: 1.5),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
             SafetyButton(
               text: AppLocalizations.of(context)?.returnToHome ?? 'Return to Home',
               onPressed: () {
-                Navigator.pop(context); // Close dialog
-                context.go('/home');    // Go back to home
+                Navigator.pop(context);
+                context.go('/home');
               },
             ),
           ],
@@ -147,244 +142,387 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Get live location formatted text if available
-    final locationText = '16th Road, Bandra West'; // Fallback / mock address
+    final locationState = ref.watch(locationProvider);
+    final locationText = locationState.currentAddress.isNotEmpty
+        ? locationState.currentAddress
+        : '16th Road, Bandra West';
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context)?.reportIncidentTitle ?? 'Report Incident', style: AppTypography.h2),
-        backgroundColor: AppColors.background,
-        elevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Incident Type Dropdown
-            AppDropdown(
-              label: AppLocalizations.of(context)?.incidentTypeLabel ?? 'Incident Type',
-              selectedValue: _selectedIncidentType,
-              items: _incidentTypes,
-              onChanged: (val) => setState(() => _selectedIncidentType = val),
+      body: Column(
+        children: [
+          // Header
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  const Color(0xFF12100A),
+                  AppColors.warning.withValues(alpha: 0.05),
+                  AppColors.background,
+                ],
+                stops: const [0.0, 0.6, 1.0],
+              ),
             ),
-            const SizedBox(height: 24),
-
-            // Date and Time Fields
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(AppLocalizations.of(context)?.dateLabel ?? 'Date', style: AppTypography.caption),
-                      const SizedBox(height: 8),
-                      GestureDetector(
-                        onTap: () async {
-                          final date = await showDatePicker(
-                            context: context,
-                            initialDate: _selectedDate,
-                            firstDate: DateTime(2000),
-                            lastDate: DateTime.now(),
-                          );
-                          if (date != null) setState(() => _selectedDate = date);
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                          decoration: BoxDecoration(
-                            color: AppColors.card,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: AppColors.border),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.calendar_today, color: AppColors.textSecondary, size: 18),
-                              const SizedBox(width: 8),
-                              Text(
-                                DateFormat('MMM d, yyyy').format(_selectedDate),
-                                style: AppTypography.body,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(AppLocalizations.of(context)?.timeLabel ?? 'Time', style: AppTypography.caption),
-                      const SizedBox(height: 8),
-                      GestureDetector(
-                        onTap: () async {
-                          final time = await showTimePicker(
-                            context: context,
-                            initialTime: _selectedTime,
-                          );
-                          if (time != null) setState(() => _selectedTime = time);
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                          decoration: BoxDecoration(
-                            color: AppColors.card,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: AppColors.border),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.access_time, color: AppColors.textSecondary, size: 18),
-                              const SizedBox(width: 8),
-                              Text(
-                                _selectedTime.format(context),
-                                style: AppTypography.body,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-
-            // Location
-            Text(AppLocalizations.of(context)?.sosLocationLabel ?? 'Location', style: AppTypography.caption),
-            const SizedBox(height: 8),
-            SafetyCard(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              child: Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.accentBlue.withValues(alpha: 0.15),
+            child: SafeArea(
+              bottom: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(8, 8, 16, 16),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+                      onPressed: () => Navigator.pop(context),
                     ),
-                    child: const Icon(Icons.my_location, color: AppColors.accentBlue, size: 20),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    const SizedBox(width: 4),
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppColors.warning.withValues(alpha: 0.15),
+                      ),
+                      child: const Icon(Icons.report_problem_outlined, color: AppColors.warning, size: 18),
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      AppLocalizations.of(context)?.reportIncidentTitle ?? 'Report Incident',
+                      style: AppTypography.h2,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          // Form
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Info banner
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: AppColors.accentBlue.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: AppColors.accentBlue.withValues(alpha: 0.2)),
+                    ),
+                    child: Row(
                       children: [
-                        Text(AppLocalizations.of(context)?.currentGpsLocation ?? 'Current GPS Location',
-                            style: AppTypography.body.copyWith(fontWeight: FontWeight.w600)),
-                        const SizedBox(height: 2),
-                        Text(locationText, style: AppTypography.caption),
+                        const Icon(Icons.info_outline, color: AppColors.accentBlue, size: 16),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Your report will be sent securely to local authorities.',
+                            style: AppTypography.caption.copyWith(color: AppColors.accentBlue),
+                          ),
+                        ),
                       ],
                     ),
                   ),
-                  TextButton(
-                    onPressed: () => context.push('/map'),
-                    child: Text(AppLocalizations.of(context)?.mapViewButton ?? 'Map View', style: AppTypography.body.copyWith(color: AppColors.accentBlue)),
+                  const SizedBox(height: 20),
+
+                  // Incident type grid
+                  Text(
+                    AppLocalizations.of(context)?.incidentTypeLabel ?? 'Incident Type',
+                    style: AppTypography.caption.copyWith(fontWeight: FontWeight.w600),
                   ),
+                  const SizedBox(height: 10),
+                  GridView.count(
+                    crossAxisCount: 2,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    mainAxisSpacing: 8,
+                    crossAxisSpacing: 8,
+                    childAspectRatio: 2.8,
+                    children: _incidentTypes.map((item) {
+                      final isSelected = _selectedIncidentType == item.label;
+                      return GestureDetector(
+                        onTap: () => setState(() => _selectedIncidentType = item.label),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 180),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: isSelected ? item.color.withValues(alpha: 0.12) : AppColors.card,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: isSelected ? item.color : AppColors.border,
+                              width: isSelected ? 1.5 : 1,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(item.icon, color: isSelected ? item.color : AppColors.textSecondary, size: 18),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  item.label,
+                                  style: AppTypography.caption.copyWith(
+                                    color: isSelected ? item.color : AppColors.textSecondary,
+                                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                                    fontSize: 11,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Date and Time
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(AppLocalizations.of(context)?.dateLabel ?? 'Date', style: AppTypography.caption.copyWith(fontWeight: FontWeight.w600)),
+                            const SizedBox(height: 8),
+                            GestureDetector(
+                              onTap: () async {
+                                final date = await showDatePicker(
+                                  context: context,
+                                  initialDate: _selectedDate,
+                                  firstDate: DateTime(2000),
+                                  lastDate: DateTime.now(),
+                                );
+                                if (date != null) setState(() => _selectedDate = date);
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                                decoration: BoxDecoration(
+                                  color: AppColors.card,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: AppColors.border),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.calendar_today, color: AppColors.textSecondary, size: 16),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        DateFormat('MMM d, yyyy').format(_selectedDate),
+                                        style: AppTypography.body.copyWith(fontSize: 13),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(AppLocalizations.of(context)?.timeLabel ?? 'Time', style: AppTypography.caption.copyWith(fontWeight: FontWeight.w600)),
+                            const SizedBox(height: 8),
+                            GestureDetector(
+                              onTap: () async {
+                                final time = await showTimePicker(
+                                  context: context,
+                                  initialTime: _selectedTime,
+                                );
+                                if (time != null) setState(() => _selectedTime = time);
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                                decoration: BoxDecoration(
+                                  color: AppColors.card,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: AppColors.border),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.access_time, color: AppColors.textSecondary, size: 16),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        _selectedTime.format(context),
+                                        style: AppTypography.body.copyWith(fontSize: 13),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Location
+                  Text(AppLocalizations.of(context)?.sosLocationLabel ?? 'Location', style: AppTypography.caption.copyWith(fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 8),
+                  SafetyCard(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 38,
+                          height: 38,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: AppColors.accentBlue.withValues(alpha: 0.15),
+                          ),
+                          child: const Icon(Icons.my_location, color: AppColors.accentBlue, size: 18),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                AppLocalizations.of(context)?.currentGpsLocation ?? 'Current GPS Location',
+                                style: AppTypography.body.copyWith(fontWeight: FontWeight.w600, fontSize: 13),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(locationText, style: AppTypography.caption.copyWith(fontSize: 12)),
+                            ],
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () => context.push('/map'),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            minimumSize: Size.zero,
+                          ),
+                          child: Text(
+                            AppLocalizations.of(context)?.mapViewButton ?? 'Map',
+                            style: AppTypography.caption.copyWith(color: AppColors.accentBlue, fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Description
+                  InputField(
+                    label: AppLocalizations.of(context)?.descriptionLabel ?? 'Description',
+                    controller: _descController,
+                    maxLines: 4,
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Attachments
+                  Text(AppLocalizations.of(context)?.attachmentsLabel ?? 'Attachments', style: AppTypography.caption.copyWith(fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => setState(() => _isRecording = !_isRecording),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 180),
+                            height: 56,
+                            decoration: BoxDecoration(
+                              color: _isRecording ? AppColors.alertRed.withValues(alpha: 0.1) : AppColors.card,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: _isRecording ? AppColors.alertRed : AppColors.border,
+                                width: _isRecording ? 1.5 : 1,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  _isRecording ? Icons.stop_circle : Icons.mic,
+                                  color: _isRecording ? AppColors.alertRed : AppColors.accentBlue,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  _isRecording
+                                      ? (AppLocalizations.of(context)?.recordingAudio ?? 'Recording...')
+                                      : (AppLocalizations.of(context)?.voiceNote ?? 'Voice Note'),
+                                  style: AppTypography.body.copyWith(
+                                    color: _isRecording ? AppColors.alertRed : AppColors.textPrimary,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: _pickMedia,
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 180),
+                            height: 56,
+                            decoration: BoxDecoration(
+                              color: _attachedMedia != null ? AppColors.success.withValues(alpha: 0.1) : AppColors.card,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: _attachedMedia != null ? AppColors.success : AppColors.border,
+                                width: _attachedMedia != null ? 1.5 : 1,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  _attachedMedia != null ? Icons.check_circle : Icons.camera_alt,
+                                  color: _attachedMedia != null ? AppColors.success : AppColors.accentBlue,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  _attachedMedia != null
+                                      ? (AppLocalizations.of(context)?.mediaAdded ?? 'Media Added')
+                                      : (AppLocalizations.of(context)?.addMedia ?? 'Add Media'),
+                                  style: AppTypography.body.copyWith(
+                                    color: _attachedMedia != null ? AppColors.success : AppColors.textPrimary,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 32),
+
+                  SafetyButton(
+                    text: AppLocalizations.of(context)?.submitReportButton ?? 'Submit Report',
+                    onPressed: _submitReport,
+                  ),
+                  const SizedBox(height: 32),
                 ],
               ),
             ),
-            const SizedBox(height: 24),
-
-            // Description Box
-            InputField(
-              label: AppLocalizations.of(context)?.descriptionLabel ?? 'Description',
-              controller: _descController,
-              maxLines: 4,
-            ),
-            const SizedBox(height: 24),
-
-            // Voice Details / Media Upload
-            Text(AppLocalizations.of(context)?.attachmentsLabel ?? 'Attachments', style: AppTypography.caption),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() => _isRecording = !_isRecording);
-                    },
-                    child: Container(
-                      height: 56,
-                      decoration: BoxDecoration(
-                        color: _isRecording ? AppColors.alertRed.withValues(alpha: 0.1) : AppColors.card,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: _isRecording ? AppColors.alertRed : AppColors.border),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            _isRecording ? Icons.stop_circle : Icons.mic,
-                            color: _isRecording ? AppColors.alertRed : AppColors.accentBlue,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            _isRecording ? (AppLocalizations.of(context)?.recordingAudio ?? 'Recording...') : (AppLocalizations.of(context)?.voiceNote ?? 'Voice Note'),
-                            style: AppTypography.body.copyWith(
-                              color: _isRecording ? AppColors.alertRed : AppColors.textPrimary,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: _pickMedia,
-                    child: Container(
-                      height: 56,
-                      decoration: BoxDecoration(
-                        color: _attachedMedia != null ? AppColors.success.withValues(alpha: 0.1) : AppColors.card,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: _attachedMedia != null ? AppColors.success : AppColors.border),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            _attachedMedia != null ? Icons.check_circle : Icons.camera_alt,
-                            color: _attachedMedia != null ? AppColors.success : AppColors.accentBlue,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            _attachedMedia != null ? (AppLocalizations.of(context)?.mediaAdded ?? 'Media Added') : (AppLocalizations.of(context)?.addMedia ?? 'Add Media'),
-                            style: AppTypography.body.copyWith(
-                              color: _attachedMedia != null ? AppColors.success : AppColors.textPrimary,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 48),
-
-            // Submit Button
-            SafetyButton(
-              text: AppLocalizations.of(context)?.submitReportButton ?? 'Submit Report',
-              onPressed: _submitReport,
-            ),
-            const SizedBox(height: 32),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
+}
+
+class _IncidentTypeItem {
+  final IconData icon;
+  final String label;
+  final Color color;
+  const _IncidentTypeItem(this.icon, this.label, this.color);
 }
