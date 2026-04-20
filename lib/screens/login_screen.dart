@@ -85,55 +85,77 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            // Lock watermark – fixed from top so it doesn't slide when keyboard opens
-            Positioned(
-              top: 80,
-              right: -50,
-              child: Icon(
-                Icons.lock_outline,
-                size: 200,
-                color: AppColors.textSecondary.withValues(alpha: 0.05),
+      body: Column(
+        children: [
+          // Gradient hero header
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  const Color(0xFF0A1628),
+                  AppColors.accentBlue.withValues(alpha: 0.07),
+                  AppColors.background,
+                ],
+                stops: const [0.0, 0.7, 1.0],
               ),
             ),
-            SingleChildScrollView(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 32),
-                  // Header
-                  Center(
-                    child: Container(
-                      width: 64,
-                      height: 64,
+            child: SafeArea(
+              bottom: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 32, 24, 28),
+                child: Column(
+                  children: [
+                    Container(
+                      width: 72,
+                      height: 72,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: AppColors.accentBlue.withValues(alpha: 0.12),
+                        gradient: LinearGradient(
+                          colors: [
+                            AppColors.accentBlue.withValues(alpha: 0.25),
+                            AppColors.accentBlue.withValues(alpha: 0.08),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        border: Border.all(
+                          color: AppColors.accentBlue.withValues(alpha: 0.35),
+                          width: 1.5,
+                        ),
                       ),
                       child: const Icon(
                         Icons.shield,
-                        size: 32,
+                        size: 36,
                         color: AppColors.accentBlue,
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 24),
-                  Center(
-                    child: Text(AppLocalizations.of(context)?.signIn ?? 'Sign In', style: AppTypography.h1),
-                  ),
-                  const SizedBox(height: 8),
-                  Center(
-                    child: Text(
-                      AppLocalizations.of(context)?.loginWelcome ?? 'Welcome back to the Tourist Safety System',
+                    const SizedBox(height: 18),
+                    Text(
+                      AppLocalizations.of(context)?.signIn ?? 'Sign In',
+                      style: AppTypography.h1,
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      AppLocalizations.of(context)?.loginWelcome ??
+                          'Welcome back to the Tourist Safety System',
                       style: AppTypography.caption,
                       textAlign: TextAlign.center,
                     ),
-                  ),
-                  const SizedBox(height: 40),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          // Form section
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(24, 4, 24, 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   InputField(
                     label: AppLocalizations.of(context)?.emailAddress ?? 'Email Address',
                     controller: _emailController,
@@ -174,11 +196,25 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 24),
                   SafetyButton(
                     text: AppLocalizations.of(context)?.signIn ?? 'Sign In',
                     onPressed: _onSignIn,
                     isLoading: _isLoading,
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      const Expanded(child: Divider(color: AppColors.border)),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Text(
+                          'or',
+                          style: AppTypography.caption,
+                        ),
+                      ),
+                      const Expanded(child: Divider(color: AppColors.border)),
+                    ],
                   ),
                   const SizedBox(height: 24),
                   Center(
@@ -205,8 +241,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

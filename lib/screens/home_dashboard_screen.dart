@@ -41,7 +41,6 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
 
-    // Initialise the home-screen widget bridge and sync status.
     WidgetService.init(appRouter);
     WidgetService.updateSafetyStatus(isProtected: true);
   }
@@ -50,6 +49,13 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
   void dispose() {
     _pulseController.dispose();
     super.dispose();
+  }
+
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return 'Good morning';
+    if (hour < 17) return 'Good afternoon';
+    return 'Good evening';
   }
 
   void _openChatbot() {
@@ -86,7 +92,6 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
   Widget _buildBody() {
     switch (_selectedIndex) {
       case 1:
-        // Navigate to map
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) context.push('/map');
           setState(() => _selectedIndex = 0);
@@ -108,11 +113,24 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
-                child: Text(
-                  AppLocalizations.of(context)?.appTitle ?? 'Tourist Safety',
-                  style: AppTypography.h2,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _getGreeting(),
+                      style: AppTypography.caption.copyWith(
+                        color: AppColors.accentBlue,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      AppLocalizations.of(context)?.appTitle ?? 'Tourist Safety',
+                      style: AppTypography.h2,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                  ],
                 ),
               ),
               Row(
@@ -121,16 +139,26 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
                     label: AppLocalizations.of(context)?.protectedStatus ?? 'Protected',
                     type: BadgeType.active,
                   ),
-                  const SizedBox(width: 12),
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.accentBlue.withValues(alpha: 0.12),
+                  const SizedBox(width: 10),
+                  GestureDetector(
+                    onTap: () => context.push('/profile'),
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppColors.card,
+                        border: Border.all(
+                          color: AppColors.border,
+                          width: 1.5,
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.person_outline,
+                        color: AppColors.textSecondary,
+                        size: 20,
+                      ),
                     ),
-                    child: const Icon(Icons.shield,
-                        color: AppColors.accentBlue, size: 20),
                   ),
                 ],
               ),
@@ -198,7 +226,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
               );
             },
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
 
           // Safety Status Card
           SafetyCard(
@@ -206,7 +234,6 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
             padding: const EdgeInsets.all(14),
             child: Row(
               children: [
-                // Pulsing green dot
                 AnimatedBuilder(
                   animation: _pulseAnimation,
                   builder: (context, child) {
@@ -258,11 +285,91 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
               ],
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 28),
+
+          // SOS Button — prominent, above quick actions
+          Center(
+            child: Column(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    HapticFeedback.heavyImpact();
+                    context.push('/sos');
+                  },
+                  child: AnimatedBuilder(
+                    animation: _pulseAnimation,
+                    builder: (context, child) {
+                      return Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          // Outer glow ring
+                          Transform.scale(
+                            scale: _pulseAnimation.value,
+                            child: Container(
+                              width: 120,
+                              height: 120,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: AppColors.alertRed.withValues(alpha: 0.08),
+                              ),
+                            ),
+                          ),
+                          // Mid ring
+                          Container(
+                            width: 100,
+                            height: 100,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: AppColors.alertRed.withValues(alpha: 0.15),
+                            ),
+                          ),
+                          // Core button
+                          Transform.scale(
+                            scale: _pulseAnimation.value * 0.95,
+                            child: Container(
+                              width: 80,
+                              height: 80,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: AppColors.alertRed,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Color(0x55FF3B3B),
+                                    blurRadius: 24,
+                                    spreadRadius: 4,
+                                  ),
+                                ],
+                              ),
+                              child: Center(
+                                child: Text(
+                                  AppLocalizations.of(context)?.sosText ?? 'SOS',
+                                  style: AppTypography.h1.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 22,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Tap to send emergency alert',
+                  style: AppTypography.caption.copyWith(fontSize: 11),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 28),
 
           // Quick Actions
           Text(AppLocalizations.of(context)?.quickActions ?? 'Quick Actions', style: AppTypography.h2),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
           GridView.count(
             crossAxisCount: 2,
             shrinkWrap: true,
@@ -310,60 +417,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
               ),
             ],
           ),
-          const SizedBox(height: 32),
-
-          // SOS Button
-          Center(
-            child: GestureDetector(
-              onTap: () {
-                HapticFeedback.heavyImpact();
-                context.push('/sos');
-              },
-              child: AnimatedBuilder(
-                animation: _pulseAnimation,
-                builder: (context, child) {
-                  return Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.alertRed.withValues(alpha: 0.15),
-                    ),
-                    child: Center(
-                      child: Transform.scale(
-                        scale: _pulseAnimation.value * 0.95,
-                        child: Container(
-                          width: 80,
-                          height: 80,
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: AppColors.alertRed,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Color(0x40FF3B3B),
-                                blurRadius: 20,
-                                spreadRadius: 4,
-                              ),
-                            ],
-                          ),
-                          child: Center(
-                            child: Text(
-                              AppLocalizations.of(context)?.sosText ?? 'SOS',
-                              style: AppTypography.h1.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w900,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 28),
 
           // Recent Alerts
           Row(
@@ -381,18 +435,20 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
                 onTap: () => context.push('/alerts'),
                 child: Row(
                   children: [
-                    Text(AppLocalizations.of(context)?.viewAll ?? 'View All',
-                        style: AppTypography.body.copyWith(
-                          color: AppColors.accentBlue,
-                          fontWeight: FontWeight.w600,
-                        )),
+                    Text(
+                      AppLocalizations.of(context)?.viewAll ?? 'View All',
+                      style: AppTypography.body.copyWith(
+                        color: AppColors.accentBlue,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                     const Icon(Icons.chevron_right, color: AppColors.accentBlue, size: 20),
                   ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
           _AlertItem(
             title: 'Weather Advisory',
             subtitle: 'Heavy rainfall expected in your area',
@@ -448,9 +504,21 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
         type: BottomNavigationBarType.fixed,
         elevation: 0,
         items: [
-          BottomNavigationBarItem(icon: const Icon(Icons.home), label: AppLocalizations.of(context)?.navHome ?? 'Home'),
-          BottomNavigationBarItem(icon: const Icon(Icons.map), label: AppLocalizations.of(context)?.navMap ?? 'Map'),
-          BottomNavigationBarItem(icon: const Icon(Icons.chat_bubble_outline), activeIcon: const Icon(Icons.chat_bubble_rounded), label: AppLocalizations.of(context)?.navChat ?? 'Chat'),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.home_outlined),
+            activeIcon: const Icon(Icons.home),
+            label: AppLocalizations.of(context)?.navHome ?? 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.map_outlined),
+            activeIcon: const Icon(Icons.map),
+            label: AppLocalizations.of(context)?.navMap ?? 'Map',
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.chat_bubble_outline),
+            activeIcon: const Icon(Icons.chat_bubble_rounded),
+            label: AppLocalizations.of(context)?.navChat ?? 'Chat',
+          ),
           BottomNavigationBarItem(
             icon: const Badge(
               backgroundColor: AppColors.alertRed,
@@ -465,7 +533,10 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
             label: AppLocalizations.of(context)?.navAlerts ?? 'Alerts',
           ),
           BottomNavigationBarItem(
-              icon: const Icon(Icons.person_outline), label: AppLocalizations.of(context)?.navProfile ?? 'Profile'),
+            icon: const Icon(Icons.person_outline),
+            activeIcon: const Icon(Icons.person),
+            label: AppLocalizations.of(context)?.navProfile ?? 'Profile',
+          ),
         ],
       ),
     );
@@ -495,7 +566,7 @@ class _QuickActionCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.card,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: color.withValues(alpha: 0.25)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -558,9 +629,10 @@ class _AlertItem extends StatelessWidget {
                     badge,
                     const SizedBox(width: 8),
                     Expanded(
-                      child: Text(title,
-                          style: AppTypography.body
-                              .copyWith(fontWeight: FontWeight.w600)),
+                      child: Text(
+                        title,
+                        style: AppTypography.body.copyWith(fontWeight: FontWeight.w600),
+                      ),
                     ),
                   ],
                 ),
