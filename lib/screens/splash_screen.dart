@@ -36,8 +36,8 @@ class _SplashScreenState extends State<SplashScreen>
 
     _animController.forward();
 
-    // Fetch Maps API key from backend and apply on iOS (runs in parallel with splash delay)
-    MapsConfigService().fetchAndApplyMapsApiKey();
+    // Fetch Maps API key from backend with session auth and apply on iOS
+    MapsConfigService(sessionStorage: SessionStorageService()).fetchAndApplyMapsApiKey();
 
     Future.delayed(const Duration(milliseconds: 2500), () async {
       if (!mounted) return;

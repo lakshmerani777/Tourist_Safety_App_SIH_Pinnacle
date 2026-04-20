@@ -5,17 +5,21 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 
 import '../core/config/api_config.dart';
+import 'session_storage_service.dart';
 
 /// Fetches the Google Maps API key from the backend and applies it on the
 /// platform (iOS: via method channel; Android: key comes from manifest at build).
 class MapsConfigService {
-  MapsConfigService({String? baseUrl})
-      : _baseUrl = baseUrl ?? kApiBaseUrl;
+  MapsConfigService({String? baseUrl, SessionStorageService? sessionStorage})
+      : _baseUrl = baseUrl ?? kApiBaseUrl,
+        _sessionStorage = sessionStorage;
 
   final String _baseUrl;
+  final SessionStorageService? _sessionStorage;
   static String? _cachedKey;
 
   static const _channel = MethodChannel('tourist_safety_app/maps_config');
+  static const _sessionHeader = 'X-Session-Id';
 
   /// Fetches the Maps API key from the backend and caches it.
   /// Returns the key, or null if the request fails or key is empty.
@@ -23,7 +27,14 @@ class MapsConfigService {
     if (_cachedKey != null) return _cachedKey;
     try {
       final uri = Uri.parse('$_baseUrl/api/config/maps-key/');
-      final response = await http.get(uri).timeout(
+      final headers = <String, String>{};
+      if (_sessionStorage != null) {
+        final sessionId = await _sessionStorage.getSessionId();
+        if (sessionId != null && sessionId.isNotEmpty) {
+          headers[_sessionHeader] = sessionId;
+        }
+      }
+      final response = await http.get(uri, headers: headers).timeout(
         const Duration(seconds: 10),
         onTimeout: () => throw Exception('Maps config request timeout'),
       );
