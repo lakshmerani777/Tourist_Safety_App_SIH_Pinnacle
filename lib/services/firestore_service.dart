@@ -27,20 +27,6 @@ class FirestoreService {
         .map((snap) => snap.docs.map(UnsafeZone.fromFirestore).toList());
   }
 
-  /// Add a new unsafe zone (police dashboard).
-  Future<void> addUnsafeZone(UnsafeZone zone) async {
-    await _zones.add(zone.toFirestore());
-  }
-
-  /// Delete an unsafe zone.
-  Future<void> deleteUnsafeZone(String id) async {
-    await _zones.doc(id).delete();
-  }
-
-  /// Toggle active state.
-  Future<void> toggleUnsafeZone(String id, bool isActive) async {
-    await _zones.doc(id).update({'isActive': isActive});
-  }
 
   /// Update zone metadata (name, description, severity).
   Future<void> updateUnsafeZone(String id, {String? name, String? description, String? severity}) async {
@@ -68,10 +54,6 @@ class FirestoreService {
     await _incidents.add(incident.toFirestore());
   }
 
-  /// Update incident status (police dashboard).
-  Future<void> updateIncidentStatus(String id, String status) async {
-    await _incidents.doc(id).update({'status': status});
-  }
 
   // ════════════════════════════════════════════
   // SAFETY ALERTS
@@ -86,15 +68,6 @@ class FirestoreService {
         .map((snap) => snap.docs.map(SafetyAlert.fromFirestore).toList());
   }
 
-  /// Broadcast a new alert (police dashboard).
-  Future<void> broadcastAlert(SafetyAlert alert) async {
-    await _alerts.add(alert.toFirestore());
-  }
-
-  /// Deactivate an alert.
-  Future<void> deactivateAlert(String id) async {
-    await _alerts.doc(id).update({'isActive': false});
-  }
 
   /// Stream ALL alerts (active and inactive), newest first.
   Stream<List<SafetyAlert>> streamAllAlerts() {
@@ -150,11 +123,5 @@ class FirestoreService {
     });
   }
 
-  /// Update chatbot instructions (police dashboard).
-  Future<void> updateChatbotInstructions(String instructions) async {
-    await _chatbotConfig.doc('main').set({
-      'customInstructions': instructions,
-      'updatedAt': Timestamp.now(),
-    });
-  }
+
 }
