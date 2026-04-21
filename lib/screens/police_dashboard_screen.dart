@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../models/firestore_models.dart';
@@ -28,10 +29,7 @@ class _PoliceDashboardLoginScreenState extends State<PoliceDashboardLoginScreen>
 
   void _login() {
     if (_codeController.text.trim() == _policeAccessCode) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const PoliceDashboardHome()),
-      );
+      context.go('/police-dashboard/home');
     } else {
       setState(() => _error = 'Invalid access code');
     }
@@ -127,7 +125,7 @@ class PoliceDashboardHome extends StatefulWidget {
 }
 
 class _PoliceDashboardHomeState extends State<PoliceDashboardHome> {
-  int _selectedTab = 0;
+  int _selectedTab = 1;
   final FirestoreService _firestore = FirestoreService();
 
   static const _tabs = [
@@ -142,6 +140,7 @@ class _PoliceDashboardHomeState extends State<PoliceDashboardHome> {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // ─── Side Navigation ───
           Container(
@@ -174,16 +173,13 @@ class _PoliceDashboardHomeState extends State<PoliceDashboardHome> {
                 ListTile(
                   leading: const Icon(Icons.logout, color: AppColors.alertRed, size: 20),
                   title: Text('Logout', style: AppTypography.body.copyWith(color: AppColors.alertRed)),
-                  onTap: () => Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (_) => const PoliceDashboardLoginScreen()),
-                  ),
+                  onTap: () => context.go('/police-dashboard'),
                 ),
                 const SizedBox(height: 16),
               ],
             ),
           ),
-          const VerticalDivider(width: 1, color: AppColors.border),
+          Container(width: 1, color: AppColors.border),
           // ─── Main Content ───
           Expanded(
             child: _buildContent(),
@@ -276,6 +272,30 @@ class _DashboardMapViewState extends State<_DashboardMapView> {
   final MapController _mapController = MapController();
   bool _isDrawingZone = false;
   final List<LatLng> _drawingPoints = [];
+  bool _showZonePanel = true;
+
+  // Cache streams in state to prevent infinite rebuild loops
+  late final Stream<List<UnsafeZone>> _zonesStream;
+  late final Stream<List<TouristLocation>> _touristsStream;
+  late final Stream<List<IncidentReport>> _incidentsStream;
+
+  @override
+  void initState() {
+    super.initState();
+    _zonesStream = widget.firestore.streamUnsafeZones();
+    _touristsStream = widget.firestore.streamTouristLocations();
+    _incidentsStream = widget.firestore.streamIncidents();
+    // Defer map rendering to avoid FlutterMap's internal CanvasKit crash
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) setState(() => _mapReady = true);
+        });
+      }
+    });
+  }
+
+  bool _mapReady = false;
 
   void _onMapTap(TapPosition tapPos, LatLng point) {
     if (!_isDrawingZone) return;
@@ -300,7 +320,7 @@ class _DashboardMapViewState extends State<_DashboardMapView> {
         builder: (ctx, setDialogState) => AlertDialog(
           backgroundColor: AppColors.card,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text('New Unsafe Zone', style: AppTypography.h2),
+          title: Text('New High Risk Zone', style: AppTypography.h2),
           content: SizedBox(
             width: 400,
             child: Column(
@@ -309,39 +329,21 @@ class _DashboardMapViewState extends State<_DashboardMapView> {
                 TextField(
                   controller: nameController,
                   style: AppTypography.body,
-                  decoration: InputDecoration(
-                    hintText: 'Zone Name',
-                    hintStyle: AppTypography.caption,
-                    filled: true,
-                    fillColor: AppColors.background,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: AppColors.border)),
-                  ),
+                  decoration: _inputDeco('Zone Name'),
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: descController,
                   style: AppTypography.body,
                   maxLines: 3,
-                  decoration: InputDecoration(
-                    hintText: 'Description',
-                    hintStyle: AppTypography.caption,
-                    filled: true,
-                    fillColor: AppColors.background,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: AppColors.border)),
-                  ),
+                  decoration: _inputDeco('Description'),
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
                   value: severity,
                   dropdownColor: AppColors.card,
                   style: AppTypography.body,
-                  decoration: InputDecoration(
-                    labelText: 'Severity',
-                    labelStyle: AppTypography.caption,
-                    filled: true,
-                    fillColor: AppColors.background,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: AppColors.border)),
-                  ),
+                  decoration: _inputDeco('Severity'),
                   items: ['LOW', 'MEDIUM', 'HIGH'].map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
                   onChanged: (val) => setDialogState(() => severity = val!),
                 ),
@@ -378,6 +380,38 @@ class _DashboardMapViewState extends State<_DashboardMapView> {
     });
   }
 
+  Future<void> _confirmDeleteZone(UnsafeZone zone) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.card,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text('Delete Zone', style: AppTypography.h2),
+        content: Text('Are you sure you want to delete "${zone.name}"?', style: AppTypography.body),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text('Cancel', style: AppTypography.body.copyWith(color: AppColors.textSecondary))),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.alertRed),
+            child: Text('Delete', style: AppTypography.body.copyWith(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      await widget.firestore.deleteUnsafeZone(zone.id);
+    }
+  }
+
+  InputDecoration _inputDeco(String hint) => InputDecoration(
+        hintText: hint,
+        hintStyle: AppTypography.caption,
+        filled: true,
+        fillColor: AppColors.background,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: AppColors.border)),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: AppColors.border)),
+      );
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -389,11 +423,26 @@ class _DashboardMapViewState extends State<_DashboardMapView> {
           child: Row(
             children: [
               Text('Live Map', style: AppTypography.h2),
+              const SizedBox(width: 16),
+              IconButton(
+                icon: Icon(_showZonePanel ? Icons.view_sidebar : Icons.view_sidebar_outlined,
+                    color: _showZonePanel ? AppColors.accentBlue : AppColors.textSecondary, size: 20),
+                tooltip: 'Toggle zone panel',
+                onPressed: () => setState(() => _showZonePanel = !_showZonePanel),
+              ),
               const Spacer(),
               if (_isDrawingZone) ...[
-                Text('Tap map to draw zone (${_drawingPoints.length} points)',
+                Text('Tap map to draw zone (${_drawingPoints.length} pts)',
                     style: AppTypography.caption.copyWith(color: AppColors.warning)),
                 const SizedBox(width: 16),
+                if (_drawingPoints.isNotEmpty)
+                  OutlinedButton(
+                    onPressed: () => setState(() {
+                      if (_drawingPoints.isNotEmpty) _drawingPoints.removeLast();
+                    }),
+                    child: Text('Undo', style: AppTypography.body.copyWith(color: AppColors.warning)),
+                  ),
+                const SizedBox(width: 8),
                 ElevatedButton.icon(
                   onPressed: _saveZone,
                   icon: const Icon(Icons.save, size: 18),
@@ -412,118 +461,288 @@ class _DashboardMapViewState extends State<_DashboardMapView> {
                 ElevatedButton.icon(
                   onPressed: () => setState(() => _isDrawingZone = true),
                   icon: const Icon(Icons.draw, size: 18),
-                  label: const Text('Draw Unsafe Zone'),
+                  label: const Text('Draw High Risk Zone'),
                   style: ElevatedButton.styleFrom(backgroundColor: AppColors.warning),
                 ),
             ],
           ),
         ),
         const Divider(height: 1, color: AppColors.border),
-        // ─── Map ───
+        // ─── Map + Zone Panel ───
         Expanded(
-          child: StreamBuilder<List<UnsafeZone>>(
-            stream: widget.firestore.streamUnsafeZones(),
-            builder: (context, zoneSnap) {
-              final zones = zoneSnap.data ?? [];
-              return StreamBuilder<List<TouristLocation>>(
-                stream: widget.firestore.streamTouristLocations(),
-                builder: (context, touristSnap) {
-                  final tourists = touristSnap.data ?? [];
-                  return StreamBuilder<List<IncidentReport>>(
-                    stream: widget.firestore.streamIncidents(),
-                    builder: (context, incidentSnap) {
-                      final incidents = incidentSnap.data ?? [];
-                      return FlutterMap(
-                        mapController: _mapController,
-                        options: MapOptions(
-                          initialCenter: const LatLng(19.062641, 72.830899),
-                          initialZoom: 13,
-                          onTap: _onMapTap,
+          child: Row(
+            children: [
+              // Map area
+              Expanded(
+                flex: 3,
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    if (constraints.maxWidth < 10 || constraints.maxHeight < 10) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    return SizedBox(
+                      width: constraints.maxWidth,
+                      height: constraints.maxHeight,
+                      child: !_mapReady
+                          ? Center(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const CircularProgressIndicator(),
+                                  const SizedBox(height: 16),
+                                  Text('Loading map...', style: AppTypography.caption),
+                                ],
+                              ),
+                            )
+                          : StreamBuilder<List<UnsafeZone>>(
+                        stream: _zonesStream,
+                        builder: (context, zoneSnap) {
+                          final zones = zoneSnap.data ?? [];
+                          return StreamBuilder<List<TouristLocation>>(
+                            stream: _touristsStream,
+                            builder: (context, touristSnap) {
+                              final tourists = touristSnap.data ?? [];
+                              return StreamBuilder<List<IncidentReport>>(
+                                stream: _incidentsStream,
+                                builder: (context, incidentSnap) {
+                                  final incidents = incidentSnap.data ?? [];
+                                  return FlutterMap(
+                                    mapController: _mapController,
+                                    options: MapOptions(
+                                      initialCenter: const LatLng(19.062641, 72.830899),
+                                      initialZoom: 13,
+                                      onTap: _onMapTap,
+                                    ),
+                                    children: [
+                                      TileLayer(
+                                        urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                        userAgentPackageName: 'com.example.tourist_safety_app',
+                                      ),
+                                      // Unsafe zone polygons
+                                      PolygonLayer(
+                                        polygons: [
+                                          ...zones.map((z) => Polygon(
+                                            points: z.polygon,
+                                            color: _severityColor(z.severity).withValues(alpha: 0.2),
+                                            borderColor: _severityColor(z.severity),
+                                            borderStrokeWidth: 2,
+                                            label: z.name,
+                                            labelStyle: AppTypography.caption.copyWith(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          )),
+                                          // Drawing preview
+                                          if (_isDrawingZone && _drawingPoints.length >= 3)
+                                            Polygon(
+                                              points: _drawingPoints,
+                                              color: AppColors.warning.withValues(alpha: 0.2),
+                                              borderColor: AppColors.warning,
+                                              borderStrokeWidth: 2,
+                                              isDotted: true,
+                                            ),
+                                        ],
+                                      ),
+                                      // Drawing point markers
+                                      if (_isDrawingZone)
+                                        MarkerLayer(
+                                          markers: _drawingPoints.asMap().entries.map((e) => Marker(
+                                            point: e.value,
+                                            width: 20,
+                                            height: 20,
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: AppColors.warning,
+                                                border: Border.all(color: Colors.white, width: 2),
+                                              ),
+                                              child: Center(
+                                                child: Text('${e.key + 1}',
+                                                    style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
+                                              ),
+                                            ),
+                                          )).toList(),
+                                        ),
+                                      // Tourist location markers
+                                      MarkerLayer(
+                                        markers: tourists.map((t) => Marker(
+                                          point: LatLng(t.latitude, t.longitude),
+                                          width: 36,
+                                          height: 36,
+                                          child: Tooltip(
+                                            message: '${t.name} (${t.nationality ?? "Unknown"})',
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: AppColors.accentBlue.withValues(alpha: 0.3),
+                                                border: Border.all(color: AppColors.accentBlue, width: 2),
+                                              ),
+                                              child: const Icon(Icons.person, color: AppColors.accentBlue, size: 18),
+                                            ),
+                                          ),
+                                        )).toList(),
+                                      ),
+                                      // Incident markers
+                                      MarkerLayer(
+                                        markers: incidents.map((inc) => Marker(
+                                          point: LatLng(inc.latitude, inc.longitude),
+                                          width: 30,
+                                          height: 30,
+                                          child: Tooltip(
+                                            message: '${inc.type}: ${inc.description}',
+                                            child: const Icon(Icons.warning, color: AppColors.alertRed, size: 24),
+                                          ),
+                                        )).toList(),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
+              // Zone management panel
+              if (_showZonePanel) ...[
+                Container(width: 1, color: AppColors.border),
+                SizedBox(
+                  width: 300,
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        color: AppColors.card,
+                        child: Row(
+                          children: [
+                            const Icon(Icons.layers, color: AppColors.alertRed, size: 20),
+                            const SizedBox(width: 8),
+                            Text('High Risk Zones', style: AppTypography.body.copyWith(fontWeight: FontWeight.w700)),
+                          ],
                         ),
-                        children: [
-                          TileLayer(
-                            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                            userAgentPackageName: 'com.example.tourist_safety_app',
-                          ),
-                          // Unsafe zone polygons
-                          PolygonLayer(
-                            polygons: [
-                              ...zones.map((z) => Polygon(
-                                points: z.polygon,
-                                color: _severityColor(z.severity).withValues(alpha: 0.2),
-                                borderColor: _severityColor(z.severity),
-                                borderStrokeWidth: 2,
-                                label: z.name,
-                                labelStyle: AppTypography.caption.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              )),
-                              // Drawing preview
-                              if (_isDrawingZone && _drawingPoints.length >= 3)
-                                Polygon(
-                                  points: _drawingPoints,
-                                  color: AppColors.warning.withValues(alpha: 0.2),
-                                  borderColor: AppColors.warning,
-                                  borderStrokeWidth: 2,
-                                  isDotted: true,
-                                ),
-                            ],
-                          ),
-                          // Drawing point markers
-                          if (_isDrawingZone)
-                            MarkerLayer(
-                              markers: _drawingPoints.map((p) => Marker(
-                                point: p,
-                                width: 16,
-                                height: 16,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: AppColors.warning,
-                                    border: Border.all(color: Colors.white, width: 2),
+                      ),
+                      const Divider(height: 1, color: AppColors.border),
+                      Expanded(
+                        child: StreamBuilder<List<UnsafeZone>>(
+                          stream: _zonesStream,
+                          builder: (context, snap) {
+                            if (snap.connectionState == ConnectionState.waiting) {
+                              return const Center(child: CircularProgressIndicator());
+                            }
+                            final zones = snap.data ?? [];
+                            if (zones.isEmpty) {
+                              return Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(24),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.map_outlined, color: AppColors.textSecondary, size: 40),
+                                      const SizedBox(height: 12),
+                                      Text('No zones defined', style: AppTypography.body.copyWith(color: AppColors.textSecondary)),
+                                      const SizedBox(height: 4),
+                                      Text('Use "Draw High Risk Zone" to add', style: AppTypography.caption, textAlign: TextAlign.center),
+                                    ],
                                   ),
                                 ),
-                              )).toList(),
-                            ),
-                          // Tourist location markers
-                          MarkerLayer(
-                            markers: tourists.map((t) => Marker(
-                              point: LatLng(t.latitude, t.longitude),
-                              width: 36,
-                              height: 36,
-                              child: Tooltip(
-                                message: '${t.name} (${t.nationality ?? "Unknown"})',
-                                child: Container(
+                              );
+                            }
+                            return ListView.separated(
+                              padding: const EdgeInsets.all(12),
+                              itemCount: zones.length,
+                              separatorBuilder: (_, __) => const SizedBox(height: 8),
+                              itemBuilder: (context, i) {
+                                final z = zones[i];
+                                return Container(
+                                  padding: const EdgeInsets.all(12),
                                   decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: AppColors.accentBlue.withValues(alpha: 0.3),
-                                    border: Border.all(color: AppColors.accentBlue, width: 2),
+                                    color: AppColors.card,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border(
+                                      left: BorderSide(color: _severityColor(z.severity), width: 4),
+                                      top: BorderSide(color: AppColors.border),
+                                      right: BorderSide(color: AppColors.border),
+                                      bottom: BorderSide(color: AppColors.border),
+                                    ),
                                   ),
-                                  child: const Icon(Icons.person, color: AppColors.accentBlue, size: 18),
-                                ),
-                              ),
-                            )).toList(),
-                          ),
-                          // Incident markers
-                          MarkerLayer(
-                            markers: incidents.map((inc) => Marker(
-                              point: LatLng(inc.latitude, inc.longitude),
-                              width: 30,
-                              height: 30,
-                              child: Tooltip(
-                                message: '${inc.type}: ${inc.description}',
-                                child: const Icon(Icons.warning, color: AppColors.alertRed, size: 24),
-                              ),
-                            )).toList(),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                },
-              );
-            },
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: Text(z.name, style: AppTypography.body.copyWith(fontWeight: FontWeight.w700, fontSize: 14)),
+                                          ),
+                                          StatusBadge(
+                                            label: z.severity,
+                                            type: z.severity == 'HIGH'
+                                                ? BadgeType.alert
+                                                : z.severity == 'MEDIUM'
+                                                    ? BadgeType.warning
+                                                    : BadgeType.active,
+                                          ),
+                                        ],
+                                      ),
+                                      if (z.description.isNotEmpty) ...[
+                                        const SizedBox(height: 4),
+                                        Text(z.description, style: AppTypography.caption, maxLines: 2, overflow: TextOverflow.ellipsis),
+                                      ],
+                                      const SizedBox(height: 4),
+                                      Text('${z.polygon.length} vertices', style: AppTypography.caption.copyWith(fontSize: 11)),
+                                      const SizedBox(height: 8),
+                                      Row(
+                                        children: [
+                                          _ZoneActionButton(
+                                            icon: Icons.center_focus_strong,
+                                            label: 'Focus',
+                                            color: AppColors.accentBlue,
+                                            onTap: () {
+                                              if (z.polygon.isNotEmpty) {
+                                                // Calculate center of polygon
+                                                double lat = 0, lng = 0;
+                                                for (final p in z.polygon) {
+                                                  lat += p.latitude;
+                                                  lng += p.longitude;
+                                                }
+                                                _mapController.move(
+                                                  LatLng(lat / z.polygon.length, lng / z.polygon.length),
+                                                  15,
+                                                );
+                                              }
+                                            },
+                                          ),
+                                          const SizedBox(width: 8),
+                                          _ZoneActionButton(
+                                            icon: z.isActive ? Icons.visibility : Icons.visibility_off,
+                                            label: z.isActive ? 'Active' : 'Hidden',
+                                            color: z.isActive ? AppColors.success : AppColors.textSecondary,
+                                            onTap: () => widget.firestore.toggleUnsafeZone(z.id, !z.isActive),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          _ZoneActionButton(
+                                            icon: Icons.delete_outline,
+                                            label: 'Delete',
+                                            color: AppColors.alertRed,
+                                            onTap: () => _confirmDeleteZone(z),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ],
           ),
         ),
       ],
@@ -542,6 +761,39 @@ class _DashboardMapViewState extends State<_DashboardMapView> {
   }
 }
 
+class _ZoneActionButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _ZoneActionButton({required this.icon, required this.label, required this.color, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            color: color.withValues(alpha: 0.1),
+          ),
+          child: Column(
+            children: [
+              Icon(icon, color: color, size: 16),
+              const SizedBox(height: 2),
+              Text(label, style: AppTypography.caption.copyWith(color: color, fontSize: 10, fontWeight: FontWeight.w600)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 // ════════════════════════════════════════════════════
 // TAB 2: ALERT CENTER
 // ════════════════════════════════════════════════════
@@ -555,15 +807,19 @@ class _AlertCenterView extends StatefulWidget {
 }
 
 class _AlertCenterViewState extends State<_AlertCenterView> {
+  late final Stream<List<SafetyAlert>> _alertsStream;
+
+  @override
+  void initState() {
+    super.initState();
+    _alertsStream = widget.firestore.streamAlerts();
+  }
   void _showComposeDialog() {
     final titleCtrl = TextEditingController();
     final descCtrl = TextEditingController();
     final locationCtrl = TextEditingController();
     final helplineCtrl = TextEditingController(text: '1363');
     String severity = 'MEDIUM';
-    String? targetGender;
-    final nationalityCtrl = TextEditingController();
-    final List<LatLng> geofencePoints = [];
 
     showDialog(
       context: context,
@@ -573,7 +829,7 @@ class _AlertCenterViewState extends State<_AlertCenterView> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: Text('Compose Alert', style: AppTypography.h2),
           content: SizedBox(
-            width: 600,
+            width: 500,
             child: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -588,8 +844,8 @@ class _AlertCenterViewState extends State<_AlertCenterView> {
                   TextField(
                     controller: descCtrl,
                     style: AppTypography.body,
-                    maxLines: 3,
-                    decoration: _inputDeco('Description'),
+                    maxLines: 4,
+                    decoration: _inputDeco('Alert Body / Description'),
                   ),
                   const SizedBox(height: 12),
                   TextField(
@@ -598,105 +854,35 @@ class _AlertCenterViewState extends State<_AlertCenterView> {
                     decoration: _inputDeco('Location (e.g. Colaba, Mumbai)'),
                   ),
                   const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: DropdownButtonFormField<String>(
-                          value: severity,
-                          dropdownColor: AppColors.card,
-                          style: AppTypography.body,
-                          decoration: _inputDeco('Severity'),
-                          items: ['LOW', 'MEDIUM', 'HIGH'].map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
-                          onChanged: (val) { if (val != null) setDialogState(() => severity = val); },
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: DropdownButtonFormField<String>(
-                          value: targetGender,
-                          dropdownColor: AppColors.card,
-                          style: AppTypography.body,
-                          decoration: _inputDeco('Target Gender'),
-                          items: [
-                            const DropdownMenuItem(value: null, child: Text('All')),
-                            const DropdownMenuItem(value: 'female', child: Text('Women Only')),
-                            const DropdownMenuItem(value: 'male', child: Text('Men Only')),
-                          ],
-                          onChanged: (val) => setDialogState(() => targetGender = val),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: nationalityCtrl,
+                  DropdownButtonFormField<String>(
+                    value: severity,
+                    dropdownColor: AppColors.card,
                     style: AppTypography.body,
-                    decoration: _inputDeco('Target Nationalities (comma-separated, empty = all)'),
+                    decoration: _inputDeco('Severity Level'),
+                    items: [
+                      DropdownMenuItem(value: 'LOW', child: Row(children: [
+                        Container(width: 10, height: 10, decoration: BoxDecoration(shape: BoxShape.circle, color: AppColors.accentBlue)),
+                        const SizedBox(width: 8),
+                        const Text('LOW'),
+                      ])),
+                      DropdownMenuItem(value: 'MEDIUM', child: Row(children: [
+                        Container(width: 10, height: 10, decoration: BoxDecoration(shape: BoxShape.circle, color: AppColors.warning)),
+                        const SizedBox(width: 8),
+                        const Text('MEDIUM'),
+                      ])),
+                      DropdownMenuItem(value: 'HIGH', child: Row(children: [
+                        Container(width: 10, height: 10, decoration: BoxDecoration(shape: BoxShape.circle, color: AppColors.alertRed)),
+                        const SizedBox(width: 8),
+                        const Text('HIGH'),
+                      ])),
+                    ],
+                    onChanged: (val) { if (val != null) setDialogState(() => severity = val); },
                   ),
                   const SizedBox(height: 12),
                   TextField(
                     controller: helplineCtrl,
                     style: AppTypography.body,
                     decoration: _inputDeco('Helpline Number'),
-                  ),
-                  const SizedBox(height: 16),
-                  // Geofence drawing
-                  Text('Geofence Targeting', style: AppTypography.body.copyWith(fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 8),
-                  SizedBox(
-                    height: 250,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: FlutterMap(
-                        options: MapOptions(
-                          initialCenter: const LatLng(19.062641, 72.830899),
-                          initialZoom: 12,
-                          onTap: (tapPos, point) {
-                            setDialogState(() => geofencePoints.add(point));
-                          },
-                        ),
-                        children: [
-                          TileLayer(urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'),
-                          if (geofencePoints.length >= 3)
-                            PolygonLayer(polygons: [
-                              Polygon(
-                                points: geofencePoints,
-                                color: AppColors.warning.withValues(alpha: 0.2),
-                                borderColor: AppColors.warning,
-                                borderStrokeWidth: 2,
-                                isDotted: true,
-                              ),
-                            ]),
-                          MarkerLayer(
-                            markers: geofencePoints.map((p) => Marker(
-                              point: p,
-                              width: 12,
-                              height: 12,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: AppColors.warning,
-                                  border: Border.all(color: Colors.white, width: 2),
-                                ),
-                              ),
-                            )).toList(),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Text('${geofencePoints.length} points drawn',
-                          style: AppTypography.caption.copyWith(color: AppColors.warning)),
-                      const Spacer(),
-                      if (geofencePoints.isNotEmpty)
-                        TextButton(
-                          onPressed: () => setDialogState(() => geofencePoints.clear()),
-                          child: Text('Clear', style: AppTypography.caption.copyWith(color: AppColors.alertRed)),
-                        ),
-                    ],
                   ),
                 ],
               ),
@@ -709,19 +895,13 @@ class _AlertCenterViewState extends State<_AlertCenterView> {
             ),
             ElevatedButton(
               onPressed: () async {
-                final nationalities = nationalityCtrl.text.trim().isEmpty
-                    ? null
-                    : nationalityCtrl.text.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
-
+                if (titleCtrl.text.trim().isEmpty) return;
                 final alert = SafetyAlert(
                   id: '',
                   title: titleCtrl.text.trim(),
                   description: descCtrl.text.trim(),
                   severity: severity,
                   location: locationCtrl.text.trim(),
-                  geofence: geofencePoints.length >= 3 ? List.from(geofencePoints) : null,
-                  targetNationalities: nationalities,
-                  targetGender: targetGender,
                   issuedAt: DateTime.now(),
                   helplineNumber: helplineCtrl.text.trim(),
                 );
@@ -771,7 +951,7 @@ class _AlertCenterViewState extends State<_AlertCenterView> {
         // Alert List
         Expanded(
           child: StreamBuilder<List<SafetyAlert>>(
-            stream: widget.firestore.streamAlerts(),
+            stream: _alertsStream,
             builder: (context, snap) {
               if (snap.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
@@ -818,12 +998,7 @@ class _AlertCenterViewState extends State<_AlertCenterView> {
                                             : BadgeType.active,
                                   ),
                                   const SizedBox(width: 8),
-                                  if (a.targetGender != null)
-                                    StatusBadge(label: a.targetGender == 'female' ? 'Women' : 'Men', type: BadgeType.active),
-                                  if (a.geofence != null) ...[
-                                    const SizedBox(width: 8),
-                                    StatusBadge(label: 'Geofenced', type: BadgeType.warning),
-                                  ],
+                                  Text(_formatTime(a.issuedAt), style: AppTypography.caption.copyWith(fontSize: 11)),
                                 ],
                               ),
                               const SizedBox(height: 8),
@@ -852,6 +1027,13 @@ class _AlertCenterViewState extends State<_AlertCenterView> {
     );
   }
 
+  String _formatTime(DateTime dt) {
+    final diff = DateTime.now().difference(dt);
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    return '${diff.inDays}d ago';
+  }
+
   Color _severityColor(String severity) {
     switch (severity) {
       case 'HIGH':
@@ -868,9 +1050,22 @@ class _AlertCenterViewState extends State<_AlertCenterView> {
 // TAB 3: INCIDENT MANAGER
 // ════════════════════════════════════════════════════
 
-class _IncidentManagerView extends StatelessWidget {
+class _IncidentManagerView extends StatefulWidget {
   final FirestoreService firestore;
   const _IncidentManagerView({required this.firestore});
+
+  @override
+  State<_IncidentManagerView> createState() => _IncidentManagerViewState();
+}
+
+class _IncidentManagerViewState extends State<_IncidentManagerView> {
+  late final Stream<List<IncidentReport>> _incidentsStream;
+
+  @override
+  void initState() {
+    super.initState();
+    _incidentsStream = widget.firestore.streamIncidents();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -896,7 +1091,7 @@ class _IncidentManagerView extends StatelessWidget {
         const Divider(height: 1, color: AppColors.border),
         Expanded(
           child: StreamBuilder<List<IncidentReport>>(
-            stream: firestore.streamIncidents(),
+            stream: _incidentsStream,
             builder: (context, snap) {
               if (snap.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
@@ -974,13 +1169,13 @@ class _IncidentManagerView extends StatelessWidget {
                               _StatusButton(
                                 label: 'Mark Reviewed',
                                 color: AppColors.warning,
-                                onTap: () => firestore.updateIncidentStatus(inc.id, 'reviewed'),
+                                onTap: () => widget.firestore.updateIncidentStatus(inc.id, 'reviewed'),
                               ),
                             if (inc.status == 'reviewed') ...[
                               _StatusButton(
                                 label: 'Mark Resolved',
                                 color: AppColors.success,
-                                onTap: () => firestore.updateIncidentStatus(inc.id, 'resolved'),
+                                onTap: () => widget.firestore.updateIncidentStatus(inc.id, 'resolved'),
                               ),
                             ],
                           ],
