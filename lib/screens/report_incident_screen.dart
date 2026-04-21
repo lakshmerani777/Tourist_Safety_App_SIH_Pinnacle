@@ -158,8 +158,8 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  const Color(0xFF12100A),
-                  AppColors.warning.withValues(alpha: 0.05),
+                  const Color(0xFF0A1628),
+                  AppColors.accentBlue.withValues(alpha: 0.05),
                   AppColors.background,
                 ],
                 stops: const [0.0, 0.6, 1.0],
@@ -181,9 +181,9 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
                       height: 36,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: AppColors.warning.withValues(alpha: 0.15),
+                        color: AppColors.accentBlue.withValues(alpha: 0.15),
                       ),
-                      child: const Icon(Icons.report_problem_outlined, color: AppColors.warning, size: 18),
+                      child: const Icon(Icons.report_problem_outlined, color: AppColors.accentBlue, size: 18),
                     ),
                     const SizedBox(width: 10),
                     Text(
