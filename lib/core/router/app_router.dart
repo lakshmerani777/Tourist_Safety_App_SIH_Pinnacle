@@ -11,7 +11,7 @@ import 'package:tourist_safety_app_sih_pinnacle/screens/emergency_contacts_scree
 import 'package:tourist_safety_app_sih_pinnacle/screens/report_incident_screen.dart';
 import 'package:tourist_safety_app_sih_pinnacle/screens/alerts_screen.dart';
 import 'package:tourist_safety_app_sih_pinnacle/screens/profile_screen.dart';
-import 'package:tourist_safety_app_sih_pinnacle/screens/police_dashboard_screen.dart';
+
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/splash',
@@ -67,14 +67,6 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/profile',
       builder: (context, state) => const ProfileScreen(),
-    ),
-    GoRoute(
-      path: '/police-dashboard',
-      builder: (context, state) => const PoliceDashboardLoginScreen(),
-    ),
-    GoRoute(
-      path: '/police-dashboard/home',
-      builder: (context, state) => const PoliceDashboardHome(),
     ),
   ],
 );
