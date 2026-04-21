@@ -42,6 +42,15 @@ class FirestoreService {
     await _zones.doc(id).update({'isActive': isActive});
   }
 
+  /// Update zone metadata (name, description, severity).
+  Future<void> updateUnsafeZone(String id, {String? name, String? description, String? severity}) async {
+    final updates = <String, dynamic>{};
+    if (name != null) updates['name'] = name;
+    if (description != null) updates['description'] = description;
+    if (severity != null) updates['severity'] = severity;
+    if (updates.isNotEmpty) await _zones.doc(id).update(updates);
+  }
+
   // ════════════════════════════════════════════
   // INCIDENT REPORTS
   // ════════════════════════════════════════════
@@ -85,6 +94,14 @@ class FirestoreService {
   /// Deactivate an alert.
   Future<void> deactivateAlert(String id) async {
     await _alerts.doc(id).update({'isActive': false});
+  }
+
+  /// Stream ALL alerts (active and inactive), newest first.
+  Stream<List<SafetyAlert>> streamAllAlerts() {
+    return _alerts
+        .orderBy('issuedAt', descending: true)
+        .snapshots()
+        .map((snap) => snap.docs.map(SafetyAlert.fromFirestore).toList());
   }
 
   // ════════════════════════════════════════════

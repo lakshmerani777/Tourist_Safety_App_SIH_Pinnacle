@@ -6,7 +6,7 @@ class GeminiChatService {
   late final GenerativeModel _model;
   late final ChatSession _chat;
 
-  static const String _systemPrompt = '''
+  static const String baseSystemPrompt = '''
 You are a Tourist Safety Assistant integrated into a mobile safety application.
 
 Your primary objective is to help tourists stay safe by providing accurate, practical, and location-aware guidance.
@@ -117,7 +117,7 @@ USER LOCATION: MUMBAI
     _model = GenerativeModel(
       model: 'gemini-2.5-flash',
       apiKey: apiKey,
-      systemInstruction: Content.system(_systemPrompt),
+      systemInstruction: Content.system(baseSystemPrompt),
       generationConfig: GenerationConfig(
         temperature: 0.7,
         topP: 0.95,
@@ -135,7 +135,7 @@ USER LOCATION: MUMBAI
       final firestore = FirestoreService();
       final custom = await firestore.getChatbotInstructions();
       if (custom != null && custom.isNotEmpty) {
-        final fullPrompt = '$_systemPrompt\n\n--- POLICE CUSTOM INSTRUCTIONS ---\n$custom';
+        final fullPrompt = '$baseSystemPrompt\n\n--- POLICE CUSTOM INSTRUCTIONS ---\n$custom';
         _model = GenerativeModel(
           model: 'gemini-2.5-flash',
           apiKey: apiKey,
