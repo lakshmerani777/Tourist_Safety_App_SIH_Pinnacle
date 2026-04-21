@@ -539,7 +539,7 @@ class _DashboardMapViewState extends State<_DashboardMapView> {
                                               color: AppColors.warning.withValues(alpha: 0.2),
                                               borderColor: AppColors.warning,
                                               borderStrokeWidth: 2,
-                                              isDotted: true,
+                                              pattern: const StrokePattern.dotted(),
                                             ),
                                         ],
                                       ),
