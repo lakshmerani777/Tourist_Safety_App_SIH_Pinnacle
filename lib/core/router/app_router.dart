@@ -72,5 +72,9 @@ final GoRouter appRouter = GoRouter(
       path: '/police-dashboard',
       builder: (context, state) => const PoliceDashboardLoginScreen(),
     ),
+    GoRoute(
+      path: '/police-dashboard/home',
+      builder: (context, state) => const PoliceDashboardHome(),
+    ),
   ],
 );
