@@ -281,7 +281,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   _SectionHeader(
                     title: AppLocalizations.of(context)?.stayDetailsTitle ?? 'Stay Details',
                     icon: Icons.hotel,
-                    iconColor: AppColors.warning,
+                    iconColor: AppColors.accentBlue,
                     onEdit: () => setState(() => _editingStay = !_editingStay),
                     isEditing: _editingStay,
                   ),
