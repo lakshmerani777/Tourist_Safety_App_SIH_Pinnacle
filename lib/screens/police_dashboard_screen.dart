@@ -4,6 +4,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../models/firestore_models.dart';
 import '../services/firestore_service.dart';
+import '../services/gemini_chat_service.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_typography.dart';
 import '../core/widgets/safety_card.dart';
@@ -380,6 +381,69 @@ class _DashboardMapViewState extends State<_DashboardMapView> {
     });
   }
 
+  Future<void> _editZone(UnsafeZone zone) async {
+    final nameController = TextEditingController(text: zone.name);
+    final descController = TextEditingController(text: zone.description);
+    String severity = zone.severity;
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          backgroundColor: AppColors.card,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text('Edit Zone', style: AppTypography.h2),
+          content: SizedBox(
+            width: 400,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameController,
+                  style: AppTypography.body,
+                  decoration: _inputDeco('Zone Name'),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: descController,
+                  style: AppTypography.body,
+                  maxLines: 3,
+                  decoration: _inputDeco('Description'),
+                ),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<String>(
+                  value: severity,
+                  dropdownColor: AppColors.card,
+                  style: AppTypography.body,
+                  decoration: _inputDeco('Severity'),
+                  items: ['LOW', 'MEDIUM', 'HIGH'].map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
+                  onChanged: (val) => setDialogState(() => severity = val!),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text('Cancel', style: AppTypography.body.copyWith(color: AppColors.textSecondary))),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              style: ElevatedButton.styleFrom(backgroundColor: AppColors.accentBlue),
+              child: Text('Save Changes', style: AppTypography.body.copyWith(color: Colors.white)),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (result == true) {
+      await widget.firestore.updateUnsafeZone(
+        zone.id,
+        name: nameController.text.trim().isEmpty ? zone.name : nameController.text.trim(),
+        description: descController.text.trim(),
+        severity: severity,
+      );
+    }
+  }
+
   Future<void> _confirmDeleteZone(UnsafeZone zone) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -701,7 +765,6 @@ class _DashboardMapViewState extends State<_DashboardMapView> {
                                             color: AppColors.accentBlue,
                                             onTap: () {
                                               if (z.polygon.isNotEmpty) {
-                                                // Calculate center of polygon
                                                 double lat = 0, lng = 0;
                                                 for (final p in z.polygon) {
                                                   lat += p.latitude;
@@ -714,14 +777,21 @@ class _DashboardMapViewState extends State<_DashboardMapView> {
                                               }
                                             },
                                           ),
-                                          const SizedBox(width: 8),
+                                          const SizedBox(width: 6),
                                           _ZoneActionButton(
                                             icon: z.isActive ? Icons.visibility : Icons.visibility_off,
                                             label: z.isActive ? 'Active' : 'Hidden',
                                             color: z.isActive ? AppColors.success : AppColors.textSecondary,
                                             onTap: () => widget.firestore.toggleUnsafeZone(z.id, !z.isActive),
                                           ),
-                                          const SizedBox(width: 8),
+                                          const SizedBox(width: 6),
+                                          _ZoneActionButton(
+                                            icon: Icons.edit_outlined,
+                                            label: 'Edit',
+                                            color: AppColors.warning,
+                                            onTap: () => _editZone(z),
+                                          ),
+                                          const SizedBox(width: 6),
                                           _ZoneActionButton(
                                             icon: Icons.delete_outline,
                                             label: 'Delete',
@@ -808,11 +878,12 @@ class _AlertCenterView extends StatefulWidget {
 
 class _AlertCenterViewState extends State<_AlertCenterView> {
   late final Stream<List<SafetyAlert>> _alertsStream;
+  String _filter = 'ALL'; // 'ALL', 'ACTIVE', 'INACTIVE'
 
   @override
   void initState() {
     super.initState();
-    _alertsStream = widget.firestore.streamAlerts();
+    _alertsStream = widget.firestore.streamAllAlerts();
   }
   void _showComposeDialog() {
     final titleCtrl = TextEditingController();
@@ -947,6 +1018,20 @@ class _AlertCenterViewState extends State<_AlertCenterView> {
             ],
           ),
         ),
+        // Filter chips
+        Container(
+          color: AppColors.card,
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
+          child: Row(
+            children: [
+              _AlertFilterChip(label: 'All', value: 'ALL', selected: _filter == 'ALL', color: AppColors.textSecondary, onTap: () => setState(() => _filter = 'ALL')),
+              const SizedBox(width: 8),
+              _AlertFilterChip(label: 'Active', value: 'ACTIVE', selected: _filter == 'ACTIVE', color: AppColors.success, onTap: () => setState(() => _filter = 'ACTIVE')),
+              const SizedBox(width: 8),
+              _AlertFilterChip(label: 'Deactivated', value: 'INACTIVE', selected: _filter == 'INACTIVE', color: AppColors.textSecondary, onTap: () => setState(() => _filter = 'INACTIVE')),
+            ],
+          ),
+        ),
         const Divider(height: 1, color: AppColors.border),
         // Alert List
         Expanded(
@@ -956,7 +1041,12 @@ class _AlertCenterViewState extends State<_AlertCenterView> {
               if (snap.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
               }
-              final alerts = snap.data ?? [];
+              final all = snap.data ?? [];
+              final alerts = switch (_filter) {
+                'ACTIVE' => all.where((a) => a.isActive).toList(),
+                'INACTIVE' => all.where((a) => !a.isActive).toList(),
+                _ => all,
+              };
               if (alerts.isEmpty) {
                 return Center(
                   child: Column(
@@ -964,7 +1054,10 @@ class _AlertCenterViewState extends State<_AlertCenterView> {
                     children: [
                       Icon(Icons.notifications_off, color: AppColors.textSecondary, size: 48),
                       const SizedBox(height: 12),
-                      Text('No active alerts', style: AppTypography.body.copyWith(color: AppColors.textSecondary)),
+                      Text(
+                        _filter == 'ALL' ? 'No alerts issued yet' : 'No ${_filter.toLowerCase()} alerts',
+                        style: AppTypography.body.copyWith(color: AppColors.textSecondary),
+                      ),
                     ],
                   ),
                 );
@@ -976,12 +1069,16 @@ class _AlertCenterViewState extends State<_AlertCenterView> {
                 itemBuilder: (context, i) {
                   final a = alerts[i];
                   return SafetyCard(
-                    accentColor: _severityColor(a.severity),
+                    accentColor: a.isActive ? _severityColor(a.severity) : AppColors.textSecondary,
                     padding: const EdgeInsets.all(16),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.warning_amber, color: _severityColor(a.severity), size: 28),
+                        Icon(
+                          Icons.warning_amber,
+                          color: a.isActive ? _severityColor(a.severity) : AppColors.textSecondary,
+                          size: 28,
+                        ),
                         const SizedBox(width: 14),
                         Expanded(
                           child: Column(
@@ -998,23 +1095,46 @@ class _AlertCenterViewState extends State<_AlertCenterView> {
                                             : BadgeType.active,
                                   ),
                                   const SizedBox(width: 8),
+                                  if (!a.isActive)
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.textSecondary.withValues(alpha: 0.15),
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Text('DEACTIVATED', style: AppTypography.caption.copyWith(fontSize: 10, color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
+                                    ),
+                                  const SizedBox(width: 8),
                                   Text(_formatTime(a.issuedAt), style: AppTypography.caption.copyWith(fontSize: 11)),
                                 ],
                               ),
                               const SizedBox(height: 8),
-                              Text(a.title, style: AppTypography.body.copyWith(fontWeight: FontWeight.w700, fontSize: 16)),
+                              Text(
+                                a.title,
+                                style: AppTypography.body.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 16,
+                                  color: a.isActive ? AppColors.textPrimary : AppColors.textSecondary,
+                                ),
+                              ),
                               const SizedBox(height: 4),
                               Text(a.description, style: AppTypography.caption, maxLines: 3, overflow: TextOverflow.ellipsis),
                               const SizedBox(height: 4),
-                              Text('📍 ${a.location}', style: AppTypography.caption.copyWith(fontSize: 11)),
+                              if (a.location.isNotEmpty)
+                                Text('📍 ${a.location}', style: AppTypography.caption.copyWith(fontSize: 11)),
+                              if (a.helplineNumber.isNotEmpty) ...[
+                                const SizedBox(height: 2),
+                                Text('📞 ${a.helplineNumber}', style: AppTypography.caption.copyWith(fontSize: 11)),
+                              ],
                             ],
                           ),
                         ),
-                        IconButton(
-                          onPressed: () => widget.firestore.deactivateAlert(a.id),
-                          icon: const Icon(Icons.close, color: AppColors.alertRed, size: 20),
-                          tooltip: 'Deactivate',
-                        ),
+                        if (a.isActive)
+                          IconButton(
+                            onPressed: () => widget.firestore.deactivateAlert(a.id),
+                            icon: const Icon(Icons.close, color: AppColors.alertRed, size: 20),
+                            tooltip: 'Deactivate',
+                          ),
                       ],
                     ),
                   );
@@ -1043,6 +1163,40 @@ class _AlertCenterViewState extends State<_AlertCenterView> {
       default:
         return AppColors.accentBlue;
     }
+  }
+}
+
+class _AlertFilterChip extends StatelessWidget {
+  final String label;
+  final String value;
+  final bool selected;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _AlertFilterChip({required this.label, required this.value, required this.selected, required this.color, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        decoration: BoxDecoration(
+          color: selected ? color.withValues(alpha: 0.15) : AppColors.background,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: selected ? color : AppColors.border),
+        ),
+        child: Text(
+          label,
+          style: AppTypography.caption.copyWith(
+            color: selected ? color : AppColors.textSecondary,
+            fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+            fontSize: 12,
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -1146,19 +1300,51 @@ class _IncidentManagerViewState extends State<_IncidentManagerView> {
                             style: AppTypography.body),
                         const SizedBox(height: 8),
                         Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Icon(Icons.location_on, color: AppColors.textSecondary, size: 14),
                             const SizedBox(width: 4),
                             Expanded(
-                              child: Text(inc.address.isEmpty ? '${inc.latitude.toStringAsFixed(4)}, ${inc.longitude.toStringAsFixed(4)}' : inc.address,
-                                  style: AppTypography.caption),
+                              child: Text(
+                                inc.address.isEmpty ? '${inc.latitude.toStringAsFixed(5)}, ${inc.longitude.toStringAsFixed(5)}' : inc.address,
+                                style: AppTypography.caption,
+                              ),
                             ),
-                            if (inc.touristName != null) ...[
-                              const SizedBox(width: 12),
-                              const Icon(Icons.person, color: AppColors.textSecondary, size: 14),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            const Icon(Icons.person_outline, color: AppColors.textSecondary, size: 14),
+                            const SizedBox(width: 4),
+                            Text(
+                              inc.touristName ?? 'Unknown',
+                              style: AppTypography.caption,
+                            ),
+                            if (inc.touristNationality != null) ...[
+                              const SizedBox(width: 8),
+                              const Icon(Icons.flag_outlined, color: AppColors.textSecondary, size: 14),
                               const SizedBox(width: 4),
-                              Text(inc.touristName!, style: AppTypography.caption),
+                              Text(inc.touristNationality!, style: AppTypography.caption),
                             ],
+                            const Spacer(),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: inc.reportedBy == 'police'
+                                    ? AppColors.accentBlue.withValues(alpha: 0.12)
+                                    : AppColors.warning.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                inc.reportedBy == 'police' ? 'By Police' : 'By Tourist',
+                                style: AppTypography.caption.copyWith(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                  color: inc.reportedBy == 'police' ? AppColors.accentBlue : AppColors.warning,
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 12),
@@ -1292,21 +1478,72 @@ class _AiConfigViewState extends State<_AiConfigView> {
         Expanded(
           child: _isLoading
               ? const Center(child: CircularProgressIndicator())
-              : Padding(
+              : SingleChildScrollView(
                   padding: const EdgeInsets.all(24),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Base system prompt section (read-only)
+                      Theme(
+                        data: Theme.of(context).copyWith(
+                          dividerColor: AppColors.border,
+                          colorScheme: Theme.of(context).colorScheme.copyWith(
+                            surface: AppColors.card,
+                          ),
+                        ),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: AppColors.card,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: AppColors.border),
+                          ),
+                          child: ExpansionTile(
+                            tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                            leading: const Icon(Icons.smart_toy_outlined, color: AppColors.accentBlue, size: 20),
+                            title: Text('Base System Prompt', style: AppTypography.body.copyWith(fontWeight: FontWeight.w600)),
+                            subtitle: Text('Read-only · Defines core chatbot behavior', style: AppTypography.caption.copyWith(fontSize: 11)),
+                            iconColor: AppColors.textSecondary,
+                            collapsedIconColor: AppColors.textSecondary,
+                            children: [
+                              Container(
+                                margin: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                                padding: const EdgeInsets.all(12),
+                                constraints: const BoxConstraints(maxHeight: 300),
+                                decoration: BoxDecoration(
+                                  color: AppColors.background,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: AppColors.border),
+                                ),
+                                child: Scrollbar(
+                                  thumbVisibility: true,
+                                  child: SingleChildScrollView(
+                                    child: SelectableText(
+                                      GeminiChatService.baseSystemPrompt,
+                                      style: AppTypography.caption.copyWith(
+                                        fontSize: 11,
+                                        fontFamily: 'monospace',
+                                        height: 1.6,
+                                        color: AppColors.textSecondary,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
                       SafetyCard(
                         accentColor: AppColors.accentBlue,
                         padding: const EdgeInsets.all(16),
                         child: Row(
                           children: [
-                            Icon(Icons.info_outline, color: AppColors.accentBlue, size: 20),
+                            const Icon(Icons.info_outline, color: AppColors.accentBlue, size: 20),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
-                                'These instructions are appended to the chatbot\'s base system prompt. They will take effect immediately for all tourist users.',
+                                'Custom instructions are appended to the base system prompt above. Changes take effect immediately for all tourist users.',
                                 style: AppTypography.caption,
                               ),
                             ),
@@ -1316,26 +1553,27 @@ class _AiConfigViewState extends State<_AiConfigView> {
                       const SizedBox(height: 16),
                       Text('Custom Instructions', style: AppTypography.body.copyWith(fontWeight: FontWeight.w600)),
                       const SizedBox(height: 8),
-                      Expanded(
-                        child: TextField(
-                          controller: _instructionsCtrl,
-                          style: AppTypography.body.copyWith(fontSize: 13, height: 1.6),
-                          maxLines: null,
-                          expands: true,
-                          textAlignVertical: TextAlignVertical.top,
-                          decoration: InputDecoration(
-                            hintText: 'Enter custom instructions for the chatbot...\n\nExamples:\n- "Warn tourists about ongoing festival traffic near Dadar"\n- "Recommend avoiding Marine Drive after 11 PM tonight"\n- "There is a health advisory for water-borne diseases"',
-                            hintStyle: AppTypography.caption.copyWith(fontSize: 12),
-                            filled: true,
-                            fillColor: AppColors.card,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: AppColors.border),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: AppColors.border),
-                            ),
+                      TextField(
+                        controller: _instructionsCtrl,
+                        style: AppTypography.body.copyWith(fontSize: 13, height: 1.6),
+                        maxLines: 12,
+                        textAlignVertical: TextAlignVertical.top,
+                        decoration: InputDecoration(
+                          hintText: 'Enter custom instructions for the chatbot...\n\nExamples:\n- "Warn tourists about ongoing festival traffic near Dadar"\n- "Recommend avoiding Marine Drive after 11 PM tonight"\n- "There is a health advisory for water-borne diseases"',
+                          hintStyle: AppTypography.caption.copyWith(fontSize: 12),
+                          filled: true,
+                          fillColor: AppColors.card,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: AppColors.border),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: AppColors.border),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: AppColors.accentBlue),
                           ),
                         ),
                       ),
