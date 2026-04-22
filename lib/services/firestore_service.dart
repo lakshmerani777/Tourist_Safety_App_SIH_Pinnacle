@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import '../models/firestore_models.dart';
 
 /// Central service for all Firestore reads/writes used by both
@@ -96,8 +97,9 @@ class FirestoreService {
             try {
               final alert = SafetyAlert.fromFirestore(doc);
               if (alert.isActive) alerts.add(alert);
-            } catch (_) {
-              // Skip malformed documents
+            } catch (e) {
+              // Log malformed documents for debugging
+              debugPrint('⚠️ Failed to parse alert doc ${doc.id}: $e');
             }
           }
           alerts.sort((a, b) => b.issuedAt.compareTo(a.issuedAt));
@@ -185,6 +187,36 @@ class FirestoreService {
     await _touristLocations.doc(sessionId).update({
       'status': 'active',
       'anomalyFlaggedAt': null,
+    });
+  }
+
+  // ════════════════════════════════════════════
+  // SOS EMERGENCY
+  // ════════════════════════════════════════════
+
+  /// Submit an SOS alert directly to Firestore for dashboard real-time pickup.
+  Future<void> submitSOSToFirestore({
+    required String touristName,
+    required String touristNationality,
+    required double latitude,
+    required double longitude,
+    required String address,
+    String phone = '',
+  }) async {
+    await _incidents.add({
+      'type': 'SOS',
+      'description': 'SOS Emergency Alert triggered by tourist',
+      'latitude': latitude,
+      'longitude': longitude,
+      'address': address,
+      'reportedAt': Timestamp.fromDate(DateTime.now()),
+      'reportedBy': 'tourist',
+      'touristName': touristName,
+      'touristNationality': touristNationality,
+      'touristPhone': phone,
+      'status': 'pending',
+      'isSOS': true,
+      'dashboardAcknowledged': false,
     });
   }
 

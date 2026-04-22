@@ -219,6 +219,49 @@ def create_sos_incident(tourist_name, tourist_nationality, latitude, longitude, 
     return doc_ref.id
 
 
+def get_sos_incidents():
+    """Return all SOS incidents, newest first."""
+    docs = db.collection('incidents').where('isSOS', '==', True).stream()
+    incidents = []
+    for doc in docs:
+        data = doc.to_dict()
+        data['id'] = doc.id
+        if data.get('reportedAt'):
+            data['reportedAt'] = data['reportedAt'].isoformat() if hasattr(data['reportedAt'], 'isoformat') else str(data['reportedAt'])
+        incidents.append(data)
+    # Sort client-side to avoid needing a composite index
+    incidents.sort(key=lambda x: x.get('reportedAt', ''), reverse=True)
+    return incidents
+
+
+def get_new_sos_incidents(last_check_ids=None):
+    """Return SOS incidents that haven't been acknowledged by the dashboard."""
+    docs = db.collection('incidents').where('isSOS', '==', True).stream()
+    incidents = []
+    for doc in docs:
+        data = doc.to_dict()
+        data['id'] = doc.id
+        # Only return un-acknowledged SOS calls
+        if not data.get('dashboardAcknowledged', False):
+            if data.get('reportedAt'):
+                data['reportedAt'] = data['reportedAt'].isoformat() if hasattr(data['reportedAt'], 'isoformat') else str(data['reportedAt'])
+            incidents.append(data)
+    incidents.sort(key=lambda x: x.get('reportedAt', ''), reverse=True)
+    return incidents
+
+
+def acknowledge_sos(incident_id):
+    """Mark an SOS incident as acknowledged by the dashboard."""
+    db.collection('incidents').document(incident_id).update({
+        'dashboardAcknowledged': True,
+    })
+
+
+def update_sos_status(incident_id, status):
+    """Update SOS status: 'pending' → 'responding' → 'resolved'."""
+    db.collection('incidents').document(incident_id).update({'status': status})
+
+
 # ════════════════════════════════════════════════════════════════
 # TOURIST LOCATIONS & ANOMALY DETECTION
 # ════════════════════════════════════════════════════════════════

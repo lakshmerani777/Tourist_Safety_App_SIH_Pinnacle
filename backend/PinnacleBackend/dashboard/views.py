@@ -199,6 +199,55 @@ def api_incident_status(request, incident_id):
 
 
 # ════════════════════════════════════════════════════════════════
+# SOS MANAGEMENT
+# ════════════════════════════════════════════════════════════════
+
+@dashboard_login_required
+def sos_view(request):
+    """SOS calls list with details and status management."""
+    sos_incidents = fs.get_sos_incidents()
+    return render(request, 'dashboard/sos.html', {
+        'sos_incidents': sos_incidents,
+        'sos_json': json.dumps(sos_incidents, default=str),
+        'active_tab': 'sos',
+    })
+
+
+@require_GET
+@dashboard_login_required
+def api_sos_poll(request):
+    """API: Poll for new (un-acknowledged) SOS incidents — used by global popup."""
+    try:
+        new_sos = fs.get_new_sos_incidents()
+        return JsonResponse({'sos': new_sos})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+@require_POST
+@dashboard_login_required
+def api_sos_acknowledge(request, incident_id):
+    """API: Acknowledge an SOS call (dismiss the popup)."""
+    try:
+        fs.acknowledge_sos(incident_id)
+        return JsonResponse({'status': 'ok'})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+@require_POST
+@dashboard_login_required
+def api_sos_status(request, incident_id):
+    """API: Update SOS status (pending/responding/resolved)."""
+    try:
+        data = json.loads(request.body)
+        fs.update_sos_status(incident_id, data['status'])
+        return JsonResponse({'status': 'ok'})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+# ════════════════════════════════════════════════════════════════
 # AI CONFIG
 # ════════════════════════════════════════════════════════════════
 

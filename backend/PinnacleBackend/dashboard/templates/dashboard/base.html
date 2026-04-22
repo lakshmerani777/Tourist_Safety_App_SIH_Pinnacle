@@ -47,6 +47,11 @@
                     <span class="material-icons-round">report</span>
                     <span class="nav-label">Incidents</span>
                 </a>
+                <a href="{% url 'dashboard:sos' %}" class="nav-item {% if active_tab == 'sos' %}active{% endif %}" id="nav-sos">
+                    <span class="material-icons-round">sos</span>
+                    <span class="nav-label">SOS Calls</span>
+                    <span class="sos-nav-badge" id="sos-nav-badge" style="display:none">0</span>
+                </a>
                 <a href="{% url 'dashboard:ai_config' %}" class="nav-item {% if active_tab == 'ai_config' %}active{% endif %}" id="nav-ai">
                     <span class="material-icons-round">smart_toy</span>
                     <span class="nav-label">AI Config</span>
@@ -70,6 +75,33 @@
             {% block content %}{% endblock %}
         </main>
     </div>
+
+    <!-- ═══ GLOBAL SOS POPUP ═══ -->
+    <div class="sos-popup-overlay" id="sos-popup-overlay" style="display:none">
+        <div class="sos-popup">
+            <div class="sos-popup-header">
+                <div class="sos-popup-pulse"></div>
+                <span class="material-icons-round sos-popup-icon">sos</span>
+                <h2>🚨 EMERGENCY SOS ALERT</h2>
+            </div>
+            <div class="sos-popup-body" id="sos-popup-body">
+                <!-- Populated by JS -->
+            </div>
+            <div class="sos-popup-footer">
+                <button class="btn btn-outline" onclick="dismissSosPopup()">
+                    <span class="material-icons-round">close</span> Dismiss
+                </button>
+                <a href="{% url 'dashboard:sos' %}" class="btn btn-danger">
+                    <span class="material-icons-round">open_in_new</span> View All SOS Calls
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ SOS Audio Alert ═══ -->
+    <audio id="sos-alert-audio" preload="auto">
+        <source src="data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==" type="audio/wav">
+    </audio>
 
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -111,6 +143,170 @@
                 setTimeout(() => toast.remove(), 300);
             }, 3000);
         }
+
+        // ═══ GLOBAL SOS POLLING ═══
+        let _sosPopupActive = false;
+        let _sosAcknowledgedIds = new Set();       // IDs dismissed/acknowledged in this session
+        let _sosDisplayedIds = [];                  // IDs currently shown in the popup
+
+        async function pollForSOS() {
+            try {
+                const resp = await fetch('/dashboard/api/sos/poll/');
+                if (!resp.ok) return;
+                const data = await resp.json();
+                const sosList = data.sos || [];
+                
+                // Filter out already-acknowledged/dismissed ones in this session
+                const newSOS = sosList.filter(s => !_sosAcknowledgedIds.has(s.id));
+                
+                // Update nav badge
+                const badge = document.getElementById('sos-nav-badge');
+                if (badge) {
+                    if (newSOS.length > 0) {
+                        badge.textContent = newSOS.length;
+                        badge.style.display = 'inline-flex';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                }
+
+                // Show popup ONLY for genuinely new SOS IDs we haven't shown before
+                if (newSOS.length > 0 && !_sosPopupActive) {
+                    showSosPopup(newSOS);
+                }
+            } catch (e) {
+                console.error('SOS poll failed:', e);
+            }
+        }
+
+        function showSosPopup(sosList) {
+            _sosPopupActive = true;
+            _sosDisplayedIds = sosList.map(s => s.id);
+            const overlay = document.getElementById('sos-popup-overlay');
+            const body = document.getElementById('sos-popup-body');
+            
+            let html = '';
+            sosList.forEach(sos => {
+                const time = sos.reportedAt ? new Date(sos.reportedAt).toLocaleString() : 'Just now';
+                const lat = sos.latitude || 0;
+                const lng = sos.longitude || 0;
+                const mapUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+                const phone = sos.touristPhone || '';
+                
+                html += `
+                    <div class="sos-popup-card" data-sos-id="${sos.id}">
+                        <div class="sos-popup-card-row">
+                            <span class="material-icons-round" style="color:var(--alert-red)">person</span>
+                            <div>
+                                <strong>${sos.touristName || 'Unknown Tourist'}</strong>
+                                ${sos.touristNationality ? `<span class="sos-tag">${sos.touristNationality}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="sos-popup-card-row">
+                            <span class="material-icons-round" style="color:var(--accent)">location_on</span>
+                            <div>
+                                <span>${sos.address || `${lat.toFixed(5)}, ${lng.toFixed(5)}`}</span>
+                                <a href="${mapUrl}" target="_blank" class="sos-map-link">Open in Maps →</a>
+                            </div>
+                        </div>
+                        ${phone ? `
+                        <div class="sos-popup-card-row">
+                            <span class="material-icons-round" style="color:var(--success)">phone</span>
+                            <div>
+                                <strong>${phone}</strong>
+                                <a href="tel:${phone}" class="sos-map-link">Call Now →</a>
+                            </div>
+                        </div>
+                        ` : `
+                        <div class="sos-popup-card-row">
+                            <span class="material-icons-round" style="color:var(--text-muted)">phone</span>
+                            <div>
+                                <strong>Not provided</strong>
+                            </div>
+                        </div>
+                        `}
+                        <div class="sos-popup-card-row">
+                            <span class="material-icons-round" style="color:var(--warning)">schedule</span>
+                            <span>${time}</span>
+                        </div>
+                        <div class="sos-popup-card-row">
+                            <span class="material-icons-round" style="color:var(--success)">info</span>
+                            <span>Status: <strong style="text-transform:uppercase">${sos.status || 'pending'}</strong></span>
+                        </div>
+                        <div class="sos-popup-actions">
+                            <button class="btn btn-sm btn-danger" onclick="respondToSOS('${sos.id}')">
+                                <span class="material-icons-round">phone_in_talk</span>
+                                <span>Respond</span>
+                            </button>
+                            <button class="btn btn-sm btn-outline" onclick="acknowledgeSOS('${sos.id}')">
+                                <span class="material-icons-round">done</span>
+                                <span>Acknowledge</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            body.innerHTML = html;
+            overlay.style.display = 'flex';
+            
+            // Try to play alert sound
+            try { document.getElementById('sos-alert-audio').play(); } catch(_) {}
+        }
+
+        async function respondToSOS(id) {
+            try {
+                await apiPost(`/dashboard/api/sos/${id}/status/`, { status: 'responding' });
+                await apiPost(`/dashboard/api/sos/${id}/acknowledge/`);
+                _sosAcknowledgedIds.add(id);
+                showToast('Marked as responding');
+                // Remove from popup
+                const card = document.querySelector(`[data-sos-id="${id}"]`);
+                if (card) card.remove();
+                checkPopupEmpty();
+            } catch(e) {
+                showToast('Error responding to SOS', 'error');
+            }
+        }
+
+        async function acknowledgeSOS(id) {
+            try {
+                await apiPost(`/dashboard/api/sos/${id}/acknowledge/`);
+                _sosAcknowledgedIds.add(id);
+                showToast('SOS acknowledged');
+                const card = document.querySelector(`[data-sos-id="${id}"]`);
+                if (card) card.remove();
+                checkPopupEmpty();
+            } catch(e) {
+                showToast('Error acknowledging SOS', 'error');
+            }
+        }
+
+        function checkPopupEmpty() {
+            const body = document.getElementById('sos-popup-body');
+            if (!body.querySelector('.sos-popup-card')) {
+                dismissSosPopup();
+            }
+        }
+
+        function dismissSosPopup() {
+            // Mark ALL currently displayed SOS IDs as acknowledged
+            // so the popup doesn't re-appear for the same calls
+            _sosDisplayedIds.forEach(id => {
+                _sosAcknowledgedIds.add(id);
+                // Also acknowledge server-side so they don't come back
+                // after page refresh either
+                apiPost(`/dashboard/api/sos/${id}/acknowledge/`).catch(() => {});
+            });
+            _sosDisplayedIds = [];
+            document.getElementById('sos-popup-overlay').style.display = 'none';
+            _sosPopupActive = false;
+        }
+
+        // Start polling every 5 seconds
+        setInterval(pollForSOS, 5000);
+        // Initial poll
+        setTimeout(pollForSOS, 1000);
     </script>
 
     {% block extra_js %}{% endblock %}

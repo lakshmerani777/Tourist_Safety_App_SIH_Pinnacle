@@ -104,6 +104,38 @@ class _AlertsScreenState extends State<AlertsScreen> {
                     child: CircularProgressIndicator(color: AppColors.alertRed),
                   );
                 }
+                if (snap.hasError) {
+                  return Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 72,
+                          height: 72,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: AppColors.alertRed.withValues(alpha: 0.1),
+                          ),
+                          child: const Icon(Icons.error_outline, color: AppColors.alertRed, size: 36),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Error loading alerts',
+                          style: AppTypography.body.copyWith(color: AppColors.textSecondary),
+                        ),
+                        const SizedBox(height: 6),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 32),
+                          child: Text(
+                            '${snap.error}',
+                            style: AppTypography.caption,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
                 final allAlerts = snap.data ?? [];
                 final alerts = _filter == 'ALL'
                     ? allAlerts
@@ -241,62 +273,73 @@ class _AlertCardState extends State<_AlertCard> {
       decoration: BoxDecoration(
         color: AppColors.card,
         borderRadius: BorderRadius.circular(16),
-        border: Border(
-          left: BorderSide(color: accentColor, width: 4),
-          top: BorderSide(color: _isExpanded ? accentColor.withValues(alpha: 0.3) : AppColors.border),
-          right: BorderSide(color: _isExpanded ? accentColor.withValues(alpha: 0.3) : AppColors.border),
-          bottom: BorderSide(color: _isExpanded ? accentColor.withValues(alpha: 0.3) : AppColors.border),
+        border: Border.all(
+          color: _isExpanded ? accentColor.withValues(alpha: 0.3) : AppColors.border,
+          width: 1,
         ),
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: () => setState(() => _isExpanded = !_isExpanded),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
+        children: [
+          // Left accent strip
+          Positioned(
+            left: 0,
+            top: 0,
+            bottom: 0,
+            child: Container(
+              width: 4,
+              color: accentColor,
+            ),
+          ),
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => setState(() => _isExpanded = !_isExpanded),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      width: 32,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: accentColor.withValues(alpha: 0.15),
-                      ),
-                      child: Icon(Icons.warning_amber_rounded, color: accentColor, size: 16),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            widget.alert.title.isNotEmpty ? widget.alert.title : 'Untitled Alert',
-                            style: AppTypography.body.copyWith(fontWeight: FontWeight.w600, fontSize: 15),
+                    Row(
+                      children: [
+                        const SizedBox(width: 4), // Space for accent strip
+                        Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: accentColor.withValues(alpha: 0.15),
                           ),
-                          const SizedBox(height: 2),
-                          Row(
+                          child: Icon(Icons.warning_amber_rounded, color: accentColor, size: 16),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Icon(Icons.location_on, color: AppColors.textSecondary, size: 12),
-                              const SizedBox(width: 3),
-                              Expanded(
-                                child: Text(
-                                  widget.alert.location,
-                                  style: AppTypography.caption.copyWith(fontSize: 11),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                              Text(
+                                widget.alert.title.isNotEmpty ? widget.alert.title : 'Untitled Alert',
+                                style: AppTypography.body.copyWith(fontWeight: FontWeight.w600, fontSize: 15),
+                              ),
+                              const SizedBox(height: 2),
+                              Row(
+                                children: [
+                                  const Icon(Icons.location_on, color: AppColors.textSecondary, size: 12),
+                                  const SizedBox(width: 3),
+                                  Expanded(
+                                    child: Text(
+                                      widget.alert.location,
+                                      style: AppTypography.caption.copyWith(fontSize: 11),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                        ],
-                      ),
-                    ),
-                    Column(
+                        ),
+                        Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         StatusBadge(
