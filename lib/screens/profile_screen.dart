@@ -337,6 +337,51 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
                   const SizedBox(height: 32),
 
+                  // Police / Security Dashboard shortcut
+                  GestureDetector(
+                    onTap: () => context.push('/police-dashboard'),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      decoration: BoxDecoration(
+                        color: AppColors.card,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: AppColors.border),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: AppColors.accentBlue.withValues(alpha: 0.12),
+                            ),
+                            child: const Icon(Icons.shield_outlined, color: AppColors.accentBlue, size: 18),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Security Dashboard',
+                                  style: AppTypography.body.copyWith(fontWeight: FontWeight.w600),
+                                ),
+                                Text(
+                                  'Police & safety management portal',
+                                  style: AppTypography.caption.copyWith(fontSize: 11),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Icon(Icons.chevron_right, color: AppColors.textSecondary, size: 20),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
                   // Account actions
                   SafetyButton(
                     text: AppLocalizations.of(context)?.signOutBtn ?? 'Sign Out',
