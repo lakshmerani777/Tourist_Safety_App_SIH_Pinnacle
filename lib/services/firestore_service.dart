@@ -28,12 +28,15 @@ class FirestoreService {
   // ════════════════════════════════════════════
 
   /// Stream all active unsafe zones in real time.
+  /// Uses client-side filtering to avoid needing a Firestore composite index.
   Stream<List<UnsafeZone>> streamUnsafeZones() {
     return _zones
-        .where('isActive', isEqualTo: true)
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snap) => snap.docs.map(UnsafeZone.fromFirestore).toList());
+        .map((snap) => snap.docs
+            .map(UnsafeZone.fromFirestore)
+            .where((zone) => zone.isActive)
+            .toList());
   }
 
 
@@ -69,12 +72,15 @@ class FirestoreService {
   // ════════════════════════════════════════════
 
   /// Stream all active alerts, newest first.
+  /// Uses client-side filtering to avoid needing a Firestore composite index.
   Stream<List<SafetyAlert>> streamAlerts() {
     return _alerts
-        .where('isActive', isEqualTo: true)
         .orderBy('issuedAt', descending: true)
         .snapshots()
-        .map((snap) => snap.docs.map(SafetyAlert.fromFirestore).toList());
+        .map((snap) => snap.docs
+            .map(SafetyAlert.fromFirestore)
+            .where((alert) => alert.isActive)
+            .toList());
   }
 
 
