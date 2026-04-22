@@ -1,0 +1,120 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Map View{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <span class="material-icons-round">map</span>
+        High Risk Zone Management
+    </h1>
+    <div class="header-actions">
+        <button class="btn btn-primary" id="btn-draw-zone" onclick="startDrawing()">
+            <span class="material-icons-round">draw</span>
+            Draw New Zone
+        </button>
+        <button class="btn btn-outline" id="btn-refresh-map" onclick="refreshZones()">
+            <span class="material-icons-round">refresh</span>
+            Refresh
+        </button>
+    </div>
+</div>
+
+<div class="map-layout">
+    <!-- Map -->
+    <div class="map-container" id="map-wrapper">
+        <div id="map"></div>
+    </div>
+
+    <!-- Zone Panel -->
+    <div class="zone-panel" id="zone-panel">
+        <div class="panel-header">
+            <h3>Zones</h3>
+            <span class="badge" id="zone-count">0</span>
+        </div>
+        <div class="zone-list" id="zone-list">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+</div>
+
+<!-- Zone Creation Modal -->
+<div class="modal-overlay" id="zone-modal" style="display:none">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3><span class="material-icons-round">add_location_alt</span> New High Risk Zone</h3>
+            <button class="btn-icon" onclick="closeZoneModal()"><span class="material-icons-round">close</span></button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="zone-name">Zone Name</label>
+                <input type="text" id="zone-name" placeholder="e.g., Marine Drive North" />
+            </div>
+            <div class="form-group">
+                <label for="zone-desc">Description</label>
+                <textarea id="zone-desc" rows="3" placeholder="Reason for marking as high risk..."></textarea>
+            </div>
+            <div class="form-group">
+                <label for="zone-severity">Severity</label>
+                <select id="zone-severity">
+                    <option value="HIGH">🔴 High</option>
+                    <option value="MEDIUM">🟡 Medium</option>
+                    <option value="LOW">🟢 Low</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Polygon Points</label>
+                <div class="points-display" id="points-display">Click on the map to add points</div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeZoneModal()">Cancel</button>
+            <button class="btn btn-danger" id="btn-save-zone" onclick="saveZone()">
+                <span class="material-icons-round">save</span> Save Zone
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Zone Edit Modal -->
+<div class="modal-overlay" id="edit-zone-modal" style="display:none">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3><span class="material-icons-round">edit_location_alt</span> Edit Zone</h3>
+            <button class="btn-icon" onclick="closeEditZoneModal()"><span class="material-icons-round">close</span></button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="edit-zone-id" />
+            <div class="form-group">
+                <label for="edit-zone-name">Zone Name</label>
+                <input type="text" id="edit-zone-name" />
+            </div>
+            <div class="form-group">
+                <label for="edit-zone-desc">Description</label>
+                <textarea id="edit-zone-desc" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="edit-zone-severity">Severity</label>
+                <select id="edit-zone-severity">
+                    <option value="HIGH">🔴 High</option>
+                    <option value="MEDIUM">🟡 Medium</option>
+                    <option value="LOW">🟢 Low</option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeEditZoneModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="updateZone()">
+                <span class="material-icons-round">save</span> Update
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const ZONES_DATA = {{ zones_json|safe }};
+</script>
+{% load static %}
+<script src="{% static 'dashboard/js/map.js' %}"></script>
+{% endblock %}

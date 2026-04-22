@@ -1,0 +1,163 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Incident Reports{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <span class="material-icons-round">report</span>
+        Incident Reports
+    </h1>
+    <div class="header-actions">
+        <div class="live-indicator">
+            <span class="live-dot"></span>
+            <span>Live Feed</span>
+        </div>
+        <button class="btn btn-outline" onclick="location.reload()">
+            <span class="material-icons-round">refresh</span>
+            Refresh
+        </button>
+    </div>
+</div>
+
+<!-- Stats -->
+<div class="stats-row">
+    <div class="stat-card">
+        <span class="material-icons-round stat-icon" style="color: var(--warning)">pending_actions</span>
+        <div class="stat-info">
+            <span class="stat-value" id="stat-pending">0</span>
+            <span class="stat-label">Pending</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <span class="material-icons-round stat-icon" style="color: var(--accent)">rate_review</span>
+        <div class="stat-info">
+            <span class="stat-value" id="stat-reviewed">0</span>
+            <span class="stat-label">Reviewed</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <span class="material-icons-round stat-icon" style="color: var(--success)">check_circle</span>
+        <div class="stat-info">
+            <span class="stat-value" id="stat-resolved">0</span>
+            <span class="stat-label">Resolved</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <span class="material-icons-round stat-icon" style="color: var(--text-muted)">summarize</span>
+        <div class="stat-info">
+            <span class="stat-value" id="stat-total-inc">0</span>
+            <span class="stat-label">Total</span>
+        </div>
+    </div>
+</div>
+
+<!-- Filter -->
+<div class="filter-row">
+    <button class="filter-btn active" onclick="filterIncidents('all', this)">All</button>
+    <button class="filter-btn" onclick="filterIncidents('pending', this)">Pending</button>
+    <button class="filter-btn" onclick="filterIncidents('reviewed', this)">Reviewed</button>
+    <button class="filter-btn" onclick="filterIncidents('resolved', this)">Resolved</button>
+</div>
+
+<!-- Incident List -->
+<div class="data-card">
+    <table class="data-table" id="incidents-table">
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Location</th>
+                <th>Reporter</th>
+                <th>Status</th>
+                <th>Reported</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="incidents-tbody">
+            {% for inc in incidents %}
+            <tr data-id="{{ inc.id }}" data-status="{{ inc.status }}">
+                <td>
+                    <span class="type-badge">{{ inc.type }}</span>
+                </td>
+                <td class="cell-desc">{{ inc.description|truncatewords:20 }}</td>
+                <td class="cell-location">{{ inc.address|default:"Unknown" }}</td>
+                <td>
+                    <div class="reporter-info">
+                        <span>{{ inc.touristName|default:"Anonymous" }}</span>
+                        {% if inc.touristNationality %}
+                        <span class="reporter-nationality">{{ inc.touristNationality }}</span>
+                        {% endif %}
+                    </div>
+                </td>
+                <td>
+                    <span class="status-pill status-{{ inc.status }}">{{ inc.status|title }}</span>
+                </td>
+                <td class="cell-date">{{ inc.reportedAt|truncatechars:19 }}</td>
+                <td class="cell-actions">
+                    {% if inc.status == 'pending' %}
+                    <button class="btn-sm btn-warning" title="Mark Reviewed" onclick="updateStatus('{{ inc.id }}', 'reviewed')">
+                        <span class="material-icons-round">rate_review</span>
+                    </button>
+                    {% endif %}
+                    {% if inc.status == 'reviewed' %}
+                    <button class="btn-sm btn-success" title="Mark Resolved" onclick="updateStatus('{{ inc.id }}', 'resolved')">
+                        <span class="material-icons-round">check_circle</span>
+                    </button>
+                    {% endif %}
+                    <button class="btn-sm btn-outline-sm" title="View Details" onclick="viewIncident('{{ inc.id }}')">
+                        <span class="material-icons-round">visibility</span>
+                    </button>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="empty-state">
+                    <span class="material-icons-round">check_circle_outline</span>
+                    <p>No incidents reported</p>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Detail Modal -->
+<div class="modal-overlay" id="incident-modal" style="display:none">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3><span class="material-icons-round">info</span> Incident Details</h3>
+            <button class="btn-icon" onclick="closeIncidentModal()"><span class="material-icons-round">close</span></button>
+        </div>
+        <div class="modal-body" id="incident-detail-body">
+            <!-- Populated by JS -->
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeIncidentModal()">Close</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% load static %}
+<script>
+    const INCIDENTS_DATA = [
+        {% for inc in incidents %}
+        {
+            id: "{{ inc.id }}",
+            type: "{{ inc.type }}",
+            description: `{{ inc.description|escapejs }}`,
+            address: "{{ inc.address|default:'Unknown' }}",
+            latitude: {{ inc.latitude|default:"0" }},
+            longitude: {{ inc.longitude|default:"0" }},
+            touristName: "{{ inc.touristName|default:'Anonymous' }}",
+            touristNationality: "{{ inc.touristNationality|default:'' }}",
+            status: "{{ inc.status }}",
+            reportedAt: "{{ inc.reportedAt }}",
+            reportedBy: "{{ inc.reportedBy|default:'tourist' }}"
+        },
+        {% endfor %}
+    ];
+</script>
+<script src="{% static 'dashboard/js/incidents.js' %}"></script>
+{% endblock %}

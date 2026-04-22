@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Security Dashboard{% endblock %} — Pinnacle</title>
+    <meta name="description" content="Police Security Dashboard for Tourist Safety Monitoring & Incident Response">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+
+    <!-- Leaflet CSS (for map pages) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'dashboard/css/dashboard.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="app-shell">
+        <!-- ─── Sidebar ─── -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <span class="material-icons-round brand-icon">shield</span>
+                <div class="brand-text">
+                    <span class="brand-title">Pinnacle</span>
+                    <span class="brand-sub">Security Dashboard</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="{% url 'dashboard:map' %}" class="nav-item {% if active_tab == 'map' %}active{% endif %}" id="nav-map">
+                    <span class="material-icons-round">map</span>
+                    <span class="nav-label">Map View</span>
+                </a>
+                <a href="{% url 'dashboard:alerts' %}" class="nav-item {% if active_tab == 'alerts' %}active{% endif %}" id="nav-alerts">
+                    <span class="material-icons-round">warning_amber</span>
+                    <span class="nav-label">Alerts</span>
+                </a>
+                <a href="{% url 'dashboard:incidents' %}" class="nav-item {% if active_tab == 'incidents' %}active{% endif %}" id="nav-incidents">
+                    <span class="material-icons-round">report</span>
+                    <span class="nav-label">Incidents</span>
+                </a>
+                <a href="{% url 'dashboard:ai_config' %}" class="nav-item {% if active_tab == 'ai_config' %}active{% endif %}" id="nav-ai">
+                    <span class="material-icons-round">smart_toy</span>
+                    <span class="nav-label">AI Config</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="status-badge">
+                    <span class="status-dot"></span>
+                    <span>System Online</span>
+                </div>
+                <a href="{% url 'dashboard:logout' %}" class="nav-item logout-btn" id="nav-logout">
+                    <span class="material-icons-round">logout</span>
+                    <span class="nav-label">Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- ─── Main Content ─── -->
+        <main class="main-content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+
+    <script>
+        // CSRF token helper for AJAX POST requests
+        function getCookie(name) {
+            let val = null;
+            document.cookie.split(';').forEach(c => {
+                c = c.trim();
+                if (c.startsWith(name + '=')) val = decodeURIComponent(c.substring(name.length + 1));
+            });
+            return val;
+        }
+        const CSRF_TOKEN = getCookie('csrftoken');
+
+        async function apiPost(url, body = {}) {
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': CSRF_TOKEN,
+                },
+                body: JSON.stringify(body),
+            });
+            return res.json();
+        }
+
+        // Toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `<span class="material-icons-round">${type === 'success' ? 'check_circle' : 'error'}</span><span>${message}</span>`;
+            document.body.appendChild(toast);
+            requestAnimationFrame(() => toast.classList.add('show'));
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

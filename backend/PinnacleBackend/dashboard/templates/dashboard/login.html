@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — Pinnacle Security Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'dashboard/css/dashboard.css' %}">
+</head>
+<body class="login-body">
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <span class="material-icons-round login-icon">shield</span>
+                <h1>Pinnacle</h1>
+                <p>Security Police Dashboard</p>
+            </div>
+
+            {% if error %}
+            <div class="login-error">
+                <span class="material-icons-round">error_outline</span>
+                <span>{{ error }}</span>
+            </div>
+            {% endif %}
+
+            <form method="post" class="login-form" id="login-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="access_code">Access Code</label>
+                    <div class="input-wrapper">
+                        <span class="material-icons-round input-icon">lock</span>
+                        <input type="password" name="access_code" id="access_code"
+                               placeholder="Enter access code" autocomplete="off" required autofocus>
+                    </div>
+                </div>
+                <button type="submit" class="login-btn" id="login-btn">
+                    <span class="material-icons-round">login</span>
+                    <span>Access Dashboard</span>
+                </button>
+            </form>
+
+            <div class="login-footer">
+                <span class="material-icons-round">info</span>
+                <span>Authorized personnel only</span>
+            </div>
+        </div>
+
+        <div class="login-bg-effects">
+            <div class="orb orb-1"></div>
+            <div class="orb orb-2"></div>
+            <div class="orb orb-3"></div>
+        </div>
+    </div>
+</body>
+</html>

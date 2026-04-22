@@ -1,0 +1,79 @@
+{% extends "dashboard/base.html" %}
+{% block title %}AI Configuration{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <span class="material-icons-round">smart_toy</span>
+        AI Chatbot Configuration
+    </h1>
+    <div class="header-actions">
+        <button class="btn btn-primary" id="btn-save-ai" onclick="saveInstructions()">
+            <span class="material-icons-round">save</span>
+            Save Instructions
+        </button>
+    </div>
+</div>
+
+<div class="ai-layout">
+    <!-- Base Prompt (read-only) -->
+    <div class="data-card ai-card">
+        <div class="card-header">
+            <h3>
+                <span class="material-icons-round">code</span>
+                Base System Prompt
+            </h3>
+            <span class="badge badge-info">Read Only</span>
+        </div>
+        <div class="card-body">
+            <p class="card-subtitle">This is the core instruction set hardcoded into the Flutter app. It cannot be modified from the dashboard.</p>
+            <pre class="code-block" id="base-prompt">{{ base_prompt }}</pre>
+        </div>
+    </div>
+
+    <!-- Custom Instructions (editable) -->
+    <div class="data-card ai-card">
+        <div class="card-header">
+            <h3>
+                <span class="material-icons-round">edit_note</span>
+                Custom Instructions
+            </h3>
+            <span class="badge badge-warning">Editable</span>
+        </div>
+        <div class="card-body">
+            <p class="card-subtitle">These instructions are appended to the base prompt. Changes take effect when a user starts a new chatbot session in the app.</p>
+            <textarea class="code-editor" id="custom-instructions" rows="16" placeholder="Add custom instructions here...&#10;&#10;Example:&#10;- Warn tourists about ongoing metro construction near Andheri station&#10;- There is a festival at Gateway of India, expect large crowds&#10;- Recommend avoiding Dharavi area after 10 PM this week">{{ custom_instructions }}</textarea>
+            <div class="editor-footer">
+                <span class="material-icons-round">info</span>
+                <span>These instructions are stored in Firestore and fetched by the app's GeminiChatService on initialization.</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    async function saveInstructions() {
+        const btn = document.getElementById('btn-save-ai');
+        const instructions = document.getElementById('custom-instructions').value;
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="material-icons-round spin">sync</span> Saving...';
+
+        try {
+            const res = await apiPost('/dashboard/api/ai-config/save/', { instructions });
+            if (res.status === 'ok') {
+                showToast('Instructions saved successfully');
+            } else {
+                showToast(res.error || 'Failed to save', 'error');
+            }
+        } catch (e) {
+            showToast('Network error', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<span class="material-icons-round">save</span> Save Instructions';
+        }
+    }
+</script>
+{% endblock %}
