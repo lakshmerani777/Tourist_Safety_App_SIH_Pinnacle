@@ -210,7 +210,7 @@ def create_sos_incident(tourist_name, tourist_nationality, latitude, longitude, 
 
 
 # ════════════════════════════════════════════════════════════════
-# TOURIST LOCATIONS
+# TOURIST LOCATIONS & ANOMALY DETECTION
 # ════════════════════════════════════════════════════════════════
 
 def update_tourist_location(session_id, name, nationality, latitude, longitude):
@@ -231,11 +231,49 @@ def remove_tourist_location(session_id):
 
 
 def get_tourist_locations():
-    """Return all active tourist location entries."""
+    """Return all tourist locations currently sharing."""
     docs = db.collection('tourist_locations').stream()
     locations = []
     for doc in docs:
         data = doc.to_dict()
         data['id'] = doc.id
+        if data.get('lastUpdated'):
+            data['lastUpdated'] = data['lastUpdated'].isoformat() if hasattr(data['lastUpdated'], 'isoformat') else str(data['lastUpdated'])
+        if data.get('lastMovedAt'):
+            data['lastMovedAt'] = data['lastMovedAt'].isoformat() if hasattr(data['lastMovedAt'], 'isoformat') else str(data['lastMovedAt'])
+        if data.get('anomalyFlaggedAt'):
+            data['anomalyFlaggedAt'] = data['anomalyFlaggedAt'].isoformat() if hasattr(data['anomalyFlaggedAt'], 'isoformat') else str(data['anomalyFlaggedAt'])
         locations.append(data)
     return locations
+
+
+def get_anomaly_locations():
+    """Return tourist locations with anomaly_flagged status."""
+    docs = db.collection('tourist_locations').where(
+        'status', '==', 'anomaly_flagged'
+    ).stream()
+    anomalies = []
+    for doc in docs:
+        data = doc.to_dict()
+        data['id'] = doc.id
+        if data.get('lastUpdated'):
+            data['lastUpdated'] = data['lastUpdated'].isoformat() if hasattr(data['lastUpdated'], 'isoformat') else str(data['lastUpdated'])
+        if data.get('anomalyFlaggedAt'):
+            data['anomalyFlaggedAt'] = data['anomalyFlaggedAt'].isoformat() if hasattr(data['anomalyFlaggedAt'], 'isoformat') else str(data['anomalyFlaggedAt'])
+        anomalies.append(data)
+    return anomalies
+
+
+def get_anomaly_count():
+    """Return the count of anomaly-flagged tourist locations."""
+    docs = db.collection('tourist_locations').where(
+        'status', '==', 'anomaly_flagged'
+    ).stream()
+    return sum(1 for _ in docs)
+
+
+def acknowledge_anomaly(session_id):
+    """Acknowledge an anomaly flag on a tourist location."""
+    db.collection('tourist_locations').document(session_id).update({
+        'status': 'acknowledged',
+    })

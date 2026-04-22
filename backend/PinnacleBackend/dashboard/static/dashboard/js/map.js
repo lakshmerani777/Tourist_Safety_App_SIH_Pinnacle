@@ -10,6 +10,10 @@ let drawControl;
 let drawnPolygon = null;
 let isDrawingMode = false;
 
+// ─── Tourist & Anomaly State ───
+let touristsLayer;
+let anomalyPollInterval;
+
 const severityColors = {
     HIGH: '#ef4444',
     MEDIUM: '#f59e0b',
@@ -31,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     zonesLayer = L.featureGroup().addTo(map);
     drawingLayer = L.featureGroup().addTo(map);
+    touristsLayer = L.featureGroup().addTo(map);
 
     // Initialize Leaflet.Draw
     drawControl = new L.Control.Draw({
@@ -70,8 +75,14 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('zone-modal').style.display = 'flex';
     });
 
-    // Load zones
+    // Load initial data
     renderZones(ZONES_DATA);
+    if (typeof TOURIST_LOCATIONS_DATA !== 'undefined') {
+        renderTourists(TOURIST_LOCATIONS_DATA);
+    }
+    
+    // Start polling for anomalies every 30s
+    startAnomalyPolling();
 });
 
 // ─── Zone Rendering ───
@@ -130,6 +141,143 @@ function renderZones(zones) {
         `;
         listEl.appendChild(card);
     });
+}
+
+// ─── Tourist & Anomaly Rendering ───
+
+function renderTourists(tourists) {
+    if (!touristsLayer) return;
+    touristsLayer.clearLayers();
+    
+    const listEl = document.getElementById('anomaly-list');
+    const msgEl = document.getElementById('no-tourists-msg');
+    const countEl = document.getElementById('tourist-count');
+    const bannerEl = document.getElementById('anomaly-banner');
+    const bannerTextEl = document.getElementById('anomaly-banner-text');
+    const badgeEl = document.getElementById('nav-anomaly-badge');
+    
+    // Clean list but keep empty msg
+    Array.from(listEl.children).forEach(child => {
+        if (child.id !== 'no-tourists-msg') child.remove();
+    });
+    
+    countEl.textContent = tourists.length;
+    if (tourists.length === 0) {
+        if (msgEl) msgEl.style.display = 'block';
+    } else {
+        if (msgEl) msgEl.style.display = 'none';
+    }
+
+    let anomalyCount = 0;
+
+    tourists.forEach(t => {
+        const isAnomaly = t.status === 'anomaly_flagged';
+        if (isAnomaly) anomalyCount++;
+
+        // Draw marker
+        const latlng = [t.latitude, t.longitude];
+        
+        // Custom HTML marker
+        const markerHtml = `<div class="tourist-marker ${isAnomaly ? 'anomaly' : ''}" style="width:100%;height:100%;"></div>`;
+        const icon = L.divIcon({
+            html: markerHtml,
+            className: '',
+            iconSize: isAnomaly ? [24, 24] : [16, 16],
+            iconAnchor: isAnomaly ? [12, 12] : [8, 8],
+        });
+
+        const marker = L.marker(latlng, { icon }).addTo(touristsLayer);
+        
+        let tooltipContent = `<b>${t.name}</b><br>Last seen: ${new Date(t.lastUpdated).toLocaleTimeString()}`;
+        if (isAnomaly) {
+            tooltipContent += '<br><span style="color:var(--alert-red);font-weight:bold;">⚠️ Location Stopped</span>';
+        }
+        marker.bindTooltip(tooltipContent);
+
+        // Add to side panel
+        const card = document.createElement('div');
+        card.className = 'zone-card';
+        if (isAnomaly) card.style.borderColor = 'var(--alert-red)';
+        
+        let actionBtn = '';
+        if (isAnomaly) {
+            actionBtn = `
+                <button class="zone-btn-delete" onclick="acknowledgeAnomaly('${t.id}')" title="Acknowledge">
+                    <span class="material-icons-round">done_all</span>
+                </button>
+            `;
+        }
+
+        const dateStr = t.lastMovedAt ? new Date(t.lastMovedAt).toLocaleTimeString() : 'Unknown';
+        
+        card.innerHTML = `
+            <div class="zone-card-header">
+                <span class="zone-card-name">${t.name} ${t.nationality ? `(${t.nationality})` : ''}</span>
+                ${isAnomaly ? '<span class="severity-badge severity-high">Stale</span>' : '<span class="status-pill status-active">Active</span>'}
+            </div>
+            <div class="zone-card-desc">Last moved: ${dateStr}</div>
+            <div class="zone-card-actions">
+                <button class="zone-btn-focus" onclick="focusTourist(${t.latitude}, ${t.longitude})">
+                    <span class="material-icons-round">my_location</span>
+                </button>
+                ${actionBtn}
+            </div>
+        `;
+        listEl.appendChild(card);
+    });
+
+    // Update banner & badge
+    if (anomalyCount > 0) {
+        if (bannerEl) bannerEl.style.display = 'flex';
+        if (bannerTextEl) bannerTextEl.textContent = `${anomalyCount} tourist(s) have stopped sharing location`;
+        if (badgeEl) {
+            badgeEl.textContent = anomalyCount;
+            badgeEl.style.display = 'inline-flex';
+        }
+    } else {
+        if (bannerEl) bannerEl.style.display = 'none';
+        if (badgeEl) badgeEl.style.display = 'none';
+    }
+}
+
+function focusTourist(lat, lng) {
+    map.setView([lat, lng], 16);
+}
+
+function scrollToAnomalyPanel() {
+    const panel = document.getElementById('anomaly-panel-section');
+    if (panel) panel.scrollIntoView({ behavior: 'smooth' });
+}
+
+async function acknowledgeAnomaly(sessionId) {
+    try {
+        await apiPost(`/dashboard/api/anomalies/${sessionId}/acknowledge/`);
+        showToast('Anomaly acknowledged');
+        fetchAnomalies(); // refresh
+    } catch (e) {
+        showToast('Error acknowledging anomaly', 'error');
+    }
+}
+
+// ─── Polling ───
+
+function startAnomalyPolling() {
+    if (anomalyPollInterval) clearInterval(anomalyPollInterval);
+    anomalyPollInterval = setInterval(fetchAnomalies, 30000); // 30s
+}
+
+async function fetchAnomalies() {
+    try {
+        const resp = await fetch('/dashboard/api/anomalies/');
+        if (resp.ok) {
+            const data = await resp.json();
+            if (data.locations) {
+                renderTourists(data.locations);
+            }
+        }
+    } catch (e) {
+        console.error('Failed to fetch anomalies', e);
+    }
 }
 
 // ─── Drawing Controls ───

@@ -57,8 +57,12 @@ def logout_view(request):
 def map_view(request):
     """Interactive map with high-risk zone management."""
     zones = fs.get_unsafe_zones(active_only=False)
+    tourist_locations = fs.get_tourist_locations()
+    anomaly_count = fs.get_anomaly_count()
     return render(request, 'dashboard/map.html', {
         'zones_json': json.dumps(zones, default=str),
+        'tourist_locations_json': json.dumps(tourist_locations, default=str),
+        'anomaly_count': anomaly_count,
         'active_tab': 'map',
     })
 
@@ -218,6 +222,36 @@ def api_ai_config_save(request):
     try:
         data = json.loads(request.body)
         fs.update_chatbot_instructions(data['instructions'])
+        return JsonResponse({'status': 'ok'})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+# ════════════════════════════════════════════════════════════════
+# LOCATION ANOMALY ENDPOINTS
+# ════════════════════════════════════════════════════════════════
+
+@require_GET
+@dashboard_login_required
+def api_anomalies_json(request):
+    """API: Return current tourist locations + anomaly data as JSON (for polling)."""
+    try:
+        locations = fs.get_tourist_locations()
+        anomaly_count = fs.get_anomaly_count()
+        return JsonResponse({
+            'locations': locations,
+            'anomaly_count': anomaly_count,
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+@require_POST
+@dashboard_login_required
+def api_acknowledge_anomaly(request, session_id):
+    """API: Acknowledge a location anomaly."""
+    try:
+        fs.acknowledge_anomaly(session_id)
         return JsonResponse({'status': 'ok'})
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)

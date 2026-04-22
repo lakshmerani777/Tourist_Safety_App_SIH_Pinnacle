@@ -123,5 +123,25 @@ class FirestoreService {
     });
   }
 
+  // ════════════════════════════════════════════
+  // LOCATION ANOMALY DETECTION
+  // ════════════════════════════════════════════
+
+  /// Flag a tourist's location as anomalous (GPS stopped updating).
+  Future<void> flagLocationAnomaly(String sessionId) async {
+    await _touristLocations.doc(sessionId).update({
+      'status': 'anomaly_flagged',
+      'anomalyFlaggedAt': Timestamp.fromDate(DateTime.now()),
+    });
+  }
+
+  /// Clear anomaly flag when location resumes updating.
+  Future<void> clearLocationAnomaly(String sessionId) async {
+    await _touristLocations.doc(sessionId).update({
+      'status': 'active',
+      'anomalyFlaggedAt': null,
+    });
+  }
+
 
 }

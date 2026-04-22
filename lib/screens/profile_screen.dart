@@ -42,18 +42,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         children: [
           // Gradient hero header
           Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  const Color(0xFF0A1628),
-                  AppColors.accentBlue.withValues(alpha: 0.06),
-                  AppColors.background,
-                ],
-                stops: const [0.0, 0.65, 1.0],
-              ),
-            ),
+            color: AppColors.background,
             child: SafeArea(
               bottom: false,
               child: Padding(

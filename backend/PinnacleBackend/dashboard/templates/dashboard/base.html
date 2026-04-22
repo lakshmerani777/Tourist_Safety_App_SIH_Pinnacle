@@ -37,6 +37,7 @@
                 <a href="{% url 'dashboard:map' %}" class="nav-item {% if active_tab == 'map' %}active{% endif %}" id="nav-map">
                     <span class="material-icons-round">map</span>
                     <span class="nav-label">Map View</span>
+                    <span class="anomaly-badge" id="nav-anomaly-badge" style="display:none">0</span>
                 </a>
                 <a href="{% url 'dashboard:alerts' %}" class="nav-item {% if active_tab == 'alerts' %}active{% endif %}" id="nav-alerts">
                     <span class="material-icons-round">warning_amber</span>

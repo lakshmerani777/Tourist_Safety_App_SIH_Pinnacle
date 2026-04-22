@@ -28,4 +28,8 @@ urlpatterns = [
 
     # AI Config APIs
     path('api/ai-config/save/', views.api_ai_config_save, name='api_ai_config_save'),
+
+    # Location Anomaly APIs
+    path('api/anomalies/', views.api_anomalies_json, name='api_anomalies_json'),
+    path('api/anomalies/<str:session_id>/acknowledge/', views.api_acknowledge_anomaly, name='api_acknowledge_anomaly'),
 ]

@@ -153,18 +153,7 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
         children: [
           // Header
           Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  const Color(0xFF0A1628),
-                  AppColors.accentBlue.withValues(alpha: 0.05),
-                  AppColors.background,
-                ],
-                stops: const [0.0, 0.6, 1.0],
-              ),
-            ),
+            color: AppColors.background,
             child: SafeArea(
               bottom: false,
               child: Padding(
