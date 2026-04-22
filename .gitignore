@@ -54,3 +54,5 @@ android/gradle.properties
 
 # Test scripts that may contain secrets
 testgeimini.py
+# Firebase service account credentials
+firebase-service-account.json
