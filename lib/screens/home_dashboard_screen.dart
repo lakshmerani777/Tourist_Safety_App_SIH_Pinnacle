@@ -10,6 +10,9 @@ import '../core/router/app_router.dart';
 import '../widgets/chatbot_overlay.dart';
 import '../providers/location_provider.dart';
 import '../services/widget_service.dart';
+import '../providers/api_providers.dart';
+import '../providers/onboarding_provider.dart';
+import '../providers/user_profile_provider.dart';
 import '../l10n/app_localizations.dart';
 import 'location_sharing_sheet.dart';
 
@@ -32,6 +35,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(locationProvider).fetchCurrentLocation();
+      _fetchProfile();
     });
     _pulseController = AnimationController(
       vsync: this,
@@ -43,6 +47,19 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
 
     WidgetService.init(appRouter);
     WidgetService.updateSafetyStatus(isProtected: true);
+  }
+
+  Future<void> _fetchProfile() async {
+    try {
+      final profile = await ref.read(apiClientProvider).getProfile();
+      if (mounted) {
+        ref.read(onboardingProvider).loadProfile(profile);
+        final fullName = '${profile['first_name'] ?? ''} ${profile['last_name'] ?? ''}'.trim();
+        ref.read(userProfileProvider).setRegistered(fullName, profile['email'] ?? '');
+      }
+    } catch (_) {
+      // Silently fail if not logged in or network error
+    }
   }
 
   @override

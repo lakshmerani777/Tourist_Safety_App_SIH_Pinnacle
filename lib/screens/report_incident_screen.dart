@@ -3,6 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'dart:io';
+import '../providers/onboarding_provider.dart';
+import '../providers/user_profile_provider.dart';
+import '../providers/api_providers.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_typography.dart';
 import '../core/widgets/safety_button.dart';
@@ -73,7 +77,7 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
     }
   }
 
-  void _submitReport() {
+  Future<void> _submitReport() async {
     if (_selectedIncidentType == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -83,61 +87,101 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
       );
       return;
     }
-    final locationState = ref.read(locationProvider);
-    final incident = IncidentReport(
-      id: '',
-      type: _selectedIncidentType!,
-      description: _descController.text.trim(),
-      latitude: locationState.currentPosition.latitude,
-      longitude: locationState.currentPosition.longitude,
-      address: locationState.currentAddress,
-      reportedAt: DateTime(
-        _selectedDate.year, _selectedDate.month, _selectedDate.day,
-        _selectedTime.hour, _selectedTime.minute,
-      ),
-    );
-    _firestore.submitIncident(incident);
 
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppColors.card,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.success.withValues(alpha: 0.15),
-              ),
-              child: const Icon(Icons.check, color: AppColors.success, size: 34),
-            ),
-            const SizedBox(height: 20),
-            Text(AppLocalizations.of(context)?.reportSubmittedTitle ?? 'Report Submitted',
-                style: AppTypography.h2, textAlign: TextAlign.center),
-            const SizedBox(height: 10),
-            Text(
-              AppLocalizations.of(context)?.reportSubmittedMessage ??
-                  'Your report has been securely submitted to the local authorities.',
-              style: AppTypography.body.copyWith(color: AppColors.textSecondary, height: 1.5),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            SafetyButton(
-              text: AppLocalizations.of(context)?.returnToHome ?? 'Return to Home',
-              onPressed: () {
-                Navigator.pop(context);
-                context.go('/home');
-              },
-            ),
-          ],
+    final onboardingData = ref.read(onboardingProvider).data;
+    final userProfile = ref.read(userProfileProvider).profile;
+    
+    setState(() => _isRecording = true); 
+    
+    try {
+      final locationState = ref.read(locationProvider);
+      final sessionId = await ref.read(sessionStorageServiceProvider).getSessionId() ?? 'anonymous_tourist';
+      
+      String? mediaUrl;
+      if (_attachedMedia != null) {
+        final file = File(_attachedMedia!.path);
+        final path = 'incidents/${sessionId}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+        mediaUrl = await _firestore.uploadImage(file, path);
+      }
+
+      // Use onboarding data if available, fallback to user profile, then dummy data
+      String fullName = '${onboardingData.firstName} ${onboardingData.lastName}'.trim();
+      if (fullName.isEmpty) {
+        fullName = userProfile.fullName.isNotEmpty ? userProfile.fullName : 'Tourist User';
+      }
+      
+      final nationality = onboardingData.nationality?.name ?? 'India';
+
+      final incident = IncidentReport(
+        id: '',
+        type: _selectedIncidentType!,
+        description: _descController.text.trim(),
+        latitude: locationState.currentPosition.latitude,
+        longitude: locationState.currentPosition.longitude,
+        address: locationState.currentAddress.isNotEmpty ? locationState.currentAddress : 'Unknown Location',
+        reportedAt: DateTime(
+          _selectedDate.year, _selectedDate.month, _selectedDate.day,
+          _selectedTime.hour, _selectedTime.minute,
         ),
-      ),
-    );
+        touristName: fullName,
+        touristNationality: nationality,
+        reportedBy: sessionId,
+        mediaUrl: mediaUrl,
+        status: 'pending',
+      );
+
+      await _firestore.submitIncident(incident);
+
+      if (!mounted) return;
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          backgroundColor: AppColors.card,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.success.withValues(alpha: 0.15),
+                ),
+                child: const Icon(Icons.check, color: AppColors.success, size: 34),
+              ),
+              const SizedBox(height: 20),
+              Text(AppLocalizations.of(context)?.reportSubmittedTitle ?? 'Report Submitted',
+                  style: AppTypography.h2, textAlign: TextAlign.center),
+              const SizedBox(height: 10),
+              Text(
+                AppLocalizations.of(context)?.reportSubmittedMessage ??
+                    'Your report has been securely submitted to the local authorities.',
+                style: AppTypography.body.copyWith(color: AppColors.textSecondary, height: 1.5),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              SafetyButton(
+                text: AppLocalizations.of(context)?.returnToHome ?? 'Return to Home',
+                onPressed: () {
+                  Navigator.pop(context);
+                  context.go('/home');
+                },
+              ),
+            ],
+          ),
+        ),
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to submit report: $e'), backgroundColor: AppColors.alertRed),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isRecording = false);
+    }
   }
 
   @override

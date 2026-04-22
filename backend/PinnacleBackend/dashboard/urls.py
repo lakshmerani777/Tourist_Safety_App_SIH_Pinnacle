@@ -32,4 +32,7 @@ urlpatterns = [
     # Location Anomaly APIs
     path('api/anomalies/', views.api_anomalies_json, name='api_anomalies_json'),
     path('api/anomalies/<str:session_id>/acknowledge/', views.api_acknowledge_anomaly, name='api_acknowledge_anomaly'),
+
+    # Tourist Profile APIs
+    path('api/tourists/<str:user_id>/profile/', views.api_tourist_profile, name='api_tourist_profile'),
 ]

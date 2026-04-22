@@ -1,11 +1,13 @@
-import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'dart:io';
 import '../models/firestore_models.dart';
 
 /// Central service for all Firestore reads/writes used by both
 /// the tourist app and the police dashboard.
 class FirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
 
   // ─── Collection References ───
   CollectionReference get _zones => _db.collection('unsafe_zones');
@@ -13,6 +15,13 @@ class FirestoreService {
   CollectionReference get _alerts => _db.collection('alerts');
   CollectionReference get _touristLocations => _db.collection('tourist_locations');
   CollectionReference get _chatbotConfig => _db.collection('chatbot_config');
+
+  /// Upload an image to Firebase Storage and return the download URL.
+  Future<String> uploadImage(File file, String path) async {
+    final ref = _storage.ref().child(path);
+    final uploadTask = await ref.putFile(file);
+    return await uploadTask.ref.getDownloadURL();
+  }
 
   // ════════════════════════════════════════════
   // UNSAFE ZONES

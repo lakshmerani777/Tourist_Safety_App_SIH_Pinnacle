@@ -7,6 +7,7 @@ both the dashboard and the app operate on identical data structures.
 import os
 from datetime import datetime, timezone
 
+import json
 import firebase_admin
 from firebase_admin import credentials, firestore
 
@@ -15,7 +16,16 @@ _BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _CRED_PATH = os.path.join(_BASE_DIR, 'firebase-service-account.json')
 
 if not firebase_admin._apps:
-    if os.path.exists(_CRED_PATH):
+    # Try environment variable first (for Vercel/Production)
+    cred_json = os.environ.get('FIREBASE_SERVICE_ACCOUNT_JSON')
+    if cred_json:
+        try:
+            cred_dict = json.loads(cred_json)
+            cred = credentials.Certificate(cred_dict)
+            firebase_admin.initialize_app(cred)
+        except Exception:
+            firebase_admin.initialize_app()
+    elif os.path.exists(_CRED_PATH):
         cred = credentials.Certificate(_CRED_PATH)
         firebase_admin.initialize_app(cred)
     else:

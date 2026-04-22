@@ -96,6 +96,42 @@ class OnboardingData {
     'alerts_consent': alertsConsent,
   };
 
+  void updateFromMap(Map<String, dynamic> data) {
+    if (data['first_name'] != null) firstName = data['first_name'];
+    if (data['last_name'] != null) lastName = data['last_name'];
+    if (data['phone_number'] != null) phoneNumber = data['phone_number'];
+    if (data['phone_code'] != null) phoneCode = data['phone_code'];
+    if (data['nationality'] != null) {
+      // Nationality might need proper Country object, but name is enough for display
+    }
+    if (data['passport_number'] != null) passportNumber = data['passport_number'];
+    if (data['purpose_of_visit'] != null) purposeOfVisit = data['purpose_of_visit'];
+    if (data['places_to_visit'] != null) placesToVisit = data['places_to_visit'];
+    if (data['full_address'] != null) fullAddress = data['full_address'];
+    if (data['property_name'] != null) propertyName = data['property_name'];
+    if (data['blood_type'] != null) bloodType = data['blood_type'];
+    if (data['insurance_policy_number'] != null) insurancePolicyNumber = data['insurance_policy_number'];
+    if (data['contact1_name'] != null) contact1Name = data['contact1_name'];
+    if (data['contact1_phone'] != null) contact1Phone = data['contact1_phone'];
+    if (data['contact2_name'] != null) contact2Name = data['contact2_name'];
+    if (data['contact2_phone'] != null) contact2Phone = data['contact2_phone'];
+    
+    // Dates
+    if (data['date_of_birth'] != null) dateOfBirth = DateTime.tryParse(data['date_of_birth']);
+    if (data['passport_expiry'] != null) passportExpiry = DateTime.tryParse(data['passport_expiry']);
+    if (data['arrival_date'] != null) arrivalDate = DateTime.tryParse(data['arrival_date']);
+    if (data['departure_date'] != null) departureDate = DateTime.tryParse(data['departure_date']);
+
+    // Booleans
+    if (data['has_allergies'] != null) hasAllergies = data['has_allergies'] == true;
+    if (data['has_chronic_conditions'] != null) hasChronicConditions = data['has_chronic_conditions'] == true;
+    if (data['takes_regular_medication'] != null) takesRegularMedication = data['takes_regular_medication'] == true;
+    
+    if (data['allergy_details'] != null) allergyDetails = data['allergy_details'];
+    if (data['condition_details'] != null) conditionDetails = data['condition_details'];
+    if (data['medication_details'] != null) medicationDetails = data['medication_details'];
+  }
+
   OnboardingData({
     this.phoneNumber = '',
     this.phoneCode = '91',
@@ -145,6 +181,11 @@ class OnboardingNotifier extends ChangeNotifier {
 
   OnboardingData get data => _data;
   int get currentStep => _currentStep;
+
+  void loadProfile(Map<String, dynamic> profileJson) {
+    _data.updateFromMap(profileJson);
+    notifyListeners();
+  }
 
   void setStep(int step) {
     _currentStep = step;

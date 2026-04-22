@@ -257,6 +257,20 @@ def api_acknowledge_anomaly(request, session_id):
         return JsonResponse({'error': str(e)}, status=400)
 
 
+@require_GET
+@dashboard_login_required
+def api_tourist_profile(request, user_id):
+    """API: Get tourist profile details."""
+    try:
+        profile = fs.get_tourist_profile(user_id)
+        if profile:
+            return JsonResponse({'status': 'ok', 'profile': profile})
+        else:
+            return JsonResponse({'error': 'Profile not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
 # ─── Helpers ─────────────────────────────────────────────────────
 
 def _get_base_prompt():
