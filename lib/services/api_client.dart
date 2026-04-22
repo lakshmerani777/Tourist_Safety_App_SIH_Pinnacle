@@ -98,6 +98,66 @@ class ApiClient {
     throw ApiException(message, response.statusCode);
   }
 
+  /// POST /api/auth/logout/ — invalidates the current session.
+  Future<void> logout() async {
+    final uri = Uri.parse('$baseUrl/api/auth/logout/');
+    await http.post(uri, headers: await _headers());
+    await _sessionStorage.clearSessionId();
+  }
+
+  /// GET /api/auth/me/ — returns the current user info.
+  Future<Map<String, dynamic>> getProfile() async {
+    final uri = Uri.parse('$baseUrl/api/auth/me/');
+    final response = await http.get(uri, headers: await _headers());
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return jsonDecode(response.body) as Map<String, dynamic>;
+    }
+    throw ApiException('Failed to load profile.', response.statusCode);
+  }
+
+  /// POST /api/onboarding/ — saves tourist profile data to the backend.
+  Future<void> submitOnboarding(Map<String, dynamic> data) async {
+    final uri = Uri.parse('$baseUrl/api/onboarding/');
+    final response = await http.post(
+      uri,
+      headers: await _headers(),
+      body: jsonEncode(data),
+    );
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      String message = 'Failed to save profile.';
+      try {
+        final body = jsonDecode(response.body) as Map<String, dynamic>;
+        if (body['error'] != null) message = body['error'] as String;
+      } catch (_) {}
+      throw ApiException(message, response.statusCode);
+    }
+  }
+
+  /// POST /api/sos/ — triggers an SOS alert.
+  Future<void> triggerSOS({
+    required double latitude,
+    required double longitude,
+    required String address,
+    required String touristName,
+    String nationality = '',
+  }) async {
+    final uri = Uri.parse('$baseUrl/api/sos/');
+    final response = await http.post(
+      uri,
+      headers: await _headers(),
+      body: jsonEncode({
+        'latitude': latitude,
+        'longitude': longitude,
+        'address': address,
+        'tourist_name': touristName,
+        'nationality': nationality,
+      }),
+    );
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw ApiException('SOS trigger failed.', response.statusCode);
+    }
+  }
+
   /// POST /api/auth/signin/ with email, password.
   /// Returns [RegisterResponse] (session_id + user) on success; throws [ApiException] on 4xx/5xx.
   Future<RegisterResponse> signIn({

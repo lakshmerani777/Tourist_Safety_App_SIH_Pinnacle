@@ -12,6 +12,7 @@ import '../core/widgets/date_card.dart';
 import '../core/widgets/country_select.dart';
 import '../core/widgets/phone_input.dart';
 import '../providers/onboarding_provider.dart';
+import '../providers/api_providers.dart';
 import '../core/widgets/language_switcher.dart';
 import '../l10n/app_localizations.dart';
 
@@ -387,7 +388,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     text: AppLocalizations.of(context)?.signOutBtn ?? 'Sign Out',
                     icon: Icons.logout,
                     variant: SafetyButtonVariant.outlined,
-                    onPressed: () => context.go('/splash'),
+                    onPressed: () async {
+                      try {
+                        await ref.read(apiClientProvider).logout();
+                      } catch (_) {}
+                      if (context.mounted) context.go('/splash');
+                    },
                   ),
                   const SizedBox(height: 12),
                   SafetyButton(
@@ -414,9 +420,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               child: Text('Cancel', style: AppTypography.body.copyWith(color: AppColors.accentBlue, fontWeight: FontWeight.w600)),
                             ),
                             TextButton(
-                              onPressed: () {
+                              onPressed: () async {
                                 Navigator.pop(context);
-                                context.go('/splash');
+                                try {
+                                  await ref.read(apiClientProvider).logout();
+                                } catch (_) {}
+                                if (context.mounted) context.go('/splash');
                               },
                               child: Text('Delete', style: AppTypography.body.copyWith(color: AppColors.alertRed, fontWeight: FontWeight.w600)),
                             ),

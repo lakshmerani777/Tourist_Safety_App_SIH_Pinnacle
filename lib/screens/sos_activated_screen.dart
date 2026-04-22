@@ -6,6 +6,9 @@ import '../core/theme/app_typography.dart';
 import '../core/widgets/safety_card.dart';
 import '../core/widgets/safety_button.dart';
 import '../providers/sos_provider.dart';
+import '../providers/api_providers.dart';
+import '../providers/onboarding_provider.dart';
+import '../providers/location_provider.dart';
 import '../l10n/app_localizations.dart';
 
 class SOSActivatedScreen extends ConsumerStatefulWidget {
@@ -20,6 +23,7 @@ class _SOSActivatedScreenState extends ConsumerState<SOSActivatedScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _pulseController;
   late Animation<double> _pulseAnim;
+  bool _sosSent = false;
 
   @override
   void initState() {
@@ -32,10 +36,37 @@ class _SOSActivatedScreenState extends ConsumerState<SOSActivatedScreen>
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
 
-    // Activate SOS
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(sosProvider).activateSOS();
     });
+  }
+
+  void _maybeTriggerSOS(int countdown) {
+    if (countdown == 0 && !_sosSent) {
+      _sosSent = true;
+      _sendSOSToBackend();
+    }
+  }
+
+  Future<void> _sendSOSToBackend() async {
+    final location = ref.read(locationProvider);
+    final profile = ref.read(onboardingProvider).data;
+    final name = profile.firstName.isNotEmpty
+        ? '${profile.firstName} ${profile.lastName}'.trim()
+        : 'Tourist';
+    final nationality = profile.nationality?.name ?? '';
+
+    try {
+      await ref.read(apiClientProvider).triggerSOS(
+        latitude: location.currentPosition.latitude,
+        longitude: location.currentPosition.longitude,
+        address: location.currentAddress,
+        touristName: name,
+        nationality: nationality,
+      );
+    } catch (_) {
+      // SOS is best-effort via API; Firestore already records via FirestoreService.
+    }
   }
 
   @override
@@ -78,6 +109,7 @@ class _SOSActivatedScreenState extends ConsumerState<SOSActivatedScreen>
   @override
   Widget build(BuildContext context) {
     final sos = ref.watch(sosProvider);
+    _maybeTriggerSOS(sos.countdown);
 
     return Scaffold(
       backgroundColor: AppColors.background,

@@ -165,3 +165,77 @@ def update_chatbot_instructions(instructions):
         'customInstructions': instructions,
         'updatedAt': firestore.SERVER_TIMESTAMP,
     })
+
+
+# ════════════════════════════════════════════════════════════════
+# TOURIST PROFILES
+# ════════════════════════════════════════════════════════════════
+
+def save_tourist_profile(user_id, profile_data):
+    """Save or update a tourist's onboarding profile in Firestore."""
+    profile_data['updatedAt'] = firestore.SERVER_TIMESTAMP
+    db.collection('tourist_profiles').document(str(user_id)).set(profile_data, merge=True)
+
+
+def get_tourist_profile(user_id):
+    """Return tourist profile dict or None if not found."""
+    doc = db.collection('tourist_profiles').document(str(user_id)).get()
+    if doc.exists:
+        data = doc.to_dict()
+        data['id'] = doc.id
+        return data
+    return None
+
+
+# ════════════════════════════════════════════════════════════════
+# SOS INCIDENTS
+# ════════════════════════════════════════════════════════════════
+
+def create_sos_incident(tourist_name, tourist_nationality, latitude, longitude, address, user_id=''):
+    """Create an SOS incident in the incidents collection and return its ID."""
+    _timestamp, doc_ref = db.collection('incidents').add({
+        'type': 'SOS',
+        'description': 'SOS Emergency Alert triggered by tourist',
+        'latitude': latitude,
+        'longitude': longitude,
+        'address': address,
+        'reportedAt': firestore.SERVER_TIMESTAMP,
+        'reportedBy': user_id or 'tourist',
+        'touristName': tourist_name,
+        'touristNationality': tourist_nationality,
+        'status': 'pending',
+        'isSOS': True,
+    })
+    return doc_ref.id
+
+
+# ════════════════════════════════════════════════════════════════
+# TOURIST LOCATIONS
+# ════════════════════════════════════════════════════════════════
+
+def update_tourist_location(session_id, name, nationality, latitude, longitude):
+    """Upsert a tourist's live location."""
+    db.collection('tourist_locations').document(session_id).set({
+        'id': session_id,
+        'name': name,
+        'nationality': nationality,
+        'latitude': latitude,
+        'longitude': longitude,
+        'lastUpdated': firestore.SERVER_TIMESTAMP,
+    }, merge=True)
+
+
+def remove_tourist_location(session_id):
+    """Remove a tourist's live location entry."""
+    db.collection('tourist_locations').document(session_id).delete()
+
+
+def get_tourist_locations():
+    """Return all active tourist location entries."""
+    docs = db.collection('tourist_locations').stream()
+    locations = []
+    for doc in docs:
+        data = doc.to_dict()
+        data['id'] = doc.id
+        locations.append(data)
+    return locations

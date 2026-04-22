@@ -32,7 +32,9 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     '10.0.2.2',
     'pleuropneumonic-mai-soapily.ngrok-free.dev',
-    '.ngrok-free.dev',  # any ngrok tunnel subdomain
+    'warm-leopard-uniquely.ngrok-free.app',
+    '.ngrok-free.dev',
+    '.ngrok-free.app',
 ]
 
 

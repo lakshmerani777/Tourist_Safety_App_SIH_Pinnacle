@@ -1,11 +1,17 @@
 import re
 from django.conf import settings
 from django.contrib.auth import authenticate, get_user_model, login
+from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 from rest_framework import status
 from rest_framework.views import APIView
+from dashboard.firebase_admin_service import (
+    save_tourist_profile,
+    get_tourist_profile,
+    create_sos_incident,
+)
 
 User = get_user_model()
 
@@ -185,3 +191,73 @@ class SignInView(APIView):
             },
             status=status.HTTP_200_OK,
         )
+
+
+class LogoutView(APIView):
+    """POST /api/auth/logout/ — invalidates the current session."""
+    authentication_classes = []
+    permission_classes = []
+
+    def post(self, request):
+        auth_logout(request)
+        return JsonResponse({'message': 'Logged out successfully.'})
+
+
+class ProfileView(APIView):
+    """GET /api/auth/me/ — returns the authenticated user + Firestore profile."""
+
+    def get(self, request):
+        if not request.user or not request.user.is_authenticated:
+            return JsonResponse({'error': 'Authentication required.'}, status=status.HTTP_401_UNAUTHORIZED)
+        user = request.user
+        profile = get_tourist_profile(str(user.id))
+        full_name = user.get_full_name() or user.first_name or ''
+        return JsonResponse({
+            'user': {
+                'id': user.id,
+                'full_name': full_name,
+                'email': user.email,
+            },
+            'profile': profile,
+        })
+
+
+class OnboardingView(APIView):
+    """POST /api/onboarding/ — saves tourist profile data to Firestore."""
+
+    def post(self, request):
+        if not request.user or not request.user.is_authenticated:
+            return JsonResponse({'error': 'Authentication required.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        data = request.data if hasattr(request, 'data') and request.data else {}
+        if not isinstance(data, dict):
+            data = {}
+
+        save_tourist_profile(str(request.user.id), dict(data))
+        return JsonResponse({'message': 'Profile saved successfully.'})
+
+
+class SOSView(APIView):
+    """POST /api/sos/ — creates an SOS incident in Firestore."""
+
+    def post(self, request):
+        if not request.user or not request.user.is_authenticated:
+            return JsonResponse({'error': 'Authentication required.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        data = request.data if hasattr(request, 'data') and request.data else {}
+        tourist_name = str(data.get('tourist_name') or request.user.first_name or 'Unknown')
+        tourist_nationality = str(data.get('nationality') or '')
+        latitude = float(data.get('latitude') or 0.0)
+        longitude = float(data.get('longitude') or 0.0)
+        address = str(data.get('address') or '')
+
+        incident_id = create_sos_incident(
+            tourist_name=tourist_name,
+            tourist_nationality=tourist_nationality,
+            latitude=latitude,
+            longitude=longitude,
+            address=address,
+            user_id=request.user.email,
+        )
+
+        return JsonResponse({'message': 'SOS alert triggered.', 'incident_id': incident_id})
