@@ -275,7 +275,7 @@ class _AlertCardState extends State<_AlertCard> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.alert.title,
+                            widget.alert.title.isNotEmpty ? widget.alert.title : 'Untitled Alert',
                             style: AppTypography.body.copyWith(fontWeight: FontWeight.w600, fontSize: 15),
                           ),
                           const SizedBox(height: 2),

@@ -28,15 +28,21 @@ class FirestoreService {
   // ════════════════════════════════════════════
 
   /// Stream all active unsafe zones in real time.
-  /// Uses client-side filtering to avoid needing a Firestore composite index.
+  /// All filtering and sorting done client-side to avoid Firestore index issues.
   Stream<List<UnsafeZone>> streamUnsafeZones() {
     return _zones
-        .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snap) => snap.docs
-            .map(UnsafeZone.fromFirestore)
-            .where((zone) => zone.isActive)
-            .toList());
+        .map((snap) {
+          final zones = <UnsafeZone>[];
+          for (final doc in snap.docs) {
+            try {
+              final zone = UnsafeZone.fromFirestore(doc);
+              if (zone.isActive) zones.add(zone);
+            } catch (_) {}
+          }
+          zones.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+          return zones;
+        });
   }
 
 
@@ -56,9 +62,17 @@ class FirestoreService {
   /// Stream all incidents in real time, newest first.
   Stream<List<IncidentReport>> streamIncidents() {
     return _incidents
-        .orderBy('reportedAt', descending: true)
         .snapshots()
-        .map((snap) => snap.docs.map(IncidentReport.fromFirestore).toList());
+        .map((snap) {
+          final incidents = <IncidentReport>[];
+          for (final doc in snap.docs) {
+            try {
+              incidents.add(IncidentReport.fromFirestore(doc));
+            } catch (_) {}
+          }
+          incidents.sort((a, b) => b.reportedAt.compareTo(a.reportedAt));
+          return incidents;
+        });
   }
 
   /// Submit a new incident report (tourist app).
@@ -72,24 +86,40 @@ class FirestoreService {
   // ════════════════════════════════════════════
 
   /// Stream all active alerts, newest first.
-  /// Uses client-side filtering to avoid needing a Firestore composite index.
+  /// All filtering and sorting done client-side to avoid Firestore index issues.
   Stream<List<SafetyAlert>> streamAlerts() {
     return _alerts
-        .orderBy('issuedAt', descending: true)
         .snapshots()
-        .map((snap) => snap.docs
-            .map(SafetyAlert.fromFirestore)
-            .where((alert) => alert.isActive)
-            .toList());
+        .map((snap) {
+          final alerts = <SafetyAlert>[];
+          for (final doc in snap.docs) {
+            try {
+              final alert = SafetyAlert.fromFirestore(doc);
+              if (alert.isActive) alerts.add(alert);
+            } catch (_) {
+              // Skip malformed documents
+            }
+          }
+          alerts.sort((a, b) => b.issuedAt.compareTo(a.issuedAt));
+          return alerts;
+        });
   }
 
 
   /// Stream ALL alerts (active and inactive), newest first.
   Stream<List<SafetyAlert>> streamAllAlerts() {
     return _alerts
-        .orderBy('issuedAt', descending: true)
         .snapshots()
-        .map((snap) => snap.docs.map(SafetyAlert.fromFirestore).toList());
+        .map((snap) {
+          final alerts = <SafetyAlert>[];
+          for (final doc in snap.docs) {
+            try {
+              alerts.add(SafetyAlert.fromFirestore(doc));
+            } catch (_) {}
+          }
+          alerts.sort((a, b) => b.issuedAt.compareTo(a.issuedAt));
+          return alerts;
+        });
   }
 
   // ════════════════════════════════════════════
