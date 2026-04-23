@@ -10,7 +10,12 @@ import '../core/router/app_router.dart';
 import '../widgets/chatbot_overlay.dart';
 import '../providers/location_provider.dart';
 import '../services/widget_service.dart';
+import '../providers/api_providers.dart';
+import '../providers/onboarding_provider.dart';
+import '../providers/user_profile_provider.dart';
 import '../l10n/app_localizations.dart';
+import '../services/firestore_service.dart';
+import '../models/firestore_models.dart';
 import 'location_sharing_sheet.dart';
 
 class HomeDashboardScreen extends ConsumerStatefulWidget {
@@ -32,6 +37,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(locationProvider).fetchCurrentLocation();
+      _fetchProfile();
     });
     _pulseController = AnimationController(
       vsync: this,
@@ -43,6 +49,19 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
 
     WidgetService.init(appRouter);
     WidgetService.updateSafetyStatus(isProtected: true);
+  }
+
+  Future<void> _fetchProfile() async {
+    try {
+      final profile = await ref.read(apiClientProvider).getProfile();
+      if (mounted) {
+        ref.read(onboardingProvider).loadProfile(profile);
+        final fullName = '${profile['first_name'] ?? ''} ${profile['last_name'] ?? ''}'.trim();
+        ref.read(userProfileProvider).setRegistered(fullName, profile['email'] ?? '');
+      }
+    } catch (_) {
+      // Silently fail if not logged in or network error
+    }
   }
 
   @override
@@ -455,25 +474,64 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
             ],
           ),
           const SizedBox(height: 14),
-          _AlertItem(
-            title: 'Weather Advisory',
-            subtitle: 'Heavy rainfall expected in your area',
-            badge: const StatusBadge(label: 'Warning', type: BadgeType.warning),
-            time: '2 hours ago',
-          ),
-          const SizedBox(height: 12),
-          _AlertItem(
-            title: 'Travel Update',
-            subtitle: 'Road closure on NH-44 near Jaipur',
-            badge: const StatusBadge(label: 'Alert', type: BadgeType.alert),
-            time: '5 hours ago',
-          ),
-          const SizedBox(height: 12),
-          _AlertItem(
-            title: 'Safety Check',
-            subtitle: 'Routine safety check completed',
-            badge: const StatusBadge(label: 'Active', type: BadgeType.active),
-            time: '1 day ago',
+          StreamBuilder<List<SafetyAlert>>(
+            stream: FirestoreService().streamAlerts(),
+            builder: (context, snap) {
+              if (snap.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(16),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppColors.accentBlue,
+                    ),
+                  ),
+                );
+              }
+              final alerts = snap.data ?? [];
+              if (alerts.isEmpty) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: Center(
+                    child: Text(
+                      'No active alerts — you\'re all clear!',
+                      style: AppTypography.caption,
+                    ),
+                  ),
+                );
+              }
+              // Show up to 3 most recent alerts
+              final displayAlerts = alerts.take(3).toList();
+              return Column(
+                children: displayAlerts.map((alert) {
+                  final diff = DateTime.now().difference(alert.issuedAt);
+                  String timeText;
+                  if (diff.inMinutes < 60) {
+                    timeText = '${diff.inMinutes}m ago';
+                  } else if (diff.inHours < 24) {
+                    timeText = '${diff.inHours}h ago';
+                  } else {
+                    timeText = '${diff.inDays}d ago';
+                  }
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: _AlertItem(
+                      title: alert.title,
+                      subtitle: alert.description,
+                      badge: StatusBadge(
+                        label: alert.severity,
+                        type: alert.severity == 'HIGH'
+                            ? BadgeType.alert
+                            : alert.severity == 'MEDIUM'
+                                ? BadgeType.warning
+                                : BadgeType.active,
+                      ),
+                      time: timeText,
+                    ),
+                  );
+                }).toList(),
+              );
+            },
           ),
           const SizedBox(height: 24),
         ],

@@ -1,0 +1,146 @@
+{% extends "dashboard/base.html" %}
+{% block title %}SOS Calls{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <span class="material-icons-round" style="color:var(--alert-red)">sos</span>
+        SOS Emergency Calls
+    </h1>
+    <div class="header-actions">
+        <button class="btn btn-outline" onclick="refreshSOS()">
+            <span class="material-icons-round">refresh</span>
+            Refresh
+        </button>
+    </div>
+</div>
+
+<!-- Stats Row -->
+<div class="sos-stats-row">
+    <div class="sos-stat-card sos-stat-total">
+        <span class="material-icons-round">sos</span>
+        <div>
+            <span class="sos-stat-num" id="stat-total">{{ sos_incidents|length }}</span>
+            <span class="sos-stat-label">Total SOS Calls</span>
+        </div>
+    </div>
+    <div class="sos-stat-card sos-stat-pending">
+        <span class="material-icons-round">hourglass_empty</span>
+        <div>
+            <span class="sos-stat-num" id="stat-pending">0</span>
+            <span class="sos-stat-label">Pending</span>
+        </div>
+    </div>
+    <div class="sos-stat-card sos-stat-responding">
+        <span class="material-icons-round">phone_in_talk</span>
+        <div>
+            <span class="sos-stat-num" id="stat-responding">0</span>
+            <span class="sos-stat-label">Responding</span>
+        </div>
+    </div>
+    <div class="sos-stat-card sos-stat-resolved">
+        <span class="material-icons-round">check_circle</span>
+        <div>
+            <span class="sos-stat-num" id="stat-resolved">0</span>
+            <span class="sos-stat-label">Resolved</span>
+        </div>
+    </div>
+</div>
+
+<!-- SOS List -->
+<div class="sos-list" id="sos-list">
+    {% if sos_incidents %}
+        {% for sos in sos_incidents %}
+        <div class="sos-card {% if sos.status == 'pending' %}sos-card-pending{% elif sos.status == 'responding' %}sos-card-responding{% else %}sos-card-resolved{% endif %}" data-id="{{ sos.id }}">
+            <div class="sos-card-left">
+                <div class="sos-card-icon">
+                    <span class="material-icons-round">{% if sos.status == 'resolved' %}check_circle{% elif sos.status == 'responding' %}phone_in_talk{% else %}warning{% endif %}</span>
+                </div>
+            </div>
+            <div class="sos-card-body">
+                <div class="sos-card-top">
+                    <h3>{{ sos.touristName|default:"Unknown Tourist" }}</h3>
+                    {% if sos.touristNationality %}
+                    <span class="sos-tag">{{ sos.touristNationality }}</span>
+                    {% endif %}
+                    <span class="severity-badge severity-{% if sos.status == 'pending' %}high{% elif sos.status == 'responding' %}medium{% else %}low{% endif %}">
+                        {{ sos.status|default:"pending"|upper }}
+                    </span>
+                </div>
+                <div class="sos-card-details">
+                    <div class="sos-detail-row">
+                        <span class="material-icons-round">location_on</span>
+                        <span>{{ sos.address|default:"Location not available" }}</span>
+                    </div>
+                    <div class="sos-detail-row">
+                        <span class="material-icons-round">schedule</span>
+                        <span>{{ sos.reportedAt|default:"Unknown time" }}</span>
+                    </div>
+                    {% if sos.latitude and sos.longitude %}
+                    <div class="sos-detail-row">
+                        <span class="material-icons-round">map</span>
+                        <a href="https://www.google.com/maps?q={{ sos.latitude }},{{ sos.longitude }}" target="_blank" class="sos-map-link">
+                            Open in Google Maps →
+                        </a>
+                    </div>
+                    {% endif %}
+                    <div class="sos-detail-row">
+                        <span class="material-icons-round">person</span>
+                        <span>Reported by: {{ sos.reportedBy|default:"tourist" }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="sos-card-actions">
+                {% if sos.status != 'responding' and sos.status != 'resolved' %}
+                <button class="btn btn-sm btn-danger" onclick="updateSOSStatus('{{ sos.id }}', 'responding')">
+                    <span class="material-icons-round">phone_in_talk</span> Respond
+                </button>
+                {% endif %}
+                {% if sos.status != 'resolved' %}
+                <button class="btn btn-sm btn-outline" onclick="updateSOSStatus('{{ sos.id }}', 'resolved')">
+                    <span class="material-icons-round">check_circle</span> Resolve
+                </button>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="sos-empty">
+            <span class="material-icons-round">verified_user</span>
+            <h3>No SOS Calls</h3>
+            <p>No emergency SOS calls have been received. All tourists are safe.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const SOS_DATA = {{ sos_json|safe }};
+    
+    // Update stats on load
+    function updateStats() {
+        const pending = SOS_DATA.filter(s => (s.status || 'pending') === 'pending').length;
+        const responding = SOS_DATA.filter(s => s.status === 'responding').length;
+        const resolved = SOS_DATA.filter(s => s.status === 'resolved').length;
+        document.getElementById('stat-pending').textContent = pending;
+        document.getElementById('stat-responding').textContent = responding;
+        document.getElementById('stat-resolved').textContent = resolved;
+    }
+    updateStats();
+
+    async function updateSOSStatus(id, status) {
+        try {
+            await apiPost(`/dashboard/api/sos/${id}/status/`, { status });
+            showToast(`SOS marked as ${status}`);
+            setTimeout(() => location.reload(), 500);
+        } catch(e) {
+            showToast('Error updating SOS status', 'error');
+        }
+    }
+
+    function refreshSOS() {
+        location.reload();
+    }
+</script>
+{% endblock %}

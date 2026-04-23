@@ -57,8 +57,12 @@ def logout_view(request):
 def map_view(request):
     """Interactive map with high-risk zone management."""
     zones = fs.get_unsafe_zones(active_only=False)
+    tourist_locations = fs.get_tourist_locations()
+    anomaly_count = fs.get_anomaly_count()
     return render(request, 'dashboard/map.html', {
         'zones_json': json.dumps(zones, default=str),
+        'tourist_locations_json': json.dumps(tourist_locations, default=str),
+        'anomaly_count': anomaly_count,
         'active_tab': 'map',
     })
 
@@ -195,6 +199,55 @@ def api_incident_status(request, incident_id):
 
 
 # ════════════════════════════════════════════════════════════════
+# SOS MANAGEMENT
+# ════════════════════════════════════════════════════════════════
+
+@dashboard_login_required
+def sos_view(request):
+    """SOS calls list with details and status management."""
+    sos_incidents = fs.get_sos_incidents()
+    return render(request, 'dashboard/sos.html', {
+        'sos_incidents': sos_incidents,
+        'sos_json': json.dumps(sos_incidents, default=str),
+        'active_tab': 'sos',
+    })
+
+
+@require_GET
+@dashboard_login_required
+def api_sos_poll(request):
+    """API: Poll for new (un-acknowledged) SOS incidents — used by global popup."""
+    try:
+        new_sos = fs.get_new_sos_incidents()
+        return JsonResponse({'sos': new_sos})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+@require_POST
+@dashboard_login_required
+def api_sos_acknowledge(request, incident_id):
+    """API: Acknowledge an SOS call (dismiss the popup)."""
+    try:
+        fs.acknowledge_sos(incident_id)
+        return JsonResponse({'status': 'ok'})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+@require_POST
+@dashboard_login_required
+def api_sos_status(request, incident_id):
+    """API: Update SOS status (pending/responding/resolved)."""
+    try:
+        data = json.loads(request.body)
+        fs.update_sos_status(incident_id, data['status'])
+        return JsonResponse({'status': 'ok'})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+# ════════════════════════════════════════════════════════════════
 # AI CONFIG
 # ════════════════════════════════════════════════════════════════
 
@@ -219,6 +272,50 @@ def api_ai_config_save(request):
         data = json.loads(request.body)
         fs.update_chatbot_instructions(data['instructions'])
         return JsonResponse({'status': 'ok'})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+# ════════════════════════════════════════════════════════════════
+# LOCATION ANOMALY ENDPOINTS
+# ════════════════════════════════════════════════════════════════
+
+@require_GET
+@dashboard_login_required
+def api_anomalies_json(request):
+    """API: Return current tourist locations + anomaly data as JSON (for polling)."""
+    try:
+        locations = fs.get_tourist_locations()
+        anomaly_count = fs.get_anomaly_count()
+        return JsonResponse({
+            'locations': locations,
+            'anomaly_count': anomaly_count,
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+@require_POST
+@dashboard_login_required
+def api_acknowledge_anomaly(request, session_id):
+    """API: Acknowledge a location anomaly."""
+    try:
+        fs.acknowledge_anomaly(session_id)
+        return JsonResponse({'status': 'ok'})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+@require_GET
+@dashboard_login_required
+def api_tourist_profile(request, user_id):
+    """API: Get tourist profile details."""
+    try:
+        profile = fs.get_tourist_profile(user_id)
+        if profile:
+            return JsonResponse({'status': 'ok', 'profile': profile})
+        else:
+            return JsonResponse({'error': 'Profile not found'}, status=404)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
 

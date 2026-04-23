@@ -136,6 +136,44 @@
         </div>
     </div>
 </div>
+
+<!-- Profile Modal -->
+<div class="modal-overlay" id="profile-modal" style="display:none; z-index: 1000;">
+    <div class="modal-card" style="max-width: 600px;">
+        <div class="modal-header">
+            <h3><span class="material-icons-round">account_circle</span> Tourist Profile</h3>
+            <button class="btn-icon" onclick="closeProfileModal()"><span class="material-icons-round">close</span></button>
+        </div>
+        <div class="modal-body" id="profile-detail-body" style="max-height: 60vh; overflow-y: auto;">
+            <!-- Populated by JS -->
+            <div id="profile-loading" style="text-align:center; padding: 20px; color: var(--text-muted);">
+                <span class="material-icons-round" style="animation: spin 1s linear infinite;">sync</span>
+                <p>Loading profile...</p>
+            </div>
+            <div id="profile-content" style="display:none; grid-gap: 20px; display: grid;"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeProfileModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes spin { 100% { transform: rotate(360deg); } }
+.profile-section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 4px;
+}
+.profile-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+</style>
 {% endblock %}
 
 {% block extra_js %}
@@ -154,7 +192,8 @@
             touristNationality: "{{ inc.touristNationality|default:'' }}",
             status: "{{ inc.status }}",
             reportedAt: "{{ inc.reportedAt }}",
-            reportedBy: "{{ inc.reportedBy|default:'tourist' }}"
+            reportedBy: "{{ inc.reportedBy|default:'tourist' }}",
+            mediaUrl: "{{ inc.mediaUrl|default:'' }}"
         },
         {% endfor %}
     ];

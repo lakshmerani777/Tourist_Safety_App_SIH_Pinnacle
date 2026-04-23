@@ -78,13 +78,21 @@ class _MapViewScreenState extends ConsumerState<MapViewScreen> {
                         PolygonLayer(
                           polygons: zones.map((z) => Polygon(
                             points: z.polygon,
-                            color: _severityColor(z.severity).withValues(alpha: 0.15),
-                            borderColor: _severityColor(z.severity).withValues(alpha: 0.4),
-                            borderStrokeWidth: 2,
-                            label: z.name,
+                            color: AppColors.alertRed.withValues(alpha: 0.25),
+                            borderColor: AppColors.alertRed.withValues(alpha: 0.7),
+                            borderStrokeWidth: 3,
+                            label: '⚠ ${z.name}',
                             labelStyle: AppTypography.caption.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.w700,
+                              fontSize: 13,
+                              shadows: [
+                                const Shadow(
+                                  blurRadius: 4,
+                                  color: Colors.black54,
+                                  offset: Offset(1, 1),
+                                ),
+                              ],
                             ),
                           )).toList(),
                         ),

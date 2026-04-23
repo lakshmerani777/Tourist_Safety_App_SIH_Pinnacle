@@ -7,6 +7,7 @@ both the dashboard and the app operate on identical data structures.
 import os
 from datetime import datetime, timezone
 
+import json
 import firebase_admin
 from firebase_admin import credentials, firestore
 
@@ -15,7 +16,16 @@ _BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _CRED_PATH = os.path.join(_BASE_DIR, 'firebase-service-account.json')
 
 if not firebase_admin._apps:
-    if os.path.exists(_CRED_PATH):
+    # Try environment variable first (for Vercel/Production)
+    cred_json = os.environ.get('FIREBASE_SERVICE_ACCOUNT_JSON')
+    if cred_json:
+        try:
+            cred_dict = json.loads(cred_json)
+            cred = credentials.Certificate(cred_dict)
+            firebase_admin.initialize_app(cred)
+        except Exception:
+            firebase_admin.initialize_app()
+    elif os.path.exists(_CRED_PATH):
         cred = credentials.Certificate(_CRED_PATH)
         firebase_admin.initialize_app(cred)
     else:
@@ -209,8 +219,51 @@ def create_sos_incident(tourist_name, tourist_nationality, latitude, longitude, 
     return doc_ref.id
 
 
+def get_sos_incidents():
+    """Return all SOS incidents, newest first."""
+    docs = db.collection('incidents').where('isSOS', '==', True).stream()
+    incidents = []
+    for doc in docs:
+        data = doc.to_dict()
+        data['id'] = doc.id
+        if data.get('reportedAt'):
+            data['reportedAt'] = data['reportedAt'].isoformat() if hasattr(data['reportedAt'], 'isoformat') else str(data['reportedAt'])
+        incidents.append(data)
+    # Sort client-side to avoid needing a composite index
+    incidents.sort(key=lambda x: x.get('reportedAt', ''), reverse=True)
+    return incidents
+
+
+def get_new_sos_incidents(last_check_ids=None):
+    """Return SOS incidents that haven't been acknowledged by the dashboard."""
+    docs = db.collection('incidents').where('isSOS', '==', True).stream()
+    incidents = []
+    for doc in docs:
+        data = doc.to_dict()
+        data['id'] = doc.id
+        # Only return un-acknowledged SOS calls
+        if not data.get('dashboardAcknowledged', False):
+            if data.get('reportedAt'):
+                data['reportedAt'] = data['reportedAt'].isoformat() if hasattr(data['reportedAt'], 'isoformat') else str(data['reportedAt'])
+            incidents.append(data)
+    incidents.sort(key=lambda x: x.get('reportedAt', ''), reverse=True)
+    return incidents
+
+
+def acknowledge_sos(incident_id):
+    """Mark an SOS incident as acknowledged by the dashboard."""
+    db.collection('incidents').document(incident_id).update({
+        'dashboardAcknowledged': True,
+    })
+
+
+def update_sos_status(incident_id, status):
+    """Update SOS status: 'pending' → 'responding' → 'resolved'."""
+    db.collection('incidents').document(incident_id).update({'status': status})
+
+
 # ════════════════════════════════════════════════════════════════
-# TOURIST LOCATIONS
+# TOURIST LOCATIONS & ANOMALY DETECTION
 # ════════════════════════════════════════════════════════════════
 
 def update_tourist_location(session_id, name, nationality, latitude, longitude):
@@ -231,11 +284,49 @@ def remove_tourist_location(session_id):
 
 
 def get_tourist_locations():
-    """Return all active tourist location entries."""
+    """Return all tourist locations currently sharing."""
     docs = db.collection('tourist_locations').stream()
     locations = []
     for doc in docs:
         data = doc.to_dict()
         data['id'] = doc.id
+        if data.get('lastUpdated'):
+            data['lastUpdated'] = data['lastUpdated'].isoformat() if hasattr(data['lastUpdated'], 'isoformat') else str(data['lastUpdated'])
+        if data.get('lastMovedAt'):
+            data['lastMovedAt'] = data['lastMovedAt'].isoformat() if hasattr(data['lastMovedAt'], 'isoformat') else str(data['lastMovedAt'])
+        if data.get('anomalyFlaggedAt'):
+            data['anomalyFlaggedAt'] = data['anomalyFlaggedAt'].isoformat() if hasattr(data['anomalyFlaggedAt'], 'isoformat') else str(data['anomalyFlaggedAt'])
         locations.append(data)
     return locations
+
+
+def get_anomaly_locations():
+    """Return tourist locations with anomaly_flagged status."""
+    docs = db.collection('tourist_locations').where(
+        'status', '==', 'anomaly_flagged'
+    ).stream()
+    anomalies = []
+    for doc in docs:
+        data = doc.to_dict()
+        data['id'] = doc.id
+        if data.get('lastUpdated'):
+            data['lastUpdated'] = data['lastUpdated'].isoformat() if hasattr(data['lastUpdated'], 'isoformat') else str(data['lastUpdated'])
+        if data.get('anomalyFlaggedAt'):
+            data['anomalyFlaggedAt'] = data['anomalyFlaggedAt'].isoformat() if hasattr(data['anomalyFlaggedAt'], 'isoformat') else str(data['anomalyFlaggedAt'])
+        anomalies.append(data)
+    return anomalies
+
+
+def get_anomaly_count():
+    """Return the count of anomaly-flagged tourist locations."""
+    docs = db.collection('tourist_locations').where(
+        'status', '==', 'anomaly_flagged'
+    ).stream()
+    return sum(1 for _ in docs)
+
+
+def acknowledge_anomaly(session_id):
+    """Acknowledge an anomaly flag on a tourist location."""
+    db.collection('tourist_locations').document(session_id).update({
+        'status': 'acknowledged',
+    })

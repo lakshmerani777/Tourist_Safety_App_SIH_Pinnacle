@@ -202,6 +202,9 @@ class TouristLocation {
   final double latitude;
   final double longitude;
   final DateTime lastUpdated;
+  final String status; // 'active', 'stale', 'anomaly_flagged', 'acknowledged'
+  final DateTime? lastMovedAt;
+  final DateTime? anomalyFlaggedAt;
 
   const TouristLocation({
     required this.id,
@@ -211,6 +214,9 @@ class TouristLocation {
     required this.latitude,
     required this.longitude,
     required this.lastUpdated,
+    this.status = 'active',
+    this.lastMovedAt,
+    this.anomalyFlaggedAt,
   });
 
   factory TouristLocation.fromFirestore(DocumentSnapshot doc) {
@@ -223,6 +229,9 @@ class TouristLocation {
       latitude: (data['latitude'] as num?)?.toDouble() ?? 0,
       longitude: (data['longitude'] as num?)?.toDouble() ?? 0,
       lastUpdated: (data['lastUpdated'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      status: data['status'] ?? 'active',
+      lastMovedAt: (data['lastMovedAt'] as Timestamp?)?.toDate(),
+      anomalyFlaggedAt: (data['anomalyFlaggedAt'] as Timestamp?)?.toDate(),
     );
   }
 
@@ -234,6 +243,9 @@ class TouristLocation {
       'latitude': latitude,
       'longitude': longitude,
       'lastUpdated': Timestamp.fromDate(DateTime.now()),
+      'status': status,
+      if (lastMovedAt != null) 'lastMovedAt': Timestamp.fromDate(lastMovedAt!),
+      if (anomalyFlaggedAt != null) 'anomalyFlaggedAt': Timestamp.fromDate(anomalyFlaggedAt!),
     };
   }
 }

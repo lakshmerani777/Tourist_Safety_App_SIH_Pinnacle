@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
+import '../services/location_anomaly_service.dart';
 
 class LocationNotifier extends ChangeNotifier {
   LatLng _currentPosition = const LatLng(19.062641, 72.830899); // Default: Bandra
@@ -11,12 +12,14 @@ class LocationNotifier extends ChangeNotifier {
   String _currentAddress = 'Locating...';
   bool _isTracking = false;
   bool _isLoading = false;
+  DateTime _lastUpdateTime = DateTime.now();
   StreamSubscription<Position>? _positionStreamSubscription;
 
   LatLng get currentPosition => _currentPosition;
   String get currentAddress => _currentAddress;
   bool get isTracking => _isTracking;
   bool get isLoading => _isLoading;
+  DateTime get lastUpdateTime => _lastUpdateTime;
 
   @override
   void dispose() {
@@ -112,6 +115,10 @@ class LocationNotifier extends ChangeNotifier {
       ),
     ).listen((Position position) {
       _currentPosition = LatLng(position.latitude, position.longitude);
+      _lastUpdateTime = DateTime.now();
+
+      // Notify the anomaly watchdog that GPS is still active
+      LocationAnomalyService.instance.onLocationUpdated();
 
       bool shouldUpdateAddress = false;
       if (_lastGeocodedPosition == null) {

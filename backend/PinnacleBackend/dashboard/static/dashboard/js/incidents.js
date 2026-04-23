@@ -77,12 +77,23 @@ function viewIncident(id) {
                 <span class="detail-label">Coordinates</span>
                 <p style="color:var(--text-muted);font-size:12px">${inc.latitude}, ${inc.longitude}</p>
             </div>
+            ${inc.mediaUrl ? `
+            <div class="detail-row">
+                <span class="detail-label">Attached Media</span>
+                <div style="margin-top:8px; border-radius:8px; overflow:hidden; border:1px solid var(--border); background: var(--background);">
+                    <img src="${inc.mediaUrl}" style="width:100%; height:auto; display:block;" alt="Incident Attachment" onerror="this.parentElement.innerHTML='<p style=\'padding:10px; color:var(--alert-red); font-size:12px;\'>Media failed to load</p>'">
+                </div>
+            </div>
+            ` : ''}
             <div class="detail-row">
                 <span class="detail-label">Reporter</span>
-                <p style="color:var(--text-secondary)">${inc.touristName}${inc.touristNationality ? ' (' + inc.touristNationality + ')' : ''}</p>
+                ${inc.reportedBy && inc.reportedBy !== 'tourist' 
+                    ? `<p style="color:var(--accent); cursor:pointer; text-decoration:underline;" onclick="viewTouristProfile('${inc.reportedBy}')">${inc.touristName}${inc.touristNationality ? ' (' + inc.touristNationality + ')' : ''}</p>`
+                    : `<p style="color:var(--text-secondary)">${inc.touristName}${inc.touristNationality ? ' (' + inc.touristNationality + ')' : ''} (Unregistered)</p>`
+                }
             </div>
             <div class="detail-row">
-                <span class="detail-label">Reported By</span>
+                <span class="detail-label">Reported By ID</span>
                 <p style="color:var(--text-muted)">${inc.reportedBy}</p>
             </div>
             <div class="detail-row">
@@ -100,4 +111,93 @@ function viewIncident(id) {
 
 function closeIncidentModal() {
     document.getElementById('incident-modal').style.display = 'none';
+}
+
+async function viewTouristProfile(userId) {
+    document.getElementById('profile-modal').style.display = 'flex';
+    document.getElementById('profile-loading').style.display = 'block';
+    document.getElementById('profile-content').style.display = 'none';
+    document.getElementById('profile-content').innerHTML = '';
+
+    try {
+        const response = await fetch(`/dashboard/api/tourists/${userId}/profile/`);
+        const data = await response.json();
+        
+        document.getElementById('profile-loading').style.display = 'none';
+        
+        if (data.status === 'ok' && data.profile) {
+            const p = data.profile;
+            
+            // Build the HTML content
+            let html = `
+                <div>
+                    <div class="profile-section-title">Personal Identity</div>
+                    <div class="profile-grid">
+                        <div class="detail-row"><span class="detail-label">First Name</span><span>${p.firstName || '-'}</span></div>
+                        <div class="detail-row"><span class="detail-label">Last Name</span><span>${p.lastName || '-'}</span></div>
+                        <div class="detail-row"><span class="detail-label">Nationality</span><span>${p.nationality?.name || p.nationality || '-'}</span></div>
+                        <div class="detail-row"><span class="detail-label">Passport No.</span><span>${p.passportNumber || '-'}</span></div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="profile-section-title">Contact Information</div>
+                    <div class="profile-grid">
+                        <div class="detail-row"><span class="detail-label">Phone</span><span>${p.phoneNumber ? '+' + (p.phoneCode || '') + ' ' + p.phoneNumber : '-'}</span></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="profile-section-title">Travel Details</div>
+                    <div class="profile-grid">
+                        <div class="detail-row"><span class="detail-label">Purpose of Visit</span><span>${p.purposeOfVisit || '-'}</span></div>
+                        <div class="detail-row"><span class="detail-label">Places to Visit</span><span>${p.placesToVisit || '-'}</span></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="profile-section-title">Stay Details</div>
+                    <div class="profile-grid">
+                        <div class="detail-row"><span class="detail-label">Accommodation Type</span><span>${p.accommodationType || '-'}</span></div>
+                        <div class="detail-row"><span class="detail-label">Property Name</span><span>${p.propertyName || '-'}</span></div>
+                        <div class="detail-row" style="grid-column: span 2;"><span class="detail-label">Address</span><span>${p.fullAddress || '-'}</span></div>
+                        <div class="detail-row"><span class="detail-label">Room / Unit</span><span>${p.roomNumber || '-'}</span></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="profile-section-title">Emergency Contacts</div>
+                    <div class="profile-grid">
+                        <div class="detail-row"><span class="detail-label">Contact 1</span><span>${p.contact1Name || '-'}<br>${p.contact1Phone || '-'}</span></div>
+                        <div class="detail-row"><span class="detail-label">Contact 2</span><span>${p.contact2Name || '-'}<br>${p.contact2Phone || '-'}</span></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="profile-section-title">Medical Info</div>
+                    <div class="profile-grid">
+                        <div class="detail-row"><span class="detail-label">Blood Type</span><span>${p.bloodType || '-'}</span></div>
+                        <div class="detail-row"><span class="detail-label">Insurance Policy</span><span>${p.insurancePolicyNumber || '-'}</span></div>
+                        <div class="detail-row" style="grid-column: span 2;"><span class="detail-label">Allergies</span><span>${p.hasAllergies ? p.allergyDetails : 'None'}</span></div>
+                        <div class="detail-row" style="grid-column: span 2;"><span class="detail-label">Conditions</span><span>${p.hasChronicConditions ? p.conditionDetails : 'None'}</span></div>
+                        <div class="detail-row" style="grid-column: span 2;"><span class="detail-label">Medications</span><span>${p.takesRegularMedication ? p.medicationDetails : 'None'}</span></div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('profile-content').innerHTML = html;
+            document.getElementById('profile-content').style.display = 'grid';
+        } else {
+            document.getElementById('profile-content').innerHTML = '<p style="color:var(--alert-red)">Profile details could not be found.</p>';
+            document.getElementById('profile-content').style.display = 'block';
+        }
+    } catch (e) {
+        document.getElementById('profile-loading').style.display = 'none';
+        document.getElementById('profile-content').innerHTML = '<p style="color:var(--alert-red)">Error loading profile.</p>';
+        document.getElementById('profile-content').style.display = 'block';
+    }
+}
+
+function closeProfileModal() {
+    document.getElementById('profile-modal').style.display = 'none';
 }

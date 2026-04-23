@@ -7,6 +7,7 @@ import 'package:tourist_safety_app_sih_pinnacle/core/router/app_router.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:tourist_safety_app_sih_pinnacle/l10n/app_localizations.dart';
 import 'package:tourist_safety_app_sih_pinnacle/providers/locale_provider.dart';
+import 'package:tourist_safety_app_sih_pinnacle/services/notification_service.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -19,6 +20,8 @@ Future<void> main() async {
   } catch (e) {
     debugPrint('Firebase init failed: $e');
   }
+  // Initialize local notifications for anomaly alerts
+  await NotificationService.instance.init();
   runApp(const ProviderScope(child: TouristSafetyApp()));
 }
 

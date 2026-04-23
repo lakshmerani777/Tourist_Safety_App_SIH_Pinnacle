@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:latlong2/latlong.dart';
 import '../services/firestore_service.dart';
+import '../services/location_anomaly_service.dart';
 import '../models/firestore_models.dart';
 
 class LocationSharingState {
@@ -98,7 +99,11 @@ class LocationSharingNotifier extends ChangeNotifier {
     if (newValue && sessionId != null) {
       // Push location to Firestore immediately
       _pushLocationToFirestore(position, name, sessionId);
+      // Start anomaly monitoring
+      LocationAnomalyService.instance.startMonitoring(sessionId);
     } else if (!newValue && sessionId != null) {
+      // Stop anomaly monitoring
+      LocationAnomalyService.instance.stopMonitoring();
       // Remove from Firestore
       _firestore.removeTouristLocation(sessionId);
       _locationPushTimer?.cancel();
@@ -155,6 +160,8 @@ class LocationSharingNotifier extends ChangeNotifier {
       latitude: pos.latitude,
       longitude: pos.longitude,
       lastUpdated: DateTime.now(),
+      status: 'active',
+      lastMovedAt: DateTime.now(),
     );
     _firestore.updateTouristLocation(sessionId, loc);
   }
@@ -172,6 +179,8 @@ class LocationSharingNotifier extends ChangeNotifier {
   }
 
   void stopAllSharing() {
+    // Stop anomaly monitoring
+    LocationAnomalyService.instance.stopMonitoring();
     if (_state.sessionId != null) {
       _firestore.removeTouristLocation(_state.sessionId!);
     }

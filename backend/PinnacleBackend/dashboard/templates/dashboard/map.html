@@ -19,20 +19,47 @@
     </div>
 </div>
 
+<!-- Anomaly Alert Banner -->
+<div class="anomaly-banner" id="anomaly-banner" style="display:none">
+    <span class="material-icons-round">warning</span>
+    <span id="anomaly-banner-text">0 tourist(s) have stopped sharing location</span>
+    <button class="btn btn-sm btn-outline" onclick="scrollToAnomalyPanel()">View Details</button>
+</div>
+
 <div class="map-layout">
     <!-- Map -->
     <div class="map-container" id="map-wrapper">
         <div id="map"></div>
     </div>
 
-    <!-- Zone Panel -->
+    <!-- Side Panel -->
     <div class="zone-panel" id="zone-panel">
-        <div class="panel-header">
-            <h3>Zones</h3>
-            <span class="badge" id="zone-count">0</span>
+        <!-- Tourist Locations Tab -->
+        <div class="panel-section" id="anomaly-panel-section">
+            <div class="panel-header">
+                <h3><span class="material-icons-round" style="font-size:18px;vertical-align:middle;margin-right:4px">person_pin</span> Live Tourists</h3>
+                <span class="badge" id="tourist-count">0</span>
+            </div>
+            <div class="anomaly-list" id="anomaly-list">
+                <!-- Populated by JS -->
+                <div class="empty-panel-state" id="no-tourists-msg">
+                    <span class="material-icons-round">person_off</span>
+                    <p>No tourists sharing location</p>
+                </div>
+            </div>
         </div>
-        <div class="zone-list" id="zone-list">
-            <!-- Populated by JS -->
+
+        <hr class="panel-divider">
+
+        <!-- Zones Tab -->
+        <div class="panel-section">
+            <div class="panel-header">
+                <h3>Zones</h3>
+                <span class="badge" id="zone-count">0</span>
+            </div>
+            <div class="zone-list" id="zone-list">
+                <!-- Populated by JS -->
+            </div>
         </div>
     </div>
 </div>
@@ -114,6 +141,8 @@
 {% block extra_js %}
 <script>
     const ZONES_DATA = {{ zones_json|safe }};
+    const TOURIST_LOCATIONS_DATA = {{ tourist_locations_json|safe }};
+    const INITIAL_ANOMALY_COUNT = {{ anomaly_count }};
 </script>
 {% load static %}
 <script src="{% static 'dashboard/js/map.js' %}"></script>

@@ -1,11 +1,14 @@
-import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import '../models/firestore_models.dart';
 
 /// Central service for all Firestore reads/writes used by both
 /// the tourist app and the police dashboard.
 class FirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
 
   // ─── Collection References ───
   CollectionReference get _zones => _db.collection('unsafe_zones');
@@ -14,17 +17,33 @@ class FirestoreService {
   CollectionReference get _touristLocations => _db.collection('tourist_locations');
   CollectionReference get _chatbotConfig => _db.collection('chatbot_config');
 
+  /// Upload an image to Firebase Storage and return the download URL.
+  Future<String> uploadImage(File file, String path) async {
+    final ref = _storage.ref().child(path);
+    final uploadTask = await ref.putFile(file);
+    return await uploadTask.ref.getDownloadURL();
+  }
+
   // ════════════════════════════════════════════
   // UNSAFE ZONES
   // ════════════════════════════════════════════
 
   /// Stream all active unsafe zones in real time.
+  /// All filtering and sorting done client-side to avoid Firestore index issues.
   Stream<List<UnsafeZone>> streamUnsafeZones() {
     return _zones
-        .where('isActive', isEqualTo: true)
-        .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snap) => snap.docs.map(UnsafeZone.fromFirestore).toList());
+        .map((snap) {
+          final zones = <UnsafeZone>[];
+          for (final doc in snap.docs) {
+            try {
+              final zone = UnsafeZone.fromFirestore(doc);
+              if (zone.isActive) zones.add(zone);
+            } catch (_) {}
+          }
+          zones.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+          return zones;
+        });
   }
 
 
@@ -44,9 +63,17 @@ class FirestoreService {
   /// Stream all incidents in real time, newest first.
   Stream<List<IncidentReport>> streamIncidents() {
     return _incidents
-        .orderBy('reportedAt', descending: true)
         .snapshots()
-        .map((snap) => snap.docs.map(IncidentReport.fromFirestore).toList());
+        .map((snap) {
+          final incidents = <IncidentReport>[];
+          for (final doc in snap.docs) {
+            try {
+              incidents.add(IncidentReport.fromFirestore(doc));
+            } catch (_) {}
+          }
+          incidents.sort((a, b) => b.reportedAt.compareTo(a.reportedAt));
+          return incidents;
+        });
   }
 
   /// Submit a new incident report (tourist app).
@@ -60,21 +87,41 @@ class FirestoreService {
   // ════════════════════════════════════════════
 
   /// Stream all active alerts, newest first.
+  /// All filtering and sorting done client-side to avoid Firestore index issues.
   Stream<List<SafetyAlert>> streamAlerts() {
     return _alerts
-        .where('isActive', isEqualTo: true)
-        .orderBy('issuedAt', descending: true)
         .snapshots()
-        .map((snap) => snap.docs.map(SafetyAlert.fromFirestore).toList());
+        .map((snap) {
+          final alerts = <SafetyAlert>[];
+          for (final doc in snap.docs) {
+            try {
+              final alert = SafetyAlert.fromFirestore(doc);
+              if (alert.isActive) alerts.add(alert);
+            } catch (e) {
+              // Log malformed documents for debugging
+              debugPrint('⚠️ Failed to parse alert doc ${doc.id}: $e');
+            }
+          }
+          alerts.sort((a, b) => b.issuedAt.compareTo(a.issuedAt));
+          return alerts;
+        });
   }
 
 
   /// Stream ALL alerts (active and inactive), newest first.
   Stream<List<SafetyAlert>> streamAllAlerts() {
     return _alerts
-        .orderBy('issuedAt', descending: true)
         .snapshots()
-        .map((snap) => snap.docs.map(SafetyAlert.fromFirestore).toList());
+        .map((snap) {
+          final alerts = <SafetyAlert>[];
+          for (final doc in snap.docs) {
+            try {
+              alerts.add(SafetyAlert.fromFirestore(doc));
+            } catch (_) {}
+          }
+          alerts.sort((a, b) => b.issuedAt.compareTo(a.issuedAt));
+          return alerts;
+        });
   }
 
   // ════════════════════════════════════════════
@@ -120,6 +167,56 @@ class FirestoreService {
         return data?['customInstructions'] as String?;
       }
       return null;
+    });
+  }
+
+  // ════════════════════════════════════════════
+  // LOCATION ANOMALY DETECTION
+  // ════════════════════════════════════════════
+
+  /// Flag a tourist's location as anomalous (GPS stopped updating).
+  Future<void> flagLocationAnomaly(String sessionId) async {
+    await _touristLocations.doc(sessionId).update({
+      'status': 'anomaly_flagged',
+      'anomalyFlaggedAt': Timestamp.fromDate(DateTime.now()),
+    });
+  }
+
+  /// Clear anomaly flag when location resumes updating.
+  Future<void> clearLocationAnomaly(String sessionId) async {
+    await _touristLocations.doc(sessionId).update({
+      'status': 'active',
+      'anomalyFlaggedAt': null,
+    });
+  }
+
+  // ════════════════════════════════════════════
+  // SOS EMERGENCY
+  // ════════════════════════════════════════════
+
+  /// Submit an SOS alert directly to Firestore for dashboard real-time pickup.
+  Future<void> submitSOSToFirestore({
+    required String touristName,
+    required String touristNationality,
+    required double latitude,
+    required double longitude,
+    required String address,
+    String phone = '',
+  }) async {
+    await _incidents.add({
+      'type': 'SOS',
+      'description': 'SOS Emergency Alert triggered by tourist',
+      'latitude': latitude,
+      'longitude': longitude,
+      'address': address,
+      'reportedAt': Timestamp.fromDate(DateTime.now()),
+      'reportedBy': 'tourist',
+      'touristName': touristName,
+      'touristNationality': touristNationality,
+      'touristPhone': phone,
+      'status': 'pending',
+      'isSOS': true,
+      'dashboardAcknowledged': false,
     });
   }
 

@@ -461,7 +461,100 @@ a { color: inherit; text-decoration: none; }
     animation: pulse-dot 2s infinite;
 }
 
-/* ─── Modal ─── */
+/* ─── Anomaly Styles ─── */
+
+.anomaly-badge {
+    background: var(--alert-red);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-left: auto;
+    animation: pulse-badge 2s infinite;
+}
+
+@keyframes pulse-badge {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+    50% { box-shadow: 0 0 0 4px rgba(239, 68, 68, 0); }
+}
+
+.anomaly-banner {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: var(--alert-red);
+    padding: 12px 20px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    animation: fadeIn 0.3s ease;
+}
+
+.anomaly-banner .material-icons-round {
+    font-size: 20px;
+}
+
+.anomaly-banner span:not(.material-icons-round) {
+    flex: 1;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.panel-section {
+    display: flex;
+    flex-direction: column;
+    max-height: 50%;
+}
+
+.panel-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 0;
+}
+
+.anomaly-list {
+    overflow-y: auto;
+    padding: 12px;
+    flex: 1;
+}
+
+.empty-panel-state {
+    text-align: center;
+    padding: 30px 12px;
+    color: var(--text-muted);
+}
+
+.empty-panel-state .material-icons-round {
+    font-size: 32px;
+    opacity: 0.5;
+    margin-bottom: 8px;
+}
+
+.empty-panel-state p {
+    font-size: 12px;
+}
+
+/* Pulsing map marker */
+.tourist-marker {
+    background: var(--accent);
+    border: 2px solid white;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    transition: all 0.3s ease;
+}
+
+.tourist-marker.anomaly {
+    background: var(--alert-red);
+    animation: pulse-marker 1.5s infinite;
+}
+
+@keyframes pulse-marker {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+    70% { transform: scale(1.1); box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
 
 .modal-overlay {
     position: fixed;
@@ -991,3 +1084,383 @@ a { color: inherit; text-decoration: none; }
 
 /* ─── Leaflet Overrides ─── */
 .leaflet-container { background: var(--bg-primary) !important; }
+
+/* ════════════════════════════════════════════════════════════════
+   SOS SYSTEM — Global Popup & SOS Page
+   ════════════════════════════════════════════════════════════════ */
+
+/* ─── SOS Nav Badge ─── */
+.sos-nav-badge {
+    background: var(--alert-red);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 10px;
+    margin-left: auto;
+    animation: pulse-badge 1.5s infinite;
+    min-width: 18px;
+    text-align: center;
+}
+
+/* ─── Global SOS Popup Overlay ─── */
+.sos-popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(239, 68, 68, 0.12);
+    backdrop-filter: blur(12px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: sosOverlayIn 0.3s ease;
+}
+
+@keyframes sosOverlayIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.sos-popup {
+    width: 640px;
+    max-width: 95vw;
+    max-height: 85vh;
+    background: var(--bg-card);
+    border: 2px solid var(--alert-red);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    animation: sosPopupIn 0.3s ease;
+    box-shadow:
+        0 0 40px rgba(239, 68, 68, 0.25),
+        0 0 120px rgba(239, 68, 68, 0.1);
+    overflow: hidden;
+}
+
+@keyframes sosPopupIn {
+    from { transform: scale(0.9) translateY(20px); opacity: 0; }
+    to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.sos-popup-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 20px 24px;
+    background: rgba(239, 68, 68, 0.12);
+    border-bottom: 1px solid rgba(239, 68, 68, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.sos-popup-pulse {
+    position: absolute;
+    inset: 0;
+    background: rgba(239, 68, 68, 0.08);
+    animation: sosPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes sosPulse {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
+}
+
+.sos-popup-icon {
+    font-size: 32px;
+    color: var(--alert-red);
+    z-index: 1;
+    animation: sosIconPulse 1s ease-in-out infinite;
+}
+
+@keyframes sosIconPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+}
+
+.sos-popup-header h2 {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--alert-red);
+    z-index: 1;
+    letter-spacing: 0.5px;
+}
+
+.sos-popup-body {
+    padding: 20px 24px;
+    overflow-y: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.sos-popup-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--alert-red);
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.sos-popup-card-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 14px;
+}
+
+.sos-popup-card-row .material-icons-round {
+    font-size: 18px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.sos-popup-card-row div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.sos-popup-card-row strong {
+    color: var(--text-primary);
+    font-weight: 700;
+}
+
+.sos-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    background: rgba(59, 130, 246, 0.15);
+    color: var(--accent);
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-left: 6px;
+}
+
+.sos-map-link {
+    color: var(--accent) !important;
+    font-size: 12px;
+    font-weight: 600;
+}
+.sos-map-link:hover { text-decoration: underline; }
+
+.sos-popup-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+}
+
+.sos-popup-actions .btn {
+    /* Override btn-sm fixed 32x32 sizing for icon+text buttons */
+    width: auto;
+    height: auto;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.sos-popup-actions .btn .material-icons-round {
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.sos-popup-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+}
+
+/* ─── SOS Page Stats Row ─── */
+.sos-stats-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.sos-stat-card {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+
+.sos-stat-card .material-icons-round {
+    font-size: 32px;
+}
+
+.sos-stat-card div {
+    display: flex;
+    flex-direction: column;
+}
+
+.sos-stat-num {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1;
+}
+
+.sos-stat-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+}
+
+.sos-stat-total .material-icons-round { color: var(--alert-red); }
+.sos-stat-total .sos-stat-num { color: var(--text-primary); }
+
+.sos-stat-pending .material-icons-round { color: var(--warning); }
+.sos-stat-pending .sos-stat-num { color: var(--warning); }
+
+.sos-stat-responding .material-icons-round { color: var(--accent); }
+.sos-stat-responding .sos-stat-num { color: var(--accent); }
+
+.sos-stat-resolved .material-icons-round { color: var(--success); }
+.sos-stat-resolved .sos-stat-num { color: var(--success); }
+
+/* ─── SOS List ─── */
+.sos-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.sos-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: var(--transition);
+}
+
+.sos-card:hover { border-color: var(--border-light); }
+
+.sos-card-pending { border-left: 4px solid var(--alert-red); }
+.sos-card-responding { border-left: 4px solid var(--accent); }
+.sos-card-resolved { border-left: 4px solid var(--success); opacity: 0.7; }
+
+.sos-card-left { flex-shrink: 0; }
+
+.sos-card-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sos-card-pending .sos-card-icon {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--alert-red);
+}
+
+.sos-card-responding .sos-card-icon {
+    background: rgba(59, 130, 246, 0.15);
+    color: var(--accent);
+}
+
+.sos-card-resolved .sos-card-icon {
+    background: rgba(34, 197, 94, 0.15);
+    color: var(--success);
+}
+
+.sos-card-icon .material-icons-round { font-size: 22px; }
+
+.sos-card-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.sos-card-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+.sos-card-top h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.sos-card-details {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.sos-detail-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.sos-detail-row .material-icons-round {
+    font-size: 16px;
+    flex-shrink: 0;
+    color: var(--text-muted);
+}
+
+.sos-card-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.sos-card-actions .btn {
+    padding: 8px 16px;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+/* ─── SOS Empty State ─── */
+.sos-empty {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--text-muted);
+}
+
+.sos-empty .material-icons-round {
+    font-size: 64px;
+    color: var(--success);
+    opacity: 0.5;
+    margin-bottom: 16px;
+}
+
+.sos-empty h3 {
+    font-size: 20px;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.sos-empty p {
+    font-size: 14px;
+    color: var(--text-muted);
+}
+

@@ -9,6 +9,7 @@ import '../providers/sos_provider.dart';
 import '../providers/api_providers.dart';
 import '../providers/onboarding_provider.dart';
 import '../providers/location_provider.dart';
+import '../services/firestore_service.dart';
 import '../l10n/app_localizations.dart';
 
 class SOSActivatedScreen extends ConsumerStatefulWidget {
@@ -55,7 +56,24 @@ class _SOSActivatedScreenState extends ConsumerState<SOSActivatedScreen>
         ? '${profile.firstName} ${profile.lastName}'.trim()
         : 'Tourist';
     final nationality = profile.nationality?.name ?? '';
+    final phone = profile.phoneNumber.isNotEmpty
+        ? '+${profile.phoneCode}${profile.phoneNumber}'
+        : 'Not provided';
 
+    // Write directly to Firestore for real-time dashboard pickup
+    try {
+      final firestore = FirestoreService();
+      await firestore.submitSOSToFirestore(
+        touristName: name,
+        touristNationality: nationality,
+        latitude: location.currentPosition.latitude,
+        longitude: location.currentPosition.longitude,
+        address: location.currentAddress,
+        phone: phone,
+      );
+    } catch (_) {}
+
+    // Also try via API
     try {
       await ref.read(apiClientProvider).triggerSOS(
         latitude: location.currentPosition.latitude,
@@ -65,7 +83,7 @@ class _SOSActivatedScreenState extends ConsumerState<SOSActivatedScreen>
         nationality: nationality,
       );
     } catch (_) {
-      // SOS is best-effort via API; Firestore already records via FirestoreService.
+      // SOS is best-effort via API; Firestore already records directly.
     }
   }
 
