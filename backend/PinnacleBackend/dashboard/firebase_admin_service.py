@@ -197,6 +197,25 @@ def get_tourist_profile(user_id):
     return None
 
 
+def get_tourist_profile_by_email(email):
+    """
+    Return tourist profile dict by looking up the Django user with the given email.
+    Returns None if user or profile not found.
+    """
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    try:
+        user = User.objects.get(email=email)
+        return get_tourist_profile(user.id)
+    except User.DoesNotExist:
+        # Try username lookup as well since we often set username=email
+        try:
+            user = User.objects.get(username=email)
+            return get_tourist_profile(user.id)
+        except User.DoesNotExist:
+            return None
+
+
 # ════════════════════════════════════════════════════════════════
 # SOS INCIDENTS
 # ════════════════════════════════════════════════════════════════

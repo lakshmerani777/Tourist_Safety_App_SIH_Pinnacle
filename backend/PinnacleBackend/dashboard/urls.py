@@ -41,4 +41,5 @@ urlpatterns = [
 
     # Tourist Profile APIs
     path('api/tourists/<str:user_id>/profile/', views.api_tourist_profile, name='api_tourist_profile'),
+    path('api/tourists/profile-by-email/<str:email>/', views.api_tourist_profile_by_email, name='api_tourist_profile_by_email'),
 ]

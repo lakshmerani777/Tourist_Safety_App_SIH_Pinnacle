@@ -98,6 +98,24 @@
         </div>
     </div>
 
+    <!-- ═══ TOURIST DETAILS MODAL ═══ -->
+    <div class="modal-overlay" id="tourist-modal" style="display:none">
+        <div class="modal-card profile-modal">
+            <div class="modal-header">
+                <h2><span class="material-icons-round">account_circle</span> Tourist Profile</h2>
+                <button class="btn-icon" onclick="closeTouristModal()">
+                    <span class="material-icons-round">close</span>
+                </button>
+            </div>
+            <div class="modal-body" id="tourist-modal-content">
+                <!-- Populated by JS -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeTouristModal()">Close Profile</button>
+            </div>
+        </div>
+    </div>
+
     <!-- ═══ SOS Audio Alert ═══ -->
     <audio id="sos-alert-audio" preload="auto">
         <source src="data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==" type="audio/wav">
@@ -234,6 +252,10 @@
                             <span>Status: <strong style="text-transform:uppercase">${sos.status || 'pending'}</strong></span>
                         </div>
                         <div class="sos-popup-actions">
+                            <button class="btn btn-sm btn-info" onclick="showTouristDetails('${sos.reportedBy}')">
+                                <span class="material-icons-round">person_search</span>
+                                <span>View Details</span>
+                            </button>
                             <button class="btn btn-sm btn-danger" onclick="respondToSOS('${sos.id}')">
                                 <span class="material-icons-round">phone_in_talk</span>
                                 <span>Respond</span>
@@ -252,6 +274,121 @@
             
             // Try to play alert sound
             try { document.getElementById('sos-alert-audio').play(); } catch(_) {}
+        }
+
+        async function showTouristDetails(email) {
+            if (!email || email === 'tourist') {
+                showToast('Tourist identity not available', 'warning');
+                return;
+            }
+            
+            const modal = document.getElementById('tourist-modal');
+            const content = document.getElementById('tourist-modal-content');
+            
+            content.innerHTML = '<div class="modal-loading"><span class="material-icons-round spin">sync</span> Loading tourist profile...</div>';
+            modal.style.display = 'flex';
+            
+            try {
+                const resp = await fetch(`/dashboard/api/tourists/profile-by-email/${email}/`);
+                if (!resp.ok) throw new Error('Profile not found');
+                const data = await resp.json();
+                const p = data.profile;
+                
+                content.innerHTML = `
+                    <div class="profile-modal-grid">
+                        <!-- Section: Personal -->
+                        <div class="profile-section">
+                            <h3 class="section-title"><span class="material-icons-round">person</span> Personal Information</h3>
+                            <div class="info-group">
+                                <label>Name</label>
+                                <div>${p.first_name || ''} ${p.last_name || ''}</div>
+                            </div>
+                            <div class="info-group">
+                                <label>Nationality</label>
+                                <div>${p.nationality || 'Not provided'}</div>
+                            </div>
+                            <div class="info-group">
+                                <label>Phone</label>
+                                <div>+${p.phone_code || ''} ${p.phone_number || ''}</div>
+                            </div>
+                            <div class="info-group">
+                                <label>Passport</label>
+                                <div>${p.passport_number || 'Not provided'}</div>
+                            </div>
+                        </div>
+
+                        <!-- Section: Emergency Contacts -->
+                        <div class="profile-section">
+                            <h3 class="section-title"><span class="material-icons-round">contact_emergency</span> Emergency Contacts</h3>
+                            <div class="contact-card">
+                                <strong>${p.contact1_name || 'No Contact 1'}</strong>
+                                <div>${p.contact1_relationship || ''}</div>
+                                <div class="contact-phone"><span class="material-icons-round">phone</span> ${p.contact1_phone || 'N/A'}</div>
+                            </div>
+                            <div class="contact-card" style="margin-top:10px">
+                                <strong>${p.contact2_name || 'No Contact 2'}</strong>
+                                <div>${p.contact2_relationship || ''}</div>
+                                <div class="contact-phone"><span class="material-icons-round">phone</span> ${p.contact2_phone || 'N/A'}</div>
+                            </div>
+                        </div>
+
+                        <!-- Section: Stay -->
+                        <div class="profile-section">
+                            <h3 class="section-title"><span class="material-icons-round">hotel</span> Accommodation</h3>
+                            <div class="info-group">
+                                <label>Property Name</label>
+                                <div>${p.property_name || 'Not provided'}</div>
+                            </div>
+                            <div class="info-group">
+                                <label>Type / Room</label>
+                                <div>${p.accommodation_type || ''} ${p.room_number ? `- Room ${p.room_number}` : ''}</div>
+                            </div>
+                            <div class="info-group">
+                                <label>Address</label>
+                                <div>${p.full_address || 'Not provided'}</div>
+                            </div>
+                            <div class="info-group">
+                                <label>Hotel Phone</label>
+                                <div>${p.accommodation_phone || 'Not provided'}</div>
+                            </div>
+                        </div>
+
+                        <!-- Section: Medical -->
+                        <div class="profile-section">
+                            <h3 class="section-title" style="color:var(--alert-red)"><span class="material-icons-round">medical_services</span> Health & Medical</h3>
+                            <div class="medical-badge">Blood Type: ${p.blood_type || 'Unknown'}</div>
+                            <div class="info-group">
+                                <label>Allergies</label>
+                                <div class="${p.has_allergies ? 'text-danger' : ''}">${p.has_allergies ? p.allergy_details : 'No known allergies'}</div>
+                            </div>
+                            <div class="info-group">
+                                <label>Chronic Conditions</label>
+                                <div class="${p.has_chronic_conditions ? 'text-danger' : ''}">${p.has_chronic_conditions ? p.condition_details : 'None reported'}</div>
+                            </div>
+                            <div class="info-group">
+                                <label>Medication</label>
+                                <div>${p.takes_regular_medication ? p.medication_details : 'No regular medication'}</div>
+                            </div>
+                            <div class="info-group">
+                                <label>Insurance Policy</label>
+                                <div>${p.insurance_policy_number || 'Not provided'}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } catch (e) {
+                content.innerHTML = `
+                    <div class="modal-error">
+                        <span class="material-icons-round">error_outline</span>
+                        <p>Could not retrieve tourist profile.</p>
+                        <p class="text-muted small">${e.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function closeTouristModal() {
+            document.getElementById('tourist-modal').style.display = 'none';
         }
 
         async function respondToSOS(id) {

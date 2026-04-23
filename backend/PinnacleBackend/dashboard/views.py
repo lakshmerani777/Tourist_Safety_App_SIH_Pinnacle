@@ -320,6 +320,20 @@ def api_tourist_profile(request, user_id):
         return JsonResponse({'error': str(e)}, status=400)
 
 
+@require_GET
+@dashboard_login_required
+def api_tourist_profile_by_email(request, email):
+    """API: Get tourist profile details by email."""
+    try:
+        profile = fs.get_tourist_profile_by_email(email)
+        if profile:
+            return JsonResponse({'status': 'ok', 'profile': profile})
+        else:
+            return JsonResponse({'error': f'Profile for {email} not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
 # ─── Helpers ─────────────────────────────────────────────────────
 
 def _get_base_prompt():

@@ -41,8 +41,22 @@ class DigitalIdNotifier extends StateNotifier<DigitalIdState> {
       final client = _ref.read(apiClientProvider);
       var data = await client.getDigitalId();
       if (data == null) {
-        state = state.copyWith(isLoading: false, isIssuing: true);
-        data = await client.issueDigitalId();
+        // No credential yet — try to issue one
+        try {
+          state = state.copyWith(isLoading: false, isIssuing: true);
+          data = await client.issueDigitalId();
+        } catch (issueErr) {
+          final msg = issueErr.toString();
+          if (msg.contains('Blockchain not configured') || msg.contains('503')) {
+            state = state.copyWith(
+              isLoading: false,
+              isIssuing: false,
+              error: 'Digital ID service is temporarily unavailable. Please try again later.',
+            );
+            return;
+          }
+          rethrow;
+        }
       }
       state = state.copyWith(data: data, isLoading: false, isIssuing: false);
     } catch (e) {

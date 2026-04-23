@@ -91,6 +91,9 @@
                 </div>
             </div>
             <div class="sos-card-actions">
+                <button class="btn btn-sm btn-info" onclick="showTouristDetails('{{ sos.reportedBy }}')">
+                    <span class="material-icons-round">person_search</span> View Details
+                </button>
                 {% if sos.status != 'responding' and sos.status != 'resolved' %}
                 <button class="btn btn-sm btn-danger" onclick="updateSOSStatus('{{ sos.id }}', 'responding')">
                     <span class="material-icons-round">phone_in_talk</span> Respond
