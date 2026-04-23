@@ -296,13 +296,12 @@ class _AlertCardState extends State<_AlertCard> {
             child: InkWell(
               onTap: () => setState(() => _isExpanded = !_isExpanded),
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.fromLTRB(20, 16, 16, 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        const SizedBox(width: 4), // Space for accent strip
                         Container(
                           width: 32,
                           height: 32,
@@ -340,75 +339,76 @@ class _AlertCardState extends State<_AlertCard> {
                           ),
                         ),
                         Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        StatusBadge(
-                          type: widget.alert.severity == 'HIGH'
-                              ? BadgeType.alert
-                              : widget.alert.severity == 'MEDIUM'
-                                  ? BadgeType.warning
-                                  : BadgeType.active,
-                          label: widget.alert.severity,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            StatusBadge(
+                              type: widget.alert.severity == 'HIGH'
+                                  ? BadgeType.alert
+                                  : widget.alert.severity == 'MEDIUM'
+                                      ? BadgeType.warning
+                                      : BadgeType.active,
+                              label: widget.alert.severity,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              _formatTime(widget.alert.issuedAt),
+                              style: AppTypography.caption.copyWith(fontSize: 10),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          _formatTime(widget.alert.issuedAt),
-                          style: AppTypography.caption.copyWith(fontSize: 10),
+                        const SizedBox(width: 8),
+                        Icon(
+                          _isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                          color: AppColors.textSecondary,
+                          size: 20,
                         ),
                       ],
                     ),
-                    const SizedBox(width: 8),
-                    Icon(
-                      _isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                      color: AppColors.textSecondary,
-                      size: 20,
-                    ),
-                  ],
-                ),
-
-                if (_isExpanded) ...[
-                  const SizedBox(height: 14),
-                  Divider(color: accentColor.withValues(alpha: 0.2), height: 1),
-                  const SizedBox(height: 14),
-                  Text(
-                    widget.alert.description,
-                    style: AppTypography.body.copyWith(
-                      color: AppColors.textSecondary,
-                      height: 1.6,
-                      fontSize: 14,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.alertRed.withValues(alpha: 0.1),
-                        foregroundColor: AppColors.alertRed,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          side: BorderSide(color: AppColors.alertRed.withValues(alpha: 0.4)),
-                        ),
-                      ),
-                      onPressed: widget.onCallPressed,
-                      icon: const Icon(Icons.phone, size: 18),
-                      label: Text(
-                        AppLocalizations.of(context)?.callHelpline ?? 'Call Tourist Helpline',
+                    if (_isExpanded) ...[
+                      const SizedBox(height: 14),
+                      Divider(color: accentColor.withValues(alpha: 0.2), height: 1),
+                      const SizedBox(height: 14),
+                      Text(
+                        widget.alert.description,
                         style: AppTypography.body.copyWith(
-                          color: AppColors.alertRed,
-                          fontWeight: FontWeight.w600,
+                          color: AppColors.textSecondary,
+                          height: 1.6,
                           fontSize: 14,
                         ),
                       ),
-                    ),
-                  ),
-                ],
-              ],
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.alertRed.withValues(alpha: 0.1),
+                            foregroundColor: AppColors.alertRed,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              side: BorderSide(color: AppColors.alertRed.withValues(alpha: 0.4)),
+                            ),
+                          ),
+                          onPressed: widget.onCallPressed,
+                          icon: const Icon(Icons.phone, size: 18),
+                          label: Text(
+                            AppLocalizations.of(context)?.callHelpline ?? 'Call Tourist Helpline',
+                            style: AppTypography.body.copyWith(
+                              color: AppColors.alertRed,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
