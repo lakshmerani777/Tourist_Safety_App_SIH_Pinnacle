@@ -11,6 +11,7 @@ import 'package:tourist_safety_app_sih_pinnacle/screens/emergency_contacts_scree
 import 'package:tourist_safety_app_sih_pinnacle/screens/report_incident_screen.dart';
 import 'package:tourist_safety_app_sih_pinnacle/screens/alerts_screen.dart';
 import 'package:tourist_safety_app_sih_pinnacle/screens/profile_screen.dart';
+import 'package:tourist_safety_app_sih_pinnacle/screens/digital_id_screen.dart';
 
 
 final GoRouter appRouter = GoRouter(
@@ -67,6 +68,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/profile',
       builder: (context, state) => const ProfileScreen(),
+    ),
+    GoRoute(
+      path: '/digital-id',
+      builder: (context, state) => const DigitalIDScreen(),
     ),
   ],
 );

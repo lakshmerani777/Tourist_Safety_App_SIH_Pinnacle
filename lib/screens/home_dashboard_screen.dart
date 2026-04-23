@@ -415,6 +415,12 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
                 color: AppColors.accentBlue,
                 onTap: () => context.push('/map'),
               ),
+              _QuickActionCard(
+                title: 'Digital\nID',
+                icon: Icons.verified_user_outlined,
+                color: AppColors.accentBlue,
+                onTap: () => context.push('/digital-id'),
+              ),
             ],
           ),
           const SizedBox(height: 28),

@@ -1,4 +1,5 @@
 import re
+from datetime import datetime
 from django.conf import settings
 from django.contrib.auth import authenticate, get_user_model, login
 from django.contrib.auth import logout as auth_logout
@@ -11,7 +12,11 @@ from dashboard.firebase_admin_service import (
     save_tourist_profile,
     get_tourist_profile,
     create_sos_incident,
+    db,
+    firestore,
 )
+from .models import TouristDigitalID
+from .blockchain_service import get_blockchain_service, is_mock_mode
 
 User = get_user_model()
 
@@ -234,6 +239,13 @@ class OnboardingView(APIView):
             data = {}
 
         save_tourist_profile(str(request.user.id), dict(data))
+
+        # Auto-issue blockchain credential — non-fatal if blockchain is unavailable
+        try:
+            _auto_issue_credential(request.user, dict(data))
+        except Exception:
+            pass
+
         return JsonResponse({'message': 'Profile saved successfully.'})
 
 
@@ -261,3 +273,221 @@ class SOSView(APIView):
         )
 
         return JsonResponse({'message': 'SOS alert triggered.', 'incident_id': incident_id})
+
+
+# ── Blockchain Digital ID ────────────────────────────────────────────────────
+
+
+def _auto_issue_credential(user, profile_data: dict):
+    if TouristDigitalID.objects.filter(user=user, is_active=True).exists():
+        return
+
+    full_name = (
+        f"{profile_data.get('first_name', '')} {profile_data.get('last_name', '')}".strip()
+        or user.first_name or 'Unknown'
+    )
+    nationality     = profile_data.get('nationality', 'Unknown')
+    passport_number = profile_data.get('passport_number', '')
+    if not passport_number:
+        return
+
+    svc    = get_blockchain_service()
+    result = svc.issue_credential(
+        user_id         = str(user.id),
+        full_name       = full_name,
+        nationality     = nationality,
+        passport_number = passport_number,
+        entry_point     = 'app_onboarding',
+    )
+
+    issued_at_dt = datetime.fromisoformat(result['issued_at'])
+    digital_id = TouristDigitalID.objects.create(
+        user              = user,
+        did               = result['did'],
+        credential_id_hex = result['credential_id_hex'],
+        data_hash_hex     = result['data_hash_hex'],
+        tx_hash           = result['tx_hash'],
+        issued_at         = issued_at_dt,
+        entry_point       = 'app_onboarding',
+    )
+
+    db.collection('digital_ids').document(str(user.id)).set({
+        'userId':          str(user.id),
+        'did':             result['did'],
+        'credentialIdHex': result['credential_id_hex'],
+        'dataHashHex':     result['data_hash_hex'],
+        'txHash':          result['tx_hash'],
+        'issuedAt':        firestore.SERVER_TIMESTAMP,
+        'entryPoint':      'app_onboarding',
+        'isActive':        True,
+    })
+
+    return digital_id
+
+
+class IssueCredentialView(APIView):
+    """
+    POST /api/digital-id/issue/
+    Issues an on-chain credential for the authenticated tourist.
+    Idempotent: returns existing credential if already issued.
+    """
+
+    def post(self, request):
+        if not request.user or not request.user.is_authenticated:
+            return JsonResponse({'error': 'Authentication required.'}, status=401)
+
+        user = request.user
+
+        try:
+            existing = TouristDigitalID.objects.get(user=user, is_active=True)
+            return JsonResponse({
+                'did':               existing.did,
+                'credential_id_hex': existing.credential_id_hex,
+                'data_hash_hex':     existing.data_hash_hex,
+                'tx_hash':           existing.tx_hash,
+                'issued_at':         existing.issued_at.isoformat(),
+                'entry_point':       existing.entry_point,
+                'explorer_url':      existing.sepolia_explorer_url,
+                'already_issued':    True,
+                'mock_mode':         is_mock_mode(),
+            }, status=200)
+        except TouristDigitalID.DoesNotExist:
+            pass
+
+        profile = get_tourist_profile(str(user.id))
+        if not profile:
+            return JsonResponse(
+                {'error': 'Tourist profile not found. Complete onboarding first.'},
+                status=400,
+            )
+
+        full_name = (
+            f"{profile.get('first_name', '')} {profile.get('last_name', '')}".strip()
+            or user.first_name or 'Unknown'
+        )
+        nationality     = profile.get('nationality', 'Unknown')
+        passport_number = profile.get('passport_number', '')
+        entry_point     = (request.data or {}).get('entry_point', 'app_onboarding')
+
+        if not passport_number:
+            return JsonResponse(
+                {'error': 'Passport number is required to issue a credential.'},
+                status=400,
+            )
+
+        try:
+            svc    = get_blockchain_service()
+            result = svc.issue_credential(
+                user_id         = str(user.id),
+                full_name       = full_name,
+                nationality     = nationality,
+                passport_number = passport_number,
+                entry_point     = entry_point,
+            )
+        except EnvironmentError as e:
+            return JsonResponse({'error': f'Blockchain not configured: {e}'}, status=503)
+        except Exception as e:
+            return JsonResponse({'error': f'Blockchain error: {e}'}, status=500)
+
+        issued_at_dt = datetime.fromisoformat(result['issued_at'])
+        digital_id = TouristDigitalID.objects.create(
+            user              = user,
+            did               = result['did'],
+            credential_id_hex = result['credential_id_hex'],
+            data_hash_hex     = result['data_hash_hex'],
+            tx_hash           = result['tx_hash'],
+            issued_at         = issued_at_dt,
+            entry_point       = entry_point,
+        )
+
+        db.collection('digital_ids').document(str(user.id)).set({
+            'userId':          str(user.id),
+            'did':             result['did'],
+            'credentialIdHex': result['credential_id_hex'],
+            'dataHashHex':     result['data_hash_hex'],
+            'txHash':          result['tx_hash'],
+            'issuedAt':        firestore.SERVER_TIMESTAMP,
+            'entryPoint':      entry_point,
+            'isActive':        True,
+        })
+
+        return JsonResponse({
+            'did':               digital_id.did,
+            'credential_id_hex': digital_id.credential_id_hex,
+            'data_hash_hex':     digital_id.data_hash_hex,
+            'tx_hash':           digital_id.tx_hash,
+            'issued_at':         digital_id.issued_at.isoformat(),
+            'entry_point':       digital_id.entry_point,
+            'explorer_url':      digital_id.sepolia_explorer_url,
+            'already_issued':    False,
+            'mock_mode':         is_mock_mode(),
+        }, status=201)
+
+
+class GetCredentialView(APIView):
+    """GET /api/digital-id/me/ — returns the authenticated tourist's digital ID."""
+
+    def get(self, request):
+        if not request.user or not request.user.is_authenticated:
+            return JsonResponse({'error': 'Authentication required.'}, status=401)
+
+        try:
+            did_obj = TouristDigitalID.objects.get(user=request.user, is_active=True)
+        except TouristDigitalID.DoesNotExist:
+            return JsonResponse({'error': 'No digital ID found.'}, status=404)
+
+        return JsonResponse({
+            'did':               did_obj.did,
+            'credential_id_hex': did_obj.credential_id_hex,
+            'data_hash_hex':     did_obj.data_hash_hex,
+            'tx_hash':           did_obj.tx_hash,
+            'issued_at':         did_obj.issued_at.isoformat(),
+            'entry_point':       did_obj.entry_point,
+            'explorer_url':      did_obj.sepolia_explorer_url,
+            'mock_mode':         is_mock_mode(),
+        })
+
+
+class VerifyCredentialView(APIView):
+    """
+    GET /api/digital-id/verify/<credential_id_hex>/
+    Public — no auth required. Police/check-points can verify by scanning the QR.
+    Degrades gracefully if Sepolia RPC is unavailable.
+    """
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, credential_id_hex: str):
+        try:
+            did_obj = TouristDigitalID.objects.get(
+                credential_id_hex=credential_id_hex
+            )
+        except TouristDigitalID.DoesNotExist:
+            return JsonResponse({'error': 'Credential not found in registry.'}, status=404)
+
+        try:
+            svc    = get_blockchain_service()
+            result = svc.verify_credential(credential_id_hex)
+        except Exception as e:
+            return JsonResponse({
+                'did':            did_obj.did,
+                'issued_at':      did_obj.issued_at.isoformat(),
+                'entry_point':    did_obj.entry_point,
+                'is_valid':       did_obj.is_active,
+                'chain_verified': False,
+                'chain_error':    str(e),
+                'explorer_url':   did_obj.sepolia_explorer_url,
+            })
+
+        hashes_match = (result['data_hash_hex'] == did_obj.data_hash_hex)
+
+        return JsonResponse({
+            'did':            did_obj.did,
+            'issued_at':      did_obj.issued_at.isoformat(),
+            'entry_point':    did_obj.entry_point,
+            'is_valid':       result['is_valid'] and did_obj.is_active and hashes_match,
+            'chain_verified': True,
+            'hashes_match':   hashes_match,
+            'issued_by':      result['issued_by'],
+            'explorer_url':   did_obj.sepolia_explorer_url,
+        })

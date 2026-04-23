@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import 'session_storage_service.dart';
+import 'digital_id_service.dart';
 
 /// Response from successful registration.
 class RegisterResponse {
@@ -190,5 +191,55 @@ class ApiClient {
       } catch (_) {}
     }
     throw ApiException(message, response.statusCode);
+  }
+
+  /// GET /api/digital-id/me/ — fetches the tourist's existing digital ID.
+  /// Returns null if not yet issued (404).
+  Future<DigitalIdData?> getDigitalId() async {
+    final uri = Uri.parse('$baseUrl/api/digital-id/me/');
+    final response = await http.get(uri, headers: await _headers());
+    if (response.statusCode == 404) return null;
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return DigitalIdData.fromJson(
+        jsonDecode(response.body) as Map<String, dynamic>,
+      );
+    }
+    throw ApiException('Failed to load digital ID.', response.statusCode);
+  }
+
+  /// POST /api/digital-id/issue/ — issues or returns the existing credential.
+  Future<DigitalIdData> issueDigitalId({String entryPoint = 'app_onboarding'}) async {
+    final uri = Uri.parse('$baseUrl/api/digital-id/issue/');
+    final response = await http.post(
+      uri,
+      headers: await _headers(),
+      body: jsonEncode({'entry_point': entryPoint}),
+    );
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return DigitalIdData.fromJson(
+        jsonDecode(response.body) as Map<String, dynamic>,
+      );
+    }
+    String msg = 'Failed to issue digital ID.';
+    try {
+      final b = jsonDecode(response.body) as Map<String, dynamic>;
+      if (b['error'] != null) msg = b['error'] as String;
+    } catch (_) {}
+    throw ApiException(msg, response.statusCode);
+  }
+
+  /// GET /api/digital-id/verify/{id}/ — public verification (no session needed).
+  Future<VerificationResult> verifyCredential(String credentialIdHex) async {
+    final uri = Uri.parse('$baseUrl/api/digital-id/verify/$credentialIdHex/');
+    final response = await http.get(
+      uri,
+      headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+    );
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return VerificationResult.fromJson(
+        jsonDecode(response.body) as Map<String, dynamic>,
+      );
+    }
+    throw ApiException('Verification failed.', response.statusCode);
   }
 }

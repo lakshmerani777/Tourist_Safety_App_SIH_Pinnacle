@@ -383,6 +383,52 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   ),
                   const SizedBox(height: 12),
 
+                  // Digital ID shortcut
+                  GestureDetector(
+                    onTap: () => context.push('/digital-id'),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      decoration: BoxDecoration(
+                        color: AppColors.card,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                            color: AppColors.accentBlue.withValues(alpha: 0.3)),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: AppColors.accentBlue.withValues(alpha: 0.12),
+                            ),
+                            child: const Icon(Icons.verified_user_outlined,
+                                color: AppColors.accentBlue, size: 18),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Digital Travel ID',
+                                    style: AppTypography.body.copyWith(
+                                        fontWeight: FontWeight.w600)),
+                                Text('Blockchain-issued credential & QR',
+                                    style: AppTypography.caption
+                                        .copyWith(fontSize: 11)),
+                              ],
+                            ),
+                          ),
+                          const Icon(Icons.chevron_right,
+                              color: AppColors.textSecondary, size: 20),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
                   // Account actions
                   SafetyButton(
                     text: AppLocalizations.of(context)?.signOutBtn ?? 'Sign Out',
