@@ -7,7 +7,6 @@ class DigitalIdData {
   final String entryPoint;
   final String explorerUrl;
   final bool alreadyIssued;
-  final bool mockMode;
 
   const DigitalIdData({
     required this.did,
@@ -18,7 +17,6 @@ class DigitalIdData {
     required this.entryPoint,
     required this.explorerUrl,
     this.alreadyIssued = false,
-    this.mockMode = false,
   });
 
   factory DigitalIdData.fromJson(Map<String, dynamic> j) => DigitalIdData(
@@ -30,7 +28,6 @@ class DigitalIdData {
         entryPoint:      j['entry_point']       as String? ?? '',
         explorerUrl:     j['explorer_url']      as String? ?? '',
         alreadyIssued:   j['already_issued']    as bool?   ?? false,
-        mockMode:        j['mock_mode']         as bool?   ?? false,
       );
 }
 

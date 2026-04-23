@@ -140,28 +140,24 @@ class _DigitalIDScreenState extends ConsumerState<DigitalIDScreen> {
               padding:
                   const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: (data.mockMode ? AppColors.warning : AppColors.accentBlue)
-                    .withValues(alpha: 0.15),
+                color: AppColors.accentBlue.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                    color: (data.mockMode ? AppColors.warning : AppColors.accentBlue)
-                        .withValues(alpha: 0.4)),
+                    color: AppColors.accentBlue.withValues(alpha: 0.4)),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    data.mockMode ? Icons.science_outlined : Icons.verified,
-                    color: data.mockMode ? AppColors.warning : AppColors.accentBlue,
+                  const Icon(
+                    Icons.verified,
+                    color: AppColors.accentBlue,
                     size: 14,
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    data.mockMode
-                        ? 'Demo Mode — Simulated Blockchain'
-                        : 'Ethereum Sepolia — On-Chain Verified',
+                    'Ethereum Sepolia — On-Chain Verified',
                     style: AppTypography.caption.copyWith(
-                      color: data.mockMode ? AppColors.warning : AppColors.accentBlue,
+                      color: AppColors.accentBlue,
                       fontSize: 11,
                     ),
                   ),

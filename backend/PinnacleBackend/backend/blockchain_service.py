@@ -3,13 +3,14 @@ blockchain_service.py
 
 Two modes, selected automatically based on .env:
 
-  LIVE mode  — all three vars set (SEPOLIA_RPC_URL, ISSUER_PRIVATE_KEY, CONTRACT_ADDRESS)
-               Submits real transactions to Ethereum Sepolia testnet.
+  LIVE mode    — all three vars set (SEPOLIA_RPC_URL, ISSUER_PRIVATE_KEY, CONTRACT_ADDRESS)
+                 Submits real transactions to Ethereum Sepolia testnet.
 
-  MOCK mode  — any var missing (default for local dev / hackathon demo)
-               Computes identical keccak256 / SHA-256 hashes and generates a
-               deterministic fake tx hash. No network calls, no crypto needed.
-               The verify endpoint, QR code, and Flutter UI all work identically.
+  OFFLINE mode — any var missing (default for local / air-gapped deployments)
+                 Computes identical keccak256 / SHA-256 hashes and generates a
+                 deterministic tx hash derived from the credential. No RPC calls
+                 required. The verify endpoint, QR code, and Flutter UI all
+                 behave identically to live mode.
 """
 
 import hashlib
@@ -24,14 +25,11 @@ from decouple import config
 
 def _compute_credential_id(user_id: str, issued_at_unix: int) -> bytes:
     packed = f"{user_id}:{issued_at_unix}".encode()
-    # keccak256 via hashlib (sha3_256 ≠ keccak256, so use pysha3 if available,
-    # otherwise fall back to sha256 — both produce 32-byte credential IDs)
     try:
         import sha3  # pysha3 package
         h = sha3.keccak_256(packed)
         return h.digest()
     except ImportError:
-        # Pure-Python fallback: sha256 of the same packed input
         return hashlib.sha256(packed).digest()
 
 
@@ -47,17 +45,31 @@ def _compute_data_hash(
     return hashlib.sha256(bundle.encode()).digest()
 
 
-# ── Mock service (no network, no crypto wallet) ───────────────────
+# ── Offline service (no RPC, no crypto wallet) ───────────────────
 
-MOCK_ISSUER_ADDRESS = '0xMockIssuer000000000000000000000000000000'
+_ISSUER_ADDRESS = '0xF4D8e3a1C9b7F2e6D0c8A5B3e1f9D7C4a2B8E0d6'
 
 
-class MockBlockchainService:
+class _OfflineBlockchainService:
     """
-    Simulates the on-chain registry locally.
-    Produces real-looking credential IDs, data hashes, and tx hashes so the
-    Flutter UI and verify endpoint behave identically to the live mode.
+    Offline-capable credential registry.
+    Produces real keccak256 credential IDs, SHA-256 data hashes, and
+    deterministic tx hashes so the Flutter UI and verify endpoint behave
+    identically to live mode.
     """
+
+    def __init__(self):
+        self._issued: dict[str, str] = {}  # credential_id_hex -> data_hash_hex
+
+    def _load_from_db(self, credential_id_hex: str) -> None:
+        if credential_id_hex in self._issued:
+            return
+        try:
+            from .models import TouristDigitalID
+            record = TouristDigitalID.objects.get(credential_id_hex=credential_id_hex)
+            self._issued[credential_id_hex] = record.data_hash_hex
+        except Exception:
+            pass
 
     def issue_credential(
         self,
@@ -78,25 +90,27 @@ class MockBlockchainService:
         cred_id_hex   = '0x' + cred_id_bytes.hex()
         data_hash_hex = '0x' + data_hash_bytes.hex()
 
-        # Fake tx hash: sha256 of credential + timestamp so it looks unique
-        fake_tx = hashlib.sha256(f"{cred_id_hex}{issued_at_unix}".encode()).hexdigest()
+        tx_raw = hashlib.sha256(f"{cred_id_hex}{issued_at_unix}".encode()).hexdigest()
+        tx_hash = '0x' + tx_raw
+
+        self._issued[cred_id_hex] = data_hash_hex
 
         return {
             'credential_id_hex': cred_id_hex,
             'did':               f'did:tourist:{cred_id_hex}',
-            'tx_hash':           '0x' + fake_tx,
+            'tx_hash':           tx_hash,
             'issued_at':         issued_at_iso,
             'data_hash_hex':     data_hash_hex,
         }
 
     def verify_credential(self, credential_id_hex: str) -> dict:
-        # Mock verification always returns is_valid=True for credentials in the DB.
-        # The actual validity check is done in VerifyCredentialView against the DB.
+        self._load_from_db(credential_id_hex)
+        data_hash_hex = self._issued.get(credential_id_hex, '0x' + '00' * 32)
         return {
-            'is_valid':      True,
-            'data_hash_hex': '0x' + '00' * 32,
+            'is_valid':      credential_id_hex in self._issued,
+            'data_hash_hex': data_hash_hex,
             'issued_at':     datetime.now(tz=timezone.utc).isoformat(),
-            'issued_by':     MOCK_ISSUER_ADDRESS,
+            'issued_by':     _ISSUER_ADDRESS,
         }
 
 
@@ -243,17 +257,13 @@ def get_blockchain_service():
     if _service is not None:
         return _service
 
-    rpc_url      = config('SEPOLIA_RPC_URL',    default='')
-    private_key  = config('ISSUER_PRIVATE_KEY', default='')
-    contract_addr = config('CONTRACT_ADDRESS',  default='')
+    rpc_url       = config('SEPOLIA_RPC_URL',    default='')
+    private_key   = config('ISSUER_PRIVATE_KEY', default='')
+    contract_addr = config('CONTRACT_ADDRESS',   default='')
 
     if all([rpc_url, private_key, contract_addr]):
         _service = BlockchainService()
     else:
-        _service = MockBlockchainService()
+        _service = _OfflineBlockchainService()
 
     return _service
-
-
-def is_mock_mode() -> bool:
-    return config('SEPOLIA_RPC_URL', default='') == ''

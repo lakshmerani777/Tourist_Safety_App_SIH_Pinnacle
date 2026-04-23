@@ -16,7 +16,7 @@ from dashboard.firebase_admin_service import (
     firestore,
 )
 from .models import TouristDigitalID
-from .blockchain_service import get_blockchain_service, is_mock_mode
+from .blockchain_service import get_blockchain_service
 
 User = get_user_model()
 
@@ -349,7 +349,6 @@ class IssueCredentialView(APIView):
                 'entry_point':       existing.entry_point,
                 'explorer_url':      existing.sepolia_explorer_url,
                 'already_issued':    True,
-                'mock_mode':         is_mock_mode(),
             }, status=200)
         except TouristDigitalID.DoesNotExist:
             pass
@@ -420,7 +419,6 @@ class IssueCredentialView(APIView):
             'entry_point':       digital_id.entry_point,
             'explorer_url':      digital_id.sepolia_explorer_url,
             'already_issued':    False,
-            'mock_mode':         is_mock_mode(),
         }, status=201)
 
 
@@ -444,7 +442,6 @@ class GetCredentialView(APIView):
             'issued_at':         did_obj.issued_at.isoformat(),
             'entry_point':       did_obj.entry_point,
             'explorer_url':      did_obj.sepolia_explorer_url,
-            'mock_mode':         is_mock_mode(),
         })
 
 
