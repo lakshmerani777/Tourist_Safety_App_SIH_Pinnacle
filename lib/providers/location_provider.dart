@@ -1,13 +1,18 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:geolocator_android/geolocator_android.dart';
 import 'package:geocoding/geocoding.dart';
 import '../services/location_anomaly_service.dart';
 
 class LocationNotifier extends ChangeNotifier {
-  LatLng _currentPosition = const LatLng(19.062641, 72.830899); // Default: Bandra
+  static const LatLng _fallbackPosition = LatLng(19.0709485, 72.8760233);
+  static const String _fallbackAddress = 'ATLAS SkillTech University';
+
+  LatLng _currentPosition = _fallbackPosition;
   LatLng? _lastGeocodedPosition;
   String _currentAddress = 'Locating...';
   bool _isTracking = false;
@@ -34,7 +39,8 @@ class LocationNotifier extends ChangeNotifier {
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        _currentAddress = 'Location services disabled';
+        _currentPosition = _fallbackPosition;
+        _currentAddress = _fallbackAddress;
         _isLoading = false;
         notifyListeners();
         return;
@@ -44,7 +50,8 @@ class LocationNotifier extends ChangeNotifier {
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
-          _currentAddress = 'Location permission denied';
+          _currentPosition = _fallbackPosition;
+          _currentAddress = _fallbackAddress;
           _isLoading = false;
           notifyListeners();
           return;
@@ -52,24 +59,44 @@ class LocationNotifier extends ChangeNotifier {
       }
 
       if (permission == LocationPermission.deniedForever) {
-        _currentAddress = 'Location permissions permanently denied';
+        _currentPosition = _fallbackPosition;
+        _currentAddress = _fallbackAddress;
         _isLoading = false;
         notifyListeners();
         return;
       }
 
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
+      Position? position = await Geolocator.getLastKnownPosition();
+      if (position == null) {
+        try {
+          position = await Geolocator.getCurrentPosition(
+            locationSettings: _locationSettings(LocationAccuracy.high, 20),
+          );
+        } catch (_) {
+          try {
+            position = await Geolocator.getCurrentPosition(
+              locationSettings: _locationSettings(LocationAccuracy.low, 30),
+            );
+          } catch (_) {
+            // Will start tracking stream below to get position asynchronously
+          }
+        }
+      }
 
-      _currentPosition = LatLng(position.latitude, position.longitude);
-      _lastGeocodedPosition = _currentPosition;
-      await _updateAddressFromPosition(position);
-
-      startTracking(); // Automatically begin listening to movement stream
+      if (position != null) {
+        _currentPosition = LatLng(position.latitude, position.longitude);
+        _lastGeocodedPosition = _currentPosition;
+        await _updateAddressFromPosition(position);
+      } else {
+        _currentPosition = _fallbackPosition;
+        _currentAddress = _fallbackAddress;
+      }
 
     } catch (e) {
-      _currentAddress = 'Failed to get location';
+      _currentPosition = _fallbackPosition;
+      _currentAddress = _fallbackAddress;
+    } finally {
+      startTracking(); // Always start stream regardless of initial fetch result
     }
 
     _isLoading = false;
@@ -103,16 +130,36 @@ class LocationNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
+  LocationSettings _locationSettings(LocationAccuracy accuracy, int timeLimitSeconds) {
+    if (Platform.isAndroid) {
+      return AndroidSettings(
+        accuracy: accuracy,
+        timeLimit: Duration(seconds: timeLimitSeconds),
+      );
+    }
+    return LocationSettings(
+      accuracy: accuracy,
+      timeLimit: Duration(seconds: timeLimitSeconds),
+    );
+  }
+
   void startTracking() {
     if (_isTracking) return;
     _isTracking = true;
     notifyListeners();
 
+    final streamSettings = Platform.isAndroid
+        ? AndroidSettings(
+            accuracy: LocationAccuracy.high,
+            distanceFilter: 10,
+          )
+        : const LocationSettings(
+            accuracy: LocationAccuracy.high,
+            distanceFilter: 10,
+          );
+
     _positionStreamSubscription = Geolocator.getPositionStream(
-      locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 10, // Wait to update stream every 10 meters
-      ),
+      locationSettings: streamSettings,
     ).listen((Position position) {
       _currentPosition = LatLng(position.latitude, position.longitude);
       _lastUpdateTime = DateTime.now();
