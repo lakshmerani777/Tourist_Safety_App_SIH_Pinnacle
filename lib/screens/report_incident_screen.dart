@@ -189,7 +189,7 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
     final locationState = ref.watch(locationProvider);
     final locationText = locationState.currentAddress.isNotEmpty
         ? locationState.currentAddress
-        : '16th Road, Bandra West';
+        : '${locationState.currentPosition.latitude.toStringAsFixed(4)}, ${locationState.currentPosition.longitude.toStringAsFixed(4)}';
 
     return Scaffold(
       backgroundColor: AppColors.background,

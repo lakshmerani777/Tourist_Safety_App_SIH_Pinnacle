@@ -35,6 +35,12 @@ class _ChatbotOverlayState extends State<ChatbotOverlay>
       vsync: this,
       duration: const Duration(milliseconds: 1200),
     )..repeat();
+    _inputFocusNode.addListener(() {
+      if (_inputFocusNode.hasFocus) {
+        // Delay slightly to let keyboard animation settle, then scroll
+        Future.delayed(const Duration(milliseconds: 350), _scrollToBottom);
+      }
+    });
     _initGemini();
   }
 
@@ -314,9 +320,10 @@ class _ChatbotOverlayState extends State<ChatbotOverlay>
   }
 
   Widget _buildInputBar() {
+    final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
     return Container(
       padding: EdgeInsets.fromLTRB(
-          16, 12, 16, 12 + MediaQuery.paddingOf(context).bottom),
+          16, 12, 16, 12 + (bottomInset > 0 ? bottomInset : MediaQuery.paddingOf(context).bottom)),
       decoration: BoxDecoration(
         color: AppColors.card,
         border: Border(top: BorderSide(color: AppColors.border)),

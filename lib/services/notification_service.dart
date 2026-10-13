@@ -76,4 +76,51 @@ class NotificationService {
   Future<void> cancelAnomalyNotification() async {
     await _plugin.cancel(1001);
   }
+
+  /// Show a police-issued safety alert notification.
+  Future<void> showAlertNotification({
+    required String title,
+    required String body,
+    required String severity,
+  }) async {
+    final color = severity == 'HIGH'
+        ? const Color(0xFFEF4444)
+        : severity == 'MEDIUM'
+            ? const Color(0xFFF59E0B)
+            : const Color(0xFF3B82F6);
+
+    final androidDetails = AndroidNotificationDetails(
+      'police_alerts',
+      'Police Alerts',
+      channelDescription: 'Safety alerts issued by police via the dashboard',
+      importance: Importance.max,
+      priority: Priority.high,
+      icon: '@mipmap/ic_launcher',
+      color: color,
+      enableVibration: true,
+      playSound: true,
+      styleInformation: BigTextStyleInformation(body),
+    );
+
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+
+    final details = NotificationDetails(
+      android: androidDetails,
+      iOS: iosDetails,
+    );
+
+    // Use hashCode of title + timestamp for unique ID
+    final notifId = title.hashCode.abs() % 100000 + 2000;
+
+    await _plugin.show(
+      notifId,
+      '🚨 $title',
+      body,
+      details,
+    );
+  }
 }

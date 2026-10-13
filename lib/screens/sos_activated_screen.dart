@@ -10,6 +10,8 @@ import '../providers/api_providers.dart';
 import '../providers/onboarding_provider.dart';
 import '../providers/location_provider.dart';
 import '../services/firestore_service.dart';
+import 'dart:io';
+import 'package:url_launcher/url_launcher.dart';
 import '../l10n/app_localizations.dart';
 
 class SOSActivatedScreen extends ConsumerStatefulWidget {
@@ -60,7 +62,38 @@ class _SOSActivatedScreenState extends ConsumerState<SOSActivatedScreen>
         ? '+${profile.phoneCode}${profile.phoneNumber}'
         : 'Not provided';
 
-    // Write directly to Firestore for real-time dashboard pickup
+    // 1. Check for Internet Connection
+    bool hasInternet = true;
+    try {
+      final result = await InternetAddress.lookup('google.com')
+          .timeout(const Duration(seconds: 3));
+      hasInternet = result.isNotEmpty && result[0].rawAddress.isNotEmpty;
+    } catch (_) {
+      hasInternet = false;
+    }
+
+    // 2. Offline Fallback: Send SMS directly
+    if (!hasInternet) {
+      if (mounted) {
+         ScaffoldMessenger.of(context).showSnackBar(
+           const SnackBar(
+             content: Text('No internet detected. Attempting to send SMS SOS.'),
+             backgroundColor: Colors.red,
+             duration: Duration(seconds: 4),
+           ),
+         );
+      }
+      final message = 'EMERGENCY SOS: I need help!\nName: $name\nLocation: ${location.currentAddress}\nGPS: ${location.currentPosition.latitude}, ${location.currentPosition.longitude}';
+      
+      // Determine URI scheme depending on platform, but standard `sms:?body=` works for most
+      final uri = Uri.parse('sms:112?body=${Uri.encodeComponent(message)}');
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri);
+      }
+      return; // Stop here, no point trying the network APIs
+    }
+
+    // 3. Online: Write directly to Firestore for real-time dashboard pickup
     try {
       final firestore = FirestoreService();
       await firestore.submitSOSToFirestore(
@@ -73,7 +106,7 @@ class _SOSActivatedScreenState extends ConsumerState<SOSActivatedScreen>
       );
     } catch (_) {}
 
-    // Also try via API
+    // 4. Online: Also try via Django API
     try {
       await ref.read(apiClientProvider).triggerSOS(
         latitude: location.currentPosition.latitude,
@@ -82,9 +115,7 @@ class _SOSActivatedScreenState extends ConsumerState<SOSActivatedScreen>
         touristName: name,
         nationality: nationality,
       );
-    } catch (_) {
-      // SOS is best-effort via API; Firestore already records directly.
-    }
+    } catch (_) {}
   }
 
   @override
@@ -127,7 +158,12 @@ class _SOSActivatedScreenState extends ConsumerState<SOSActivatedScreen>
   @override
   Widget build(BuildContext context) {
     final sos = ref.watch(sosProvider);
+    final location = ref.watch(locationProvider);
     _maybeTriggerSOS(sos.countdown);
+
+    final displayLocation = location.currentAddress.isNotEmpty 
+        ? location.currentAddress 
+        : '${location.currentPosition.latitude.toStringAsFixed(4)}, ${location.currentPosition.longitude.toStringAsFixed(4)}';
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -180,7 +216,7 @@ class _SOSActivatedScreenState extends ConsumerState<SOSActivatedScreen>
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              AppLocalizations.of(context)?.mockLocation ?? '16th Road, Bandra West',
+                              displayLocation,
                               style: AppTypography.body.copyWith(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 15,
@@ -260,7 +296,7 @@ class _SOSActivatedScreenState extends ConsumerState<SOSActivatedScreen>
                     children: [
                       _DetailRow(AppLocalizations.of(context)?.sosNameLabel ?? 'Name', 'Tourist User'),
                       const Divider(color: AppColors.border, height: 20),
-                      _DetailRow(AppLocalizations.of(context)?.sosLocationLabel ?? 'Location', AppLocalizations.of(context)?.mockLocation ?? '16th Road, Bandra West'),
+                      _DetailRow(AppLocalizations.of(context)?.sosLocationLabel ?? 'Location', displayLocation),
                       const Divider(color: AppColors.border, height: 20),
                       _DetailRow(AppLocalizations.of(context)?.sosTimestampLabel ?? 'Timestamp', _getCurrentTime()),
                     ],

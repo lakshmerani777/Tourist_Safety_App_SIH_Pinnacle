@@ -16,6 +16,8 @@ import '../providers/user_profile_provider.dart';
 import '../l10n/app_localizations.dart';
 import '../services/firestore_service.dart';
 import '../models/firestore_models.dart';
+import '../services/alert_listener_service.dart';
+import '../services/geofence_service.dart';
 import 'location_sharing_sheet.dart';
 
 class HomeDashboardScreen extends ConsumerStatefulWidget {
@@ -49,6 +51,12 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
 
     WidgetService.init(appRouter);
     WidgetService.updateSafetyStatus(isProtected: true);
+
+    // Start listening for police-issued alerts from the dashboard
+    AlertListenerService.instance.startListening(context);
+
+    // Start Geofence monitoring
+    GeofenceService.instance.startService(context, ref.read(locationProvider));
   }
 
   Future<void> _fetchProfile() async {
@@ -67,6 +75,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
   @override
   void dispose() {
     _pulseController.dispose();
+    AlertListenerService.instance.stopListening();
     super.dispose();
   }
 

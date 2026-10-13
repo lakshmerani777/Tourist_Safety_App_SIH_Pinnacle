@@ -103,6 +103,13 @@ class LocationNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setMockLocation(LatLng point) {
+    _currentPosition = point;
+    _currentAddress = 'Mocked Location (Demo)';
+    _lastUpdateTime = DateTime.now();
+    notifyListeners();
+  }
+
   Future<void> _updateAddressFromPosition(Position position) async {
     try {
       List<Placemark> placemarks = await placemarkFromCoordinates(

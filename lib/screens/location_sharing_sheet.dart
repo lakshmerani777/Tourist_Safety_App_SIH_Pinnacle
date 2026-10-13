@@ -96,8 +96,9 @@ class LocationSharingSheet extends ConsumerWidget {
                         ),
                         children: [
                           TileLayer(
-                            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                            userAgentPackageName: 'com.example.tourist_safety_app',
+                            urlTemplate: 'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',
+                            subdomains: const ['a', 'b', 'c'],
+                            userAgentPackageName: 'com.pinnacle.touristsafety',
                           ),
                           MarkerLayer(
                             markers: [

@@ -287,7 +287,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               const Divider(color: AppColors.border, height: 1),
                               _InfoRow(
                                 label: AppLocalizations.of(context)?.fullAddress ?? 'Address',
-                                value: data.fullAddress.isNotEmpty ? data.fullAddress : 'Byramji Jeejeebhoy Rd, Bandra West',
+                                value: data.fullAddress.isNotEmpty ? data.fullAddress : 'Address not set',
                               ),
                               const Divider(color: AppColors.border, height: 1),
                               _InfoRow(label: AppLocalizations.of(context)?.roomUnit ?? 'Room', value: data.roomNumber.isNotEmpty ? data.roomNumber : '402'),
@@ -630,7 +630,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           const SizedBox(height: 12),
           InputField(
             label: AppLocalizations.of(context)?.fullAddress ?? 'Full Address',
-            controller: TextEditingController(text: data.fullAddress.isNotEmpty ? data.fullAddress : 'Byramji Jeejeebhoy Rd, Bandra West'),
+            controller: TextEditingController(text: data.fullAddress),
             maxLines: 2,
             onChanged: (val) => notifier.setFullAddress(val),
           ),

@@ -28,9 +28,10 @@ document.addEventListener('DOMContentLoaded', () => {
         zoomControl: true,
     });
 
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap',
+    L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Tiles courtesy of <a href="https://www.openstreetmap.fr">OpenStreetMap France</a>',
         maxZoom: 19,
+        subdomains: 'abc',
     }).addTo(map);
 
     zonesLayer = L.featureGroup().addTo(map);
@@ -177,13 +178,13 @@ function renderTourists(tourists) {
         // Draw marker
         const latlng = [t.latitude, t.longitude];
         
-        // Custom HTML marker
-        const markerHtml = `<div class="tourist-marker ${isAnomaly ? 'anomaly' : ''}" style="width:100%;height:100%;"></div>`;
+        // Custom HTML marker — person icon
+        const markerHtml = `<div class="tourist-marker ${isAnomaly ? 'anomaly' : ''}"><span class="material-icons-round">person</span></div>`;
         const icon = L.divIcon({
             html: markerHtml,
             className: '',
-            iconSize: isAnomaly ? [24, 24] : [16, 16],
-            iconAnchor: isAnomaly ? [12, 12] : [8, 8],
+            iconSize: isAnomaly ? [36, 36] : [30, 30],
+            iconAnchor: isAnomaly ? [18, 18] : [15, 15],
         });
 
         const marker = L.marker(latlng, { icon }).addTo(touristsLayer);

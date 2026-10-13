@@ -35,14 +35,116 @@ class _MapViewScreenState extends ConsumerState<MapViewScreen> {
   }
 
   Color _severityColor(String severity) {
-    switch (severity) {
+    switch (severity.toUpperCase()) {
       case 'HIGH':
         return AppColors.alertRed;
       case 'MEDIUM':
         return AppColors.warning;
+      case 'LOW':
+        return const Color(0xFF10B981); // Green
       default:
         return AppColors.accentBlue;
     }
+  }
+
+  bool _isPointInPolygon(LatLng point, List<LatLng> polygon) {
+    int intersectCount = 0;
+    for (int j = 0; j < polygon.length - 1; j++) {
+      if (_rayCastIntersect(point, polygon[j], polygon[j + 1])) {
+        intersectCount++;
+      }
+    }
+    if (_rayCastIntersect(point, polygon.last, polygon.first)) {
+      intersectCount++;
+    }
+    return (intersectCount % 2) == 1;
+  }
+
+  bool _rayCastIntersect(LatLng point, LatLng vertA, LatLng vertB) {
+    double aY = vertA.latitude;
+    double bY = vertB.latitude;
+    double aX = vertA.longitude;
+    double bX = vertB.longitude;
+    double pY = point.latitude;
+    double pX = point.longitude;
+
+    if ((aY > pY && bY > pY) || (aY < pY && bY < pY) || (aX < pX && bX < pX)) {
+      return false;
+    }
+    double m = (aY - bY) / (aX - bX);
+    double bee = (-aX) * m + aY;
+    double x = (pY - bee) / m;
+
+    return x > pX;
+  }
+
+  void _showZoneDetails(UnsafeZone zone) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.background,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        final color = _severityColor(zone.severity);
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: color.withValues(alpha: 0.15),
+                      ),
+                      child: Icon(Icons.warning_rounded, color: color, size: 28),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(zone.name, style: AppTypography.h2),
+                          const SizedBox(height: 4),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: color.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              '${zone.severity} SEVERITY',
+                              style: AppTypography.caption.copyWith(
+                                color: color,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                Text('Description', style: AppTypography.h2.copyWith(fontSize: 16)),
+                const SizedBox(height: 8),
+                Text(
+                  zone.description.isNotEmpty ? zone.description : 'No description provided.',
+                  style: AppTypography.body.copyWith(color: AppColors.textSecondary),
+                ),
+                const SizedBox(height: 24),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -67,34 +169,53 @@ class _MapViewScreenState extends ConsumerState<MapViewScreen> {
                     options: MapOptions(
                       initialCenter: location.currentPosition,
                       initialZoom: 14.0,
+                      onTap: (tapPosition, point) {
+                        for (final zone in zones) {
+                          if (_isPointInPolygon(point, zone.polygon)) {
+                            _showZoneDetails(zone);
+                            return; // Only show one if overlapping
+                          }
+                        }
+                      },
+                      onLongPress: (tapPosition, point) {
+                        // Demo feature: Long press to mock GPS location and test geofence
+                        ref.read(locationProvider).setMockLocation(point);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Mocked Location to this point for Demo')),
+                        );
+                      },
                     ),
                     children: [
                       TileLayer(
-                        urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                        userAgentPackageName: 'com.example.tourist_safety_app_sih_pinnacle',
+                        urlTemplate: 'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',
+                        subdomains: const ['a', 'b', 'c'],
+                        userAgentPackageName: 'com.pinnacle.touristsafety',
                       ),
                       // Unsafe zone polygons from Firestore
                       if (zones.isNotEmpty)
                         PolygonLayer(
-                          polygons: zones.map((z) => Polygon(
-                            points: z.polygon,
-                            color: AppColors.alertRed.withValues(alpha: 0.25),
-                            borderColor: AppColors.alertRed.withValues(alpha: 0.7),
-                            borderStrokeWidth: 3,
-                            label: '⚠ ${z.name}',
-                            labelStyle: AppTypography.caption.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 13,
-                              shadows: [
-                                const Shadow(
-                                  blurRadius: 4,
-                                  color: Colors.black54,
-                                  offset: Offset(1, 1),
-                                ),
-                              ],
-                            ),
-                          )).toList(),
+                          polygons: zones.map((z) {
+                            final zoneColor = _severityColor(z.severity);
+                            return Polygon(
+                              points: z.polygon,
+                              color: zoneColor.withValues(alpha: 0.25),
+                              borderColor: zoneColor.withValues(alpha: 0.7),
+                              borderStrokeWidth: 3,
+                              label: '⚠ ${z.name}',
+                              labelStyle: AppTypography.caption.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 13,
+                                shadows: [
+                                  const Shadow(
+                                    blurRadius: 4,
+                                    color: Colors.black54,
+                                    offset: Offset(1, 1),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList(),
                         ),
                       // User location marker
                       MarkerLayer(

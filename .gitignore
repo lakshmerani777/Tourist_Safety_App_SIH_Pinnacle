@@ -56,3 +56,6 @@ android/gradle.properties
 testgeimini.py
 # Firebase service account credentials
 firebase-service-account.json
+
+# Local database (contains user data)
+*.sqlite3

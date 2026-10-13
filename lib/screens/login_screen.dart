@@ -202,6 +202,38 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     onPressed: _onSignIn,
                     isLoading: _isLoading,
                   ),
+                  const SizedBox(height: 16),
+                  // Demo skip button
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () async {
+                        ref.read(userProfileProvider).setRegistered(
+                          'Demo Tourist',
+                          'demo@touristsafety.app',
+                        );
+                        ref.read(userProfileProvider).setOnboarded();
+                        await AuthFlowPersistence.saveAuthFlowRoute('/home');
+                        if (!mounted) return;
+                        context.go('/home');
+                      },
+                      icon: const Icon(Icons.arrow_forward_rounded, size: 18),
+                      label: const Text('Continue as Demo User'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.accentBlue,
+                        side: BorderSide(
+                          color: AppColors.accentBlue.withValues(alpha: 0.4),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        textStyle: AppTypography.body.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 24),
                   Row(
                     children: [
